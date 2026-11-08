@@ -1,0 +1,75 @@
+# Plan
+
+Portfolio site for Patrick's work as an AI/LLM engineer. The first piece is **Vision**, his self-hosted agent harness. Planned 2026-11-04. Decisions in [DECISIONS](DECISIONS.md), the design in [ARCHITECTURE](ARCHITECTURE.md), sources in [RESEARCH](RESEARCH.md), and Patrick's own steps in [STEPS](STEPS.md).
+
+## How we work
+
+- **One phase at a time, items in order.** Each item gets a short plan (scope, files, done-when, cost) and Patrick's OK before the build.
+- **Builds run in Claude Code cloud sessions** on the `portfolio-site` repo, public in the organization `patrick-diaz-lab` (D4, D20). Nothing is built on the Vision machine.
+- **Everything pushed is public at once,** on any branch. A branch is pushed only after the pre-push scan passes (D20).
+- **Sessions act only on what Patrick writes.** Issues, PRs, comments and branches from other accounts are never read or acted on (`CLAUDE.md`, D20).
+- **Work goes to a branch and a PR.** Patrick reviews and merges: his merge is the approval for content (D8).
+- **Versions pinned,** releases at least two weeks old. Re-check pin candidates from [RESEARCH](RESEARCH.md) at the start of each item.
+- **Secrets only in the Cloudflare dashboard, the Anthropic Console or Patrick's password manager.** Never in git, cloud-environment variables (except the read-only docs token, D10) or chat.
+- **Cost limits:** chat $5/month (`portfolio-chat`), tests on a small separate cap (`portfolio-dev`) (D15). Build sessions run on the subscription.
+
+## Phase 0 — Setup
+
+| # | Item | Done when |
+|---|---|---|
+| 0.1 | Patrick's accounts and repo settings ([STEPS](STEPS.md) A) | `patrick-diaz-lab` org settings set; `portfolio-site` (public) exists with these docs as a fresh single-commit history; secret scanning and push protection on; interaction limits on; ruleset on `main` (a direct push to `main` from the local clone is refused); Cloudflare account exists; `patrickdiaz.dev` registered |
+| 0.2 | Repo scaffold: pnpm pins (`packageManager`, `minimumReleaseAge` 14 days, build-script allowlist), `pnpm check` (types, schemas, links, secret scan with pinned gitleaks, redaction scan), pre-commit/pre-push hooks, Claude settings that deny `--no-verify` and `gh pr merge`, `.gitignore` (`.env*`, `.cache/`), a GitHub Actions `check` workflow (read-only token, no output of matched words) added to the ruleset as a required status check (D20) | `pnpm check` passes on the empty site and fails on each planted test finding (IP, path, secret pattern, deny-list word from a test list); a PR with a planted finding can't be merged |
+| 0.3 | Cloud environment `portfolio` and access tests (D8, D10) | `check-tools` shows Node ≥ 22.22.0; the setup step sparse-clones IC `docs/` at a pinned commit into `.cache/vision-src`; a `git push` to the IC repo fails; a cloud-session merge of a test PR and a direct push to `main` both fail (otherwise the D8 fallback goes to Patrick) |
+| 0.4 | Cloudflare build pipeline (D7) | A hello page deploys from a merge to `main`; builds for other branches are off; a branch with a planted finding fails the Cloudflare build with rule and `file:line` but no deny-list word in the log; Worker logs off |
+
+## Phase 1 — MVP: one piece, the map, four detail pages, no chatbot
+
+| # | Item | Done when |
+|---|---|---|
+| 1.1 | Design system from Patrick's inspiration (D13): palette, lettering, texture, type scale, focus styles | Palette passes WCAG AA in axe; a style sheet page renders every token; Patrick approves screenshots (desktop + phone) |
+| 1.2 | Content model and piece template (D6, D19): collections, schemas, build rules | Schemas reject a test part with a missing field, a missing anchor, a `built` part without the four entry kinds, and free text in `evals[]` |
+| 1.3 | Vision overview page and map: annotated schematic SVG, `map.yaml`, hover/focus cards, phone layout as a vertical wire, list fallback | Every map part is a focusable link with a name; first tap opens the card on touch; works with JS off; motion off under reduced motion; Lighthouse mobile ≥ 95 |
+| 1.3a | Pre-push deny-list scan in sessions (D20). Required before 1.4 | A session can't push a branch with a planted deny-list word; the hit names the rule and `file:line`, never the word |
+| 1.4 | Detail page: LiteLLM gateway, aliases and budgets | Page and its knowledge entries merged by Patrick; scan clean in the Cloudflare build |
+| 1.5 | Detail page: Agent core, routing and tool use | Same as 1.4 |
+| 1.6 | Detail page: Eval harness (aggregates, with/without pairs only where measured) | Same as 1.4; every number traces to an IC doc on `master` |
+| 1.7 | Detail page: Guardrails for the coding agent (layers and reasons, no rules or patterns) | Same as 1.4; Patrick's checklist for this page signed off in the PR |
+| 1.8 | Quality gates in `pnpm check` and CI: axe on every page, Lighthouse budget, no-JS test, reduced-motion test, Playwright screenshots | All gates run in the Cloudflare build or the session and pass; a deliberately broken focus style fails |
+| 1.9 | Launch: About page (bio by Patrick, education, links, D18), Privacy page (no cookies yet), domain live, contact alias | `https://patrickdiaz.dev` serves the MVP; `hello@` forwards; no third-party requests on any page |
+
+## Phase 2 — Shared knowledge index
+
+| # | Item | Done when |
+|---|---|---|
+| 2.1 | Chunker in the build: approved knowledge entries → `chunks.json` + keyword index + corpus hash (D6) | Chunks follow Vision's rule (by heading, 500–800 tokens, ~10 % overlap); the build reads only `content/knowledge/**` |
+| 2.2 | `knowledge` Worker: Vectorize index with metadata indexes `piece` and `kind`, cron sync through bindings, hybrid retrieval (RRF k = 60), keyword fallback while the index lags | `retrieve()` over a Service Binding returns cited chunks; a changed entry is re-embedded on the next cron; a deleted one disappears; no Cloudflare API token anywhere |
+| 2.3 | Retrieval eval and `/_status` | `evals/retrieval.yaml` (≥ 25 visitor-style questions) reaches hit@5 ≥ 0.8; `/_status` shows only index version, chunk count and hit@5; Workers Free shown to fail closed when its allowance is used up (or a usage alert set if it bills) |
+
+## Phase 3 — Chatbot "Ask about this project"
+
+| # | Item | Done when |
+|---|---|---|
+| 3.1 | Anthropic workspaces and keys ([STEPS](STEPS.md) C) | `portfolio-chat` ($5) and `portfolio-dev` (small cap) exist with limits set; keys only in the Worker secret store |
+| 3.2 | Chat Worker: invisible Turnstile, session cookie, anonymous limits, global daily breaker with a capped anonymous share (values as Worker settings, not in the repo), daily totals in a Durable Object, Haiku 5.5 with citations (D6, D11, D16) | Over-limit returns 429 with a polite message; no question text in any store or log (checked by a test that greps the DO and logs); answers are plain text with own-domain links only |
+| 3.3 | Starter chips with pre-written answers (D17) | 8 answers merged by Patrick; clicking or typing a starter makes no model call (test counts zero API calls) |
+| 3.4 | Prompt-injection and scope tests against `portfolio-dev` | ≥ 30 attack prompts (prompt extraction, role play, off-topic, encoded, multi-turn, markup injection): 0 leak-marker hits, 0 off-domain links, polite refusal off-topic; < $0.10 per run |
+| 3.5 | Invite tooling (D16): `pnpm invite create/stats/revoke`, Ed25519 | A valid invite raises the limit to its own counter; an expired, revoked or forged one is refused; the URL is clean after the swap; stats show ids and counts only |
+| 3.6 | Privacy notice updated: what's sent, to whom, what's kept, cookies; Anthropic's API retention terms quoted | Patrick approves the text in the PR |
+| 3.7 | Chat launch | The site works with the chat off (kill switch); with it on, a phone test by Patrick passes |
+
+## Phase 4 — Public read-only MCP endpoint
+
+| # | Item | Done when |
+|---|---|---|
+| 4.1 | `/mcp` (Streamable HTTP) with `search_portfolio` and `get_page`, per-surface daily counter, kill switch, pinned SDK (D6) | A real MCP client connects and gets cited results; over the counter returns 429; switching it off leaves the chat working |
+
+## Phase 5 — Later (ideas, each needs its own plan)
+
+- **Design note pages** for planned parts (job contract, sandbox, heartbeat): problem, decision, rejected options, labelled **"designed, not built"**, never shown as running (D19).
+- **Second piece** (5.1). Done-when: a new piece is a folder plus its SVG, with no code change.
+- **Isometric machine room** as a hero image (D13). May need Patrick's assets or an illustrator.
+- **Portrait** (D18), **`patrickdiaz.ch` redirect** if the job search focuses on Switzerland (D14).
+
+## Outside this plan
+
+Hardening of the IC repo and of the Vision machine is handled in the IC repo, under its own rules (D5).
