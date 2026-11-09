@@ -34,6 +34,7 @@ Each decision lists the options that were rejected and why. Decided in the plann
 - **Consequences (from research, details in [RESEARCH](RESEARCH.md#4-building-it-with-claude-code)):**
   - **Vision docs come in through a clone, not as a second attached repo.** A cloud session with several repositories doesn't load any repo's `.claude/settings.json` hooks or permissions, so sessions stay single-repo and clone the source notes inside the VM. Since D21 the clone is of the public export repo, never of the IC repo.
   - The GitHub proxy doesn't limit which branches a push can update, so every repo the Claude GitHub App can reach is pushable from a session. The app is installed on `portfolio-site` only (D10).
+  - **Seen in item 0.3 (2026-11-09):** the session's git proxy refuses every repo outside the session's own set, before GitHub is asked (T3, and the IC read in D21). It also refused deleting a branch on `portfolio-site` (`HTTP 403`), so Patrick deletes test branches in the browser.
   - These planning docs were committed in a local clone. Patrick creates the GitHub repo and pushes them.
 
 ## D5 — Secret denies on the Vision machine are IC hardening, outside this project
@@ -105,7 +106,13 @@ Decided 2026-11-04 (planning Q12, replaced by Patrick's design). **D20 (2026-11-
 - **Fallback chosen 2026-11-09 (Patrick), before the test:** the roles are split the other way round. Patrick's own account `patrick-diaz-dev` keeps admin; Claude's GitHub connection is switched to a separate bot account `patrick-diaz-bot`.
   - The bot is an outside collaborator with **Write** on `portfolio-site` only: no admin, no org membership, no other repo. 2FA on, credentials in Patrick's password manager, email private (steps in [STEPS](STEPS.md) B.9).
   - The `main` ruleset's bypass list holds only the Repository admin role, in "pull requests only" mode, so the bot has no bypass.
-  - **Still to be proven** by the item 0.3 tests T4 (a merge of a test PR) and T5 (a direct push to `main`), both as the bot. If either succeeds, D8 goes back to Patrick.
+  - **Item 0.3 tests, 2026-11-09, all as `patrick-diaz-bot`: all refused.**
+    - **T3, push of a test branch to `patrick-diaz-lab/.github` from a cloud session:** refused by the session's git proxy, before GitHub was asked: `access denied by the git proxy: patrick-diaz-lab/.github is not in this session's authorized repository set, so the proxy will not inject a credential for it.` and `The requested URL returned error: 403`. This proves the session can't push there; the bot's own GitHub permissions weren't reached.
+    - **T4, merge of a PR by the bot:** proven by the API state and the UI.
+      - API, test PR #4 (green `check`): GitHub answered the bot with `mergeable_state: "blocked"`, and `main` stayed at `4bf3a02` (Patrick's merge of PR #3). The session's own merge attempt never ran: Claude Code's auto mode refused to lift the deny rule.
+      - UI, PR #5 with all checks green: Patrick, signed in as the bot, saw "Merging is blocked — Cannot update this protected ref." (PR #4's merge box wasn't captured before it was closed.)
+    - **T5, direct commit to `main`:** proven by the UI refusal. Patrick, signed in as the bot, edited `README.md` on `main` in the browser; GitHub showed "You can't commit to main because it is a protected branch" and offered only "Create a new branch for this commit and start a pull request".
+    - So the bot can't change `main` except through a PR that Patrick merges. D8 stands with the bot account.
 - **IC side:** protection of the IC repo is handled in the IC repo.
 
 ## D9 — Redaction scan
@@ -284,7 +291,7 @@ Decided 2026-11-09 by Patrick. Replaces D12, and the paid-plan part of D8.
   3. **Prompt injection from strangers** through issues, PRs, comments or fork branches. Mitigated by the `CLAUDE.md` rule and interaction limits. Residual: the rule is an instruction, not enforcement, and the interaction limit lapses if not renewed.
   4. **The planning docs are public,** including the threat model. Open weak points are written generally, without names, until they're fixed.
   5. **Actions logs are public.** Checks never print a matched deny-list word, a secret or an environment value (D9 rule).
-  6. **"Only Patrick merges" is still unproven** until the item 0.3 test (D8). The D8 fallback still applies.
+  6. **"Only Patrick merges"** was tested in item 0.3 with the bot account (D8): the bot's merge was blocked (API state and UI) and its direct commit to `main` refused (UI).
 - **Consequences:**
   - The redaction scan covers every file in the repo on every branch, `docs/` included (D9).
   - STEPS A drops GitHub Team.
