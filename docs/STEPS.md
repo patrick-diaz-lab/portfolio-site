@@ -15,16 +15,21 @@ The repo is public in `patrick-diaz-lab` on GitHub Free (D20). Settings come **b
    - Moderation: interaction limit "repository collaborators only" for 6 months; code review limited to users with explicit access. **Calendar reminder to renew before it expires.**
 4. **Push the planning docs** from your local clone as a **fresh single-commit history** (D20). Claude prepares the branch `public-main` on your OK. Then: `git remote add origin <url> && git push -u origin public-main:main`. Push only this branch, never `--all`. Then `git checkout -B main origin/main`.
 5. **Ruleset on `portfolio-site` `main`:** target the default branch; bypass only the Repository admin role, in "pull requests only" mode; Restrict updates, Restrict deletions, Block force pushes, Require a pull request (0 approvals, because you can't approve your own PR). **Require status checks** is added in item 0.2, once the `check` workflow has run once (D8, D20). Test: a direct `git push` to `main` from your local clone must be refused.
-6. **Claude GitHub App:** installed on `portfolio-site` only ("selected repositories"), never on the IC repo (D10).
+6. **Claude GitHub App:** installed on `portfolio-site` only ("selected repositories"), never on the IC repo (D21).
 7. **Cloudflare account** (free plan), with 2FA on.
 8. **Register `patrickdiaz.dev`** at Cloudflare Registrar. Check it was still free and that registrant data is redacted (D14).
 
 ## B. Phase 0 setup (items 0.3, 0.4)
 
-9. **Fine-grained GitHub token** for the IC docs: resource `intelligence-center` only, `Contents: read`, 30-day expiry. Put it as a variable in a new cloud environment `portfolio` (Trusted network) at claude.ai/code. Set a calendar reminder 3 days before expiry (D10).
+9. **Bot account `patrick-diaz-bot`** for Claude's GitHub connection (D8, done 2026-11-09):
+   - Create the GitHub account; turn on 2FA and keep its password and recovery codes in your password manager.
+   - Settings → Emails: keep the email address private.
+   - Add it to `portfolio-site` as an **outside collaborator with Write**, on no other repo and not as an org member.
+   - Connect Claude's GitHub (claude.ai) to the bot account, not to `patrick-diaz-dev`. Check in a session that GitHub reports the bot and that only `portfolio-site` is listed.
+   - Create the cloud environment `portfolio` at claude.ai/code. It holds no token or secret (D21): revoke the earlier IC docs token on GitHub and remove the `VISION_DOCS_TOKEN` variable from the environment.
 10. **Connect Cloudflare's Git build** to `portfolio-site`: production branch `main`, builds for other branches **off**, build command `pnpm check && pnpm build` (D7).
 11. **Deny-list:** write your private list (hostnames, LAN names, canary words, employer name and variants, other people's names) and store it as a **secret build variable** in Cloudflare. Keep a local copy for `pnpm scan` on your own machine, never on the Vision machine (D9). Before item 1.4, also give the sessions' pre-push scan its copy, where item 1.3a says (D20).
-12. **Run the item 0.3 tests with Claude:** watch the cloud-session merge and push to `main` fail. If they succeed, decide on the fallback (a second GitHub account that alone holds admin, D8).
+12. **Run the item 0.3 tests with Claude** (as the bot): a push of a test branch to `patrick-diaz-lab/.github`, a merge of a test PR on `portfolio-site` and a direct push to `main` must all fail. If any succeeds, D8 comes back to you.
 13. **Turn Worker logs/observability off** for the Workers (Claude will point to the setting) (D7).
 
 ## C. Before Phase 3 (item 3.1)
@@ -61,10 +66,6 @@ The repo is public in `patrick-diaz-lab` on GitHub Free (D20). Settings come **b
 1. Anthropic Console → `portfolio-chat` → create a new key, put it in the Worker secret, delete the old key.
 2. Check the workspace spend for the month. The cap limits a leak to $5.
 3. Tell Claude in a new session so it can check the build logs and the dependency changes.
-
-### Docs token renewal (D10)
-
-Create a new fine-grained token with the same scope, replace the variable in the cloud environment `portfolio`, and delete the old token on GitHub.
 
 ### Interaction limit renewal (D20)
 

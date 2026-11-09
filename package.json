@@ -10,7 +10,8 @@
     "prepare": "node scripts/install-hooks.ts",
     "check": "node scripts/check.ts",
     "scan": "node scripts/scan.ts",
-    "test:check": "node --test scripts/test/*.test.ts"
+    "test:check": "node --test scripts/test/*.test.ts",
+    "check-tools": "node scripts/check-tools.ts"
   },
   "devDependencies": {
     "@types/node": "22.20.5",

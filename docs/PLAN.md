@@ -10,7 +10,7 @@ Portfolio site for Patrick's work as an AI/LLM engineer. The first piece is **Vi
 - **Sessions act only on what Patrick writes.** Issues, PRs, comments and branches from other accounts are never read or acted on (`CLAUDE.md`, D20).
 - **Work goes to a branch and a PR.** Patrick reviews and merges: his merge is the approval for content (D8).
 - **Versions pinned,** releases at least two weeks old. Re-check pin candidates from [RESEARCH](RESEARCH.md) at the start of each item.
-- **Secrets only in the Cloudflare dashboard, the Anthropic Console or Patrick's password manager.** Never in git, cloud-environment variables (except the read-only docs token, D10) or chat.
+- **Secrets only in the Cloudflare dashboard, the Anthropic Console or Patrick's password manager.** Never in git, cloud-environment variables or chat.
 - **Cost limits:** chat $5/month (`portfolio-chat`), tests on a small separate cap (`portfolio-dev`) (D15). Build sessions run on the subscription.
 
 ## Phase 0 — Setup
@@ -19,7 +19,8 @@ Portfolio site for Patrick's work as an AI/LLM engineer. The first piece is **Vi
 |---|---|---|
 | 0.1 | Patrick's accounts and repo settings ([STEPS](STEPS.md) A) | `patrick-diaz-lab` org settings set; `portfolio-site` (public) exists with these docs as a fresh single-commit history; secret scanning and push protection on; interaction limits on; ruleset on `main` (a direct push to `main` from the local clone is refused); Cloudflare account exists; `patrickdiaz.dev` registered |
 | 0.2 | Repo scaffold: pnpm pins (`packageManager`, `minimumReleaseAge` 14 days, build-script allowlist), `pnpm check` (types, schemas, links, secret scan with pinned gitleaks, redaction scan), pre-commit/pre-push hooks, Claude settings that deny `--no-verify` and `gh pr merge`, `.gitignore` (`.env*`, `.cache/`), a GitHub Actions `check` workflow (read-only token, no output of matched words) added to the ruleset as a required status check (D20) | `pnpm check` passes on the empty site and fails on each planted test finding (IP, path, secret pattern, deny-list word from a test list); a PR with a planted finding can't be merged |
-| 0.3 | Cloud environment `portfolio` and access tests (D8, D10) | `check-tools` shows Node ≥ 22.22.0; the setup step sparse-clones IC `docs/` at a pinned commit into `.cache/vision-src`; a `git push` to the IC repo fails; a push of a test branch (never its default branch) to the org's public `.github` repo fails; a cloud-session merge of a test PR and a direct push to `main` both fail (otherwise the D8 fallback goes to Patrick) |
+| 0.3 | Cloud environment `portfolio` and access tests (D8, D21) | `check-tools` shows Node ≥ 22.22.0; sessions act as the bot account `patrick-diaz-bot` (Write on `portfolio-site` only); as the bot, a push of a test branch (never its default branch) to the org's public `.github` repo fails, and a cloud-session merge of a test PR and a direct push to `main` both fail (otherwise D8 goes back to Patrick) |
+| 0.3a | Vision source notes from the public export repo `vision-portfolio-notes` (D21) | Planned separately; needs Patrick's OK before the build |
 | 0.4 | Cloudflare build pipeline (D7) | A hello page deploys from a merge to `main`; builds for other branches are off; a branch with a planted finding fails the Cloudflare build with rule and `file:line` but no deny-list word in the log; Worker logs off |
 
 ## Phase 1 — MVP: one piece, the map, four detail pages, no chatbot
