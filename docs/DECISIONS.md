@@ -32,7 +32,7 @@ Each decision lists the options that were rejected and why. Decided in the plann
   - A separate Linux user `portfolio` on the Vision machine. It needs sudo and a copy step for the docs.
 - **Why:** the cloud VM has no path to the Vision machine, no private credentials and no local network access. Builds run on the subscription, at a predictable cost. Chrome and pnpm are already installed there.
 - **Consequences (from research, details in [RESEARCH](RESEARCH.md#4-building-it-with-claude-code)):**
-  - **Vision docs come in through a clone, not as a second attached repo.** A cloud session with several repositories doesn't load any repo's `.claude/settings.json` hooks or permissions, so sessions stay single-repo and clone IC `docs/` inside the VM.
+  - **Vision docs come in through a clone, not as a second attached repo.** A cloud session with several repositories doesn't load any repo's `.claude/settings.json` hooks or permissions, so sessions stay single-repo and clone the source notes inside the VM. Since D21 the clone is of the public export repo, never of the IC repo.
   - The GitHub proxy doesn't limit which branches a push can update, so every repo the Claude GitHub App can reach is pushable from a session. The app is installed on `portfolio-site` only (D10).
   - These planning docs were committed in a local clone. Patrick creates the GitHub repo and pushes them.
 
@@ -102,6 +102,10 @@ Decided 2026-11-04 (planning Q12, replaced by Patrick's design). **D20 (2026-11-
   - A `review.status` frontmatter field: a cloud session can write it.
   - A signed approval manifest (SSH signature checked in the build): it works without GitHub, but Patrick judged it too complex.
 - **Open, verified in item 0.3:** whether GitHub can tell Patrick's own merge from a cloud session acting for him through the Claude GitHub App. Rulesets grant bypass to roles, teams and apps, not to single users; the docs don't say how an app acting for a user is evaluated. Done-when: a test PR merge and a direct push to `main`, both from a cloud session, fail. If they succeed, the fallback goes to Patrick: a second GitHub account that alone holds the admin (bypass) role and is never connected to Claude.
+- **Fallback chosen 2026-11-09 (Patrick), before the test:** the roles are split the other way round. Patrick's own account `patrick-diaz-dev` keeps admin; Claude's GitHub connection is switched to a separate bot account `patrick-diaz-bot`.
+  - The bot is an outside collaborator with **Write** on `portfolio-site` only: no admin, no org membership, no other repo. 2FA on, credentials in Patrick's password manager, email private (steps in [STEPS](STEPS.md) B.9).
+  - The `main` ruleset's bypass list holds only the Repository admin role, in "pull requests only" mode, so the bot has no bypass.
+  - **Still to be proven** by the item 0.3 tests T4 (a merge of a test PR) and T5 (a direct push to `main`), both as the bot. If either succeeds, D8 goes back to Patrick.
 - **IC side:** protection of the IC repo is handled in the IC repo.
 
 ## D9 — Redaction scan
@@ -122,7 +126,7 @@ Decided 2026-11-04 (planning Q13, simplified by Patrick).
 
 ## D10 — How cloud sessions read Vision docs
 
-Decided 2026-11-04 (planning Q14).
+Decided 2026-11-04 (planning Q14). **Replaced by D21 (2026-11-09): cloud sessions never get any access to the IC repo.** Kept below for the record.
 
 - The Claude GitHub App is installed on `portfolio-site` only (selected repositories).
 - A fine-grained token (`Contents: read`, `intelligence-center` only, 30-day expiry) sits as an environment variable in a dedicated cloud environment `portfolio`. A setup step sparse-clones `docs/` at a pinned `master` commit into the git-ignored `.cache/vision-src`, with pushing disabled.
@@ -288,3 +292,20 @@ Decided 2026-11-09 by Patrick. Replaces D12, and the paid-plan part of D8.
 - **Rejected:**
   - Private on GitHub Team ($4 per user per month): Patrick doesn't want a paid plan.
   - Private on the Free plan: rulesets aren't enforced, so "only Patrick merges" would rest on settings alone.
+
+## D21 — Vision source notes come from a public export repo
+
+Decided 2026-11-09 by Patrick. Replaces D10.
+
+- **Why D10 failed (item 0.3, 2026-11-09):** the cloud session's network proxy sends every request to GitHub through the session's own GitHub access, which covers only the attached repos. A token in an environment variable can't get past it: `git ls-remote` to the IC repo got a 403 from the proxy with the token in the request. The only way in would have been attaching the IC repo to the session, which D10 forbids.
+- **Decision:**
+  - A **public** repo `patrick-diaz-lab/vision-portfolio-notes` holds only Vision's `docs/portfolio/`, which is already written to be published. Patrick syncs it from the IC side; the sync and the IC side are handled in the IC repo (D5).
+  - Cloud sessions read it as a public repo. **The cloud never gets any access to the IC repo:** no token, no GitHub App, no attached repo.
+  - `VISION_DOCS_TOKEN` and the session-start clone hook are dropped; Patrick revokes the token.
+  - How sessions read it (pinning, where the copy lives, checks) is planned in PLAN item 0.3a and needs Patrick's OK first.
+- **Consequences:**
+  - ADRs (`docs/adr/`) are no longer read by sessions. Anything a page needs from them has to be in `docs/portfolio/` first, written there for publication.
+  - What's in the export repo is public before any portfolio build scan. Its redaction is the IC side's job.
+- **Rejected:**
+  - The D10 token clone: blocked by the proxy (above).
+  - Attaching the IC repo to the session: gives the cloud access to the whole IC repo, against D10's rule that the Claude GitHub App is never on it.
