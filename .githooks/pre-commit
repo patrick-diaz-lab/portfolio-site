@@ -1,0 +1,3 @@
+#!/bin/sh
+# Redaction scan over the staged files (D9). --no-verify is denied in .claude/settings.json.
+exec node scripts/scan.ts --staged

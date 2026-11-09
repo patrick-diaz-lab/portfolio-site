@@ -1,0 +1,16 @@
+#!/bin/sh
+# Before anything leaves this machine (D20: a pushed branch is public at once):
+# 1. the full check on the working tree, 2. the scan over every commit being pushed
+# that no remote has yet, so a finding added and later removed is caught too.
+set -e
+zero=0000000000000000000000000000000000000000
+commits=""
+while read -r local_ref local_sha remote_ref remote_sha; do
+  [ "$local_sha" = "$zero" ] && continue
+  commits="$commits $(git rev-list "$local_sha" --not --remotes)"
+done
+node scripts/check.ts
+set -- $commits
+if [ "$#" -gt 0 ]; then
+  node scripts/scan.ts --commits "$@"
+fi
