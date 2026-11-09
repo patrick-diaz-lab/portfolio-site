@@ -1,0 +1,7 @@
+# Supply-chain settings (D7, PLAN 0.2).
+# Refuse any version published less than 14 days ago (value in minutes).
+minimumReleaseAge: 20160
+minimumReleaseAgeStrict: true
+# Dependency build scripts stay off; an entry here is a reviewed exception.
+strictDepBuilds: true
+allowBuilds: {}

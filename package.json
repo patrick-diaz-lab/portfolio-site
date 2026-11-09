@@ -1,0 +1,20 @@
+{
+  "name": "portfolio-site",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.15.0+sha512.b3951d6d6ff4a9f13dc7cf56cd28d2b8eb37dbcc9c68e52e1e1191873ea9f82a017287ab50baadc5ccc494f036c67c0e47eb13608c2fa36f47711b61ea128e61",
+  "engines": {
+    "node": ">=22.22.0"
+  },
+  "scripts": {
+    "prepare": "node scripts/install-hooks.ts",
+    "check": "node scripts/check.ts",
+    "scan": "node scripts/scan.ts",
+    "test:check": "node --test scripts/test/*.test.ts"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "typescript": "6.0.3",
+    "yaml": "2.9.1"
+  }
+}

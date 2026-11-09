@@ -1,0 +1,8 @@
+# The only place for redaction-scan exceptions (D9). Changes only through a reviewed merge.
+# Each entry: path (repo-relative), rule (scan rule id; never deny-list),
+# snippet (the exact text the finding matched), reason.
+exceptions:
+  - path: docs/RESEARCH.md
+    rule: absolute-path
+    snippet: /usr/bin/google-chrome
+    reason: Generic install path of Chrome in Claude Code cloud VMs, from public docs. Says nothing about Patrick's machines.
