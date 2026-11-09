@@ -108,7 +108,9 @@ Decided 2026-11-04 (planning Q12, replaced by Patrick's design). **D20 (2026-11-
   - The `main` ruleset's bypass list holds only the Repository admin role, in "pull requests only" mode, so the bot has no bypass.
   - **Item 0.3 tests, 2026-11-09, all as `patrick-diaz-bot`: all refused.**
     - **T3, push of a test branch to `patrick-diaz-lab/.github` from a cloud session:** refused by the session's git proxy, before GitHub was asked: `access denied by the git proxy: patrick-diaz-lab/.github is not in this session's authorized repository set, so the proxy will not inject a credential for it.` and `The requested URL returned error: 403`. This proves the session can't push there; the bot's own GitHub permissions weren't reached.
-    - **T4, merge of a test PR (#4, green `check`):** proven by the API state. GitHub's API answered the bot with `mergeable_state: "blocked"`, and `main` stayed at `4bf3a02` (Patrick's merge of PR #3). No merge button attempt was recorded: the session's own merge attempt was blocked by Claude Code's auto mode (it refused to lift the deny rule), and the browser's merge box wasn't captured before the PR was closed.
+    - **T4, merge of a PR by the bot:** proven by the API state and the UI.
+      - API, test PR #4 (green `check`): GitHub answered the bot with `mergeable_state: "blocked"`, and `main` stayed at `4bf3a02` (Patrick's merge of PR #3). The session's own merge attempt never ran: Claude Code's auto mode refused to lift the deny rule.
+      - UI, PR #5 with all checks green: Patrick, signed in as the bot, saw "Merging is blocked — Cannot update this protected ref." (PR #4's merge box wasn't captured before it was closed.)
     - **T5, direct commit to `main`:** proven by the UI refusal. Patrick, signed in as the bot, edited `README.md` on `main` in the browser; GitHub showed "You can't commit to main because it is a protected branch" and offered only "Create a new branch for this commit and start a pull request".
     - So the bot can't change `main` except through a PR that Patrick merges. D8 stands with the bot account.
 - **IC side:** protection of the IC repo is handled in the IC repo.
@@ -289,7 +291,7 @@ Decided 2026-11-09 by Patrick. Replaces D12, and the paid-plan part of D8.
   3. **Prompt injection from strangers** through issues, PRs, comments or fork branches. Mitigated by the `CLAUDE.md` rule and interaction limits. Residual: the rule is an instruction, not enforcement, and the interaction limit lapses if not renewed.
   4. **The planning docs are public,** including the threat model. Open weak points are written generally, without names, until they're fixed.
   5. **Actions logs are public.** Checks never print a matched deny-list word, a secret or an environment value (D9 rule).
-  6. **"Only Patrick merges"** was tested in item 0.3 with the bot account (D8): the bot's merge was blocked (API state) and its direct commit to `main` refused (UI).
+  6. **"Only Patrick merges"** was tested in item 0.3 with the bot account (D8): the bot's merge was blocked (API state and UI) and its direct commit to `main` refused (UI).
 - **Consequences:**
   - The redaction scan covers every file in the repo on every branch, `docs/` included (D9).
   - STEPS A drops GitHub Team.
