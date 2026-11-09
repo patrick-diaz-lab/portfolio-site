@@ -18,12 +18,15 @@ import { RULES, denyListRule, type Rule } from "./lib/rules.ts";
 
 const ROOT = resolve(import.meta.dirname, "..");
 
-type Source = { label: string; path: string; content: Buffer };
-type Finding = { rule: string; label: string; path: string; line: number; text?: string };
+// snap: which snapshot the file comes from ("" = working tree, ":" = index, else a commit).
+// Exceptions are read from the same snapshot, so an uncommitted edit to
+// redaction/exceptions.yaml can't silence the hooks.
+type Source = { label: string; path: string; content: Buffer; snap: string };
+type Finding = { rule: string; label: string; path: string; line: number; snap: string; text?: string };
 type Exception = { path: string; rule: string; snippet: string; reason: string };
 
 function git(args: string[]): Buffer {
-  return execFileSync("git", args, { cwd: ROOT, maxBuffer: 256 * 1024 * 1024 });
+  return execFileSync("git", args, { cwd: ROOT, maxBuffer: 256 * 1024 * 1024, stdio: ["ignore", "pipe", "pipe"] });
 }
 
 function splitZ(b: Buffer): string[] {
@@ -37,6 +40,7 @@ function collect(argv: string[]): Source[] {
       label: p,
       path: p,
       content: git(["show", `:${p}`]),
+      snap: ":",
     }));
   }
   if (mode === "--commits") {
@@ -44,7 +48,7 @@ function collect(argv: string[]): Source[] {
     for (const sha of argv.slice(1)) {
       const short = sha.slice(0, 7);
       const files = splitZ(git(["diff-tree", "--no-commit-id", "-r", "--root", "--name-only", "-z", "--diff-filter=ACMR", sha]));
-      for (const p of files) out.push({ label: `${p}@${short}`, path: p, content: git(["show", `${sha}:${p}`]) });
+      for (const p of files) out.push({ label: `${p}@${short}`, path: p, content: git(["show", `${sha}:${p}`]), snap: sha });
     }
     return out;
   }
@@ -57,7 +61,7 @@ function collect(argv: string[]): Source[] {
         if (statSync(full).isDirectory()) walk(full);
         else {
           const rel = relative(base, full);
-          out.push({ label: rel, path: rel, content: readFileSync(full) });
+          out.push({ label: rel, path: rel, content: readFileSync(full), snap: "" });
         }
       }
     };
@@ -67,7 +71,7 @@ function collect(argv: string[]): Source[] {
   if (mode !== undefined) throw new Error(`unknown mode ${mode}`);
   return splitZ(git(["ls-files", "-z"])).flatMap((p) => {
     try {
-      return [{ label: p, path: p, content: readFileSync(join(ROOT, p)) }];
+      return [{ label: p, path: p, content: readFileSync(join(ROOT, p)), snap: "" }];
     } catch {
       return []; // deleted in the working tree
     }
@@ -93,9 +97,22 @@ function loadDenyList(): string[] {
   return words;
 }
 
-function loadExceptions(): Exception[] {
-  const doc = parse(readFileSync(join(ROOT, "redaction", "exceptions.yaml"), "utf8")) as { exceptions?: Exception[] };
-  return doc?.exceptions ?? [];
+const EXCEPTIONS_FILE = "redaction/exceptions.yaml";
+const exceptionCache = new Map<string, Exception[]>();
+
+function loadExceptions(snap: string): Exception[] {
+  const cached = exceptionCache.get(snap);
+  if (cached) return cached;
+  let text: string;
+  try {
+    text = snap === "" ? readFileSync(join(ROOT, EXCEPTIONS_FILE), "utf8") : git(["show", snap === ":" ? `:${EXCEPTIONS_FILE}` : `${snap}:${EXCEPTIONS_FILE}`]).toString("utf8");
+  } catch {
+    text = ""; // not in that snapshot: no exceptions
+  }
+  const doc = parse(text) as { exceptions?: Exception[] } | null;
+  const list = doc?.exceptions ?? [];
+  exceptionCache.set(snap, list);
+  return list;
 }
 
 function scanText(src: Source, text: string, rules: Rule[]): Finding[] {
@@ -103,7 +120,7 @@ function scanText(src: Source, text: string, rules: Rule[]): Finding[] {
   for (const rule of rules) {
     for (const m of text.matchAll(rule.pattern)) {
       if (rule.accept && !rule.accept(m[0])) continue;
-      out.push({ rule: rule.id, label: src.label, path: src.path, line: lineOf(text, m.index ?? 0), text: m[0] });
+      out.push({ rule: rule.id, label: src.label, path: src.path, line: lineOf(text, m.index ?? 0), snap: src.snap, text: m[0] });
     }
   }
   return out;
@@ -113,7 +130,6 @@ function main(): number {
   const sources = collect(process.argv.slice(2)).filter((s) => !isBinary(s.content));
   const deny = denyListRule(loadDenyList());
   const rules = deny ? [...RULES, deny] : RULES;
-  const exceptions = loadExceptions();
 
   const findings: Finding[] = [];
   for (const src of sources) findings.push(...scanText(src, src.content.toString("utf8"), rules));
@@ -131,7 +147,7 @@ function main(): number {
       });
       for (const f of runGitleaks(tmp)) {
         const s = byTmp.get(f.file);
-        findings.push({ rule: f.rule, label: s?.label ?? "?", path: s?.path ?? "?", line: f.line });
+        findings.push({ rule: f.rule, label: s?.label ?? "?", path: s?.path ?? "?", line: f.line, snap: s?.snap ?? "" });
       }
     } finally {
       rmSync(tmp, { recursive: true, force: true });
@@ -142,12 +158,12 @@ function main(): number {
     (f) =>
       f.rule === "deny-list" ||
       f.text === undefined ||
-      !exceptions.some(
+      !loadExceptions(f.snap).some(
         (e) =>
           e.rule === f.rule &&
           e.snippet === f.text &&
           // An entry also covers its own snippet inside the exceptions file.
-          (e.path === f.path || f.path === "redaction/exceptions.yaml"),
+          (e.path === f.path || f.path === EXCEPTIONS_FILE),
       ),
   );
 
