@@ -1,0 +1,77 @@
+/* Base styles built only from tokens.css (PLAN 1.1). */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { background: var(--color-panel); }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--color-panel) var(--texture-panel);
+  color: var(--color-silk);
+  font: 400 var(--step-0) / var(--leading-body) var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-panel);
+  font-weight: 600;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-panel);
+  text-transform: uppercase;
+  text-wrap: balance;
+  margin: 0;
+}
+h1 { font-size: var(--step-4); }
+h2 { font-size: var(--step-3); }
+h3 { font-size: var(--step-2); }
+p { margin: 0; max-width: var(--measure); }
+
+a { color: var(--color-silk); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.2em; }
+a:hover { color: var(--color-amber); }
+
+:focus-visible {
+  outline: var(--focus-width) solid var(--color-amber);
+  outline-offset: var(--focus-offset);
+}
+
+code, kbd, samp, .label {
+  font-family: var(--font-mono);
+}
+code { font-size: 0.9em; background: var(--color-panel-raised); padding: 0.1em 0.35em; border-radius: var(--radius); }
+
+/* Panel label: silk-screened, small caps-like mono. */
+.label {
+  font-size: var(--step--1);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-silk-dim);
+}
+
+/* Modules and their status (D19): line style carries the status, not only color. */
+.module {
+  background: var(--color-panel-raised);
+  border: var(--line-module) solid var(--color-silk);
+  border-radius: var(--radius);
+  padding: var(--space-4);
+}
+.module[data-status="in-progress"] { border-style: dashed; border-width: var(--focus-width); border-color: var(--color-silk-dim); }
+.module[data-status="planned"] { border-style: dotted; border-width: var(--focus-width); border-color: var(--color-silk-dim); }
+
+.page {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding-block: var(--space-12) var(--space-16);
+  padding-left: max(var(--space-4), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--space-4), env(safe-area-inset-right, 0px));
+  display: grid;
+  gap: var(--space-12);
+}
+
+/* Signal dot: runs along a wire while its module is hovered or focused (D13). */
+.signal-dot { fill: var(--color-amber); opacity: 0; offset-distance: 0%; }
+.schematic:has(.part:hover) .signal-dot,
+.schematic:has(.part:focus-visible) .signal-dot { opacity: 1; animation: signal-run 1.6s linear infinite; }
+@keyframes signal-run { to { offset-distance: 100%; } }
+@media (prefers-reduced-motion: reduce) {
+  .schematic:has(.part:hover) .signal-dot,
+  .schematic:has(.part:focus-visible) .signal-dot { animation: none; offset-distance: 50%; }
+}

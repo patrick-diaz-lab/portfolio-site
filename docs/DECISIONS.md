@@ -170,6 +170,12 @@ Decided 2026-11-04 by Patrick (planning Q17).
   - The map is a precise line drawing like an engineer's sheet: modules as labelled blocks, wires between them, hand-lettered side notes that link to decisions, small dimension marks, and a signal dot along a wire on hover/focus.
   - On phones it becomes a vertical wire with the modules along it (the line-network logic).
   - Patrick brings the inspiration for the signature twist (palette, lettering, texture).
+- **Twist chosen 2026-11-10 by Patrick (item 1.1): "Bench instrument".** The front panel of a measuring instrument: a graphite panel, silk-screened labels, one amber trace.
+  - **Dark only.** No light variant: the instrument look is the point, and every text pair passes AA (silk 12.5:1, dim silk 6.5:1, amber 8.6:1 on the panel).
+  - **One amber** for the signal dot, notes, focus and link hover; these are told apart by shape (dot, dashed lead line, outline), not by a second accent.
+  - **Type:** Barlow for running text, Barlow Condensed for panel titles, JetBrains Mono for labels and values. All OFL, self-hosted from `@fontsource`, Latin subset only.
+  - **Status (D19) by line style:** built solid, in progress dashed, planned dotted, so it never rests on color alone.
+  - Tokens live in `src/styles/tokens.css`; `/styleguide/` renders every one. Rejected on the mood board: cyanotype, drafting vellum, standard sheet, patent figure.
 - **Rules:**
   - The palette meets at least WCAG AA, checked by axe in item 1.
   - Hand lettering is decoration only; labels are real SVG `<text>` or HTML.

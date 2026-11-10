@@ -1,0 +1,55 @@
+/* Design tokens: "Bench instrument" (D13, PLAN 1.1). The single source for colors, type,
+   spacing and lines. Dark only, one amber. The style sheet page (/styleguide/) reads the
+   --color-* values from this file and shows each with its contrast ratio. */
+:root {
+  color-scheme: dark;
+
+  /* Color: a graphite instrument panel, silk-screened labels, one amber trace. */
+  --color-panel: #1e2225;        /* page background */
+  --color-panel-raised: #262b2f; /* modules, cards, code */
+  --color-silk: #e8e3d6;         /* text and primary lines */
+  --color-silk-dim: #a9a597;     /* secondary text, dimension marks, borders */
+  --color-amber: #f2b23e;        /* signal dot, notes, focus, link hover */
+
+  /* Type: Barlow for reading, Barlow Condensed for panel titles, JetBrains Mono for labels. */
+  --font-body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-panel: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  /* Type scale: ratio 1.25 on a 17px base. */
+  --step--1: 0.8125rem;
+  --step-0: 1.0625rem;
+  --step-1: 1.328rem;
+  --step-2: 1.66rem;
+  --step-3: 2.075rem;
+  --step-4: 2.594rem;
+  --leading-body: 1.6;
+  --leading-tight: 1.15;
+  --tracking-panel: 0.06em;
+  --tracking-label: 0.08em;
+  --measure: 65ch;
+
+  /* Spacing: a 4px grid. */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  /* Lines: solid = built, dashed = in progress, dotted = planned (D19). */
+  --line-thin: 1px;
+  --line-module: 1.5px;
+  --focus-width: 2px;
+  --focus-offset: 3px;
+  --radius: 2px;
+
+  /* Texture: faint vertical brushing of the panel. Off under prefers-contrast: more. */
+  --texture-panel: repeating-linear-gradient(90deg, rgb(255 255 255 / 0.025) 0 2px, transparent 2px 4px);
+}
+
+@media (prefers-contrast: more) {
+  :root { --texture-panel: none; --color-silk-dim: #c9c5b8; }
+}

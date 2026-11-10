@@ -27,7 +27,7 @@ Portfolio site for Patrick's work as an AI/LLM engineer. The first piece is **Vi
 
 | # | Item | Done when |
 |---|---|---|
-| 1.1 | Design system from Patrick's inspiration (D13): palette, lettering, texture, type scale, focus styles | Palette passes WCAG AA in axe; a style sheet page renders every token; Patrick approves screenshots (desktop + phone) |
+| 1.1 | Design system "Bench instrument" (D13), `pnpm design-check` (axe + screenshots): palette, lettering, texture, type scale, focus styles | Palette passes WCAG AA in axe; a style sheet page renders every token; Patrick approves screenshots (desktop + phone) |
 | 1.2 | Content model and piece template (D6, D19): collections, schemas, build rules | Schemas reject a test part with a missing field, a missing anchor, a `built` part without the four entry kinds, and free text in `evals[]` |
 | 1.3 | Vision overview page and map: annotated schematic SVG, `map.yaml`, hover/focus cards, phone layout as a vertical wire, list fallback | Every map part is a focusable link with a name; first tap opens the card on touch; works with JS off; motion off under reduced motion; Lighthouse mobile ≥ 95 |
 | 1.3a | Pre-push deny-list scan in sessions (D20). Required before 1.4 | A session can't push a branch with a planted deny-list word; the hit names the rule and `file:line`, never the word |
