@@ -25,7 +25,9 @@
       "mcp__github__push_files",
       "mcp__github__create_or_update_file",
       "mcp__github__delete_file",
-      "mcp__github__update_pull_request_branch"
+      "mcp__github__update_pull_request_branch",
+      "Edit(sources/vision/**)",
+      "Write(sources/vision/**)"
     ]
   }
 }

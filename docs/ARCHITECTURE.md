@@ -1,6 +1,6 @@
 # Architecture
 
-How the portfolio site is built and why. The reasons and rejected options are in [DECISIONS](DECISIONS.md) (D1–D20); sources in [RESEARCH](RESEARCH.md). State: planned 2026-11-04, nothing built.
+How the portfolio site is built and why. The reasons and rejected options are in [DECISIONS](DECISIONS.md) (D1–D21); sources in [RESEARCH](RESEARCH.md). State: planned 2026-11-04, nothing built.
 
 ## 1. Overview and trust boundaries
 
@@ -12,18 +12,18 @@ How the portfolio site is built and why. The reasons and rejected options are in
  pnpm invite (Ed25519 key)     merges (D8)                      │
                                     ▲                           ▼
                                     │ branches + PRs          static site (Workers static assets)
- Claude Code cloud session ─────────┘                         knowledge Worker ── AI binding (bge-m3)
-  (isolated VM, subscription)                                  │                └─ Vectorize binding
-  .cache/vision-src ◄── read-only token ── intelligence-center │ Service Binding
-  (sparse clone of docs/ at a pinned commit, D10)              chat Worker ─────────────────────────► Haiku 5.5
-                                                               Durable Object: counters only          (workspace
- Vision machine: NO connection to any of the above at runtime or build time.                 portfolio-chat, $5)
+ Claude Code cloud session ─────────┤                         knowledge Worker ── AI binding (bge-m3)
+  (isolated VM, subscription)       │                          │                └─ Vectorize binding
+  reads sources/vision/ in the repo │                          │ Service Binding
+  (D21); no access to the IC repo   │ sync PR to               chat Worker ─────────────────────────► Haiku 5.5
+ Vision side (export script) ───────┘ sources/vision/ (D21)    Durable Object: counters only          (workspace
+ Vision machine: no connection at runtime or build time; its only link is the sync PR.     portfolio-chat, $5)
 ```
 
 Rules that hold everywhere:
 - **No path from the public site to the Vision machine:** no tunnel, port, database, vector store, vault or key of Vision is reachable. The chatbot has its own corpus, built only from Patrick-approved text in this repo (D6).
 - **The Vision machine holds no hosting or chat credentials** (D3). The only deploy credential is the token Cloudflare's own build creates, and it exists only there.
-- **Cloud sessions can't push to the IC repo** (D10): the Claude GitHub App is on `portfolio-site` only, and the docs are read with a read-only token.
+- **Cloud sessions have no access to the IC repo** (D21): the Claude GitHub App is on `portfolio-site` only, and Vision's notes arrive in this repo as a sync PR Patrick merges.
 - **Content on `main` = approved by Patrick's merge** (D8). The redaction scan in Cloudflare's build is the last gate (D9).
 
 ## 2. Stack and hosting
@@ -58,11 +58,11 @@ redaction/exceptions.yaml        the only place for scan exceptions (changes via
 evals/retrieval.yaml             public retrieval eval (questions → expected entry ids)
 ```
 
-**Part page frontmatter:** `id, piece, title, summary, status (built | in-progress | planned), as_of, source_commit, adrs[], evals[] {name, metric, value, n, date, baseline?, cost_usd?}, related[]`.
+**Part page frontmatter:** `id, piece, title, summary, status (built | in-progress | planned), as_of, source_commit, sources[], evals[] {name, metric, value, n, date, baseline?, cost_usd?}, related[]`.
 
 **Fixed sections:** *What it does* (MDX body) · *Why this way* (entries `decision` + `rejected`) · *How it's tested* (entries `testing` + `evals[]`) · *What I learned* (entries `learning`).
 
-**Knowledge entry frontmatter:** `id, piece, part, page, anchor, kind (overview | decision | rejected | testing | learning), sources (ADR numbers), as_of, source_commit`.
+**Knowledge entry frontmatter:** `id, piece, part, page, anchor, kind (overview | decision | rejected | testing | learning), sources (files under sources/vision/), as_of, source_commit`.
 
 **Build rules (fail the build):**
 - A missing or wrong field.
@@ -78,8 +78,8 @@ A starter whose cited entry changed after the starter's `as_of` gives a warning.
 
 ## 4. Content and redaction pipeline
 
-1. **Source import (cloud session):** the setup step sparse-clones IC `docs/` at a pinned `master` commit into the git-ignored `.cache/vision-src`, with pushing disabled (D10). Run records, traces, the vault and Vision's database are never sources (D2).
-2. **Drafting (Claude, on a branch):** knowledge entries and part pages are rewritten from the source, never pasted. A check warns on more than ~40 words copied verbatim from `.cache/vision-src` (D9).
+1. **Source import (Vision side):** Vision's export script opens a `vision-sync/<date>` PR that updates `sources/vision/` (authored by `patrick-diaz-dev`, `Source-Tree:` trailer); Patrick merges it (D21). Sessions never edit `sources/vision/`. Run records, traces, the vault and Vision's database are never sources (D2).
+2. **Drafting (Claude, on a branch):** knowledge entries and part pages are rewritten from `sources/vision/`, never pasted. `pnpm check` warns on 40 or more consecutive words copied from it (D9, D21).
 3. **Scan, first pass (session):** pre-commit/pre-push hooks run the generic rules and gitleaks. `--no-verify` is denied by the session settings.
 4. **Review (Patrick):** the PR template carries the checklist below. Patrick runs `pnpm scan` with his local deny-list copy, then merges. The merge is the approval (D8).
 5. **Scan, authoritative (Cloudflare build):** `pnpm check` runs the generic rules plus the **private deny-list from a secret build variable** over the sources, `dist/**` and `chunks.json`. A hit fails the build, reporting the rule and `file:line`, never the matched word. Images: metadata (EXIF) is stripped.
@@ -167,7 +167,6 @@ Cost ≈ $0.0005 per question → ≈ $0.05 / $0.50 / $5.10 per month at 100 / 1
 | `INVITE_PUBKEY` | Cloudflare Worker variable (public key) | Patrick |
 | Invite private key + id → label file | Patrick's machine, backup in his password manager | Patrick |
 | Redaction deny-list | Cloudflare build secret variable; local copy on Patrick's machine | Patrick |
-| IC docs read token (fine-grained, read-only, 30 days) | Cloud environment `portfolio` variable | Patrick |
 | Cloudflare deploy token | Created and held by Cloudflare's Git build | Cloudflare |
 
 Nothing here is in git, on the Vision machine or in chat. The repo has `.env.example` placeholders only where a local dev run needs them.
@@ -176,6 +175,7 @@ Nothing here is in git, on the Vision machine or in chat. The repo has `.env.exa
 
 ```
 docs/                      PLAN, ARCHITECTURE, DECISIONS, RESEARCH, STEPS
+sources/vision/            Vision's portfolio notes, synced by PR from the Vision side (D21); never edited here
 pieces/  content/  redaction/  evals/
 src/                       Astro pages, layouts, components (Map, PartCard, Chat island)
 workers/knowledge/         retrieve, sync cron, eval, /_status, (later) /mcp
@@ -192,8 +192,9 @@ CLAUDE.md                  session rules, incl. trust only Patrick's content (D2
 |---|---|---|
 | Unredacted detail reaches the site or the public repo | Session pre-push scan, Patrick's review + `pnpm scan`, authoritative build scan over `dist/` and `chunks.json` | A pushed branch is public before the build scan; a pre-push deny-list scan is required before item 1.4 (D20). A word missing from the deny-list; the review checklist is the backstop |
 | Prompt injection from strangers through issues, PRs, comments or fork branches | `CLAUDE.md`: sessions read and act only on Patrick's (`patrick-diaz-dev`) content; interaction limits to collaborators; fork workflows need approval (D20) | The rule is an instruction, not enforcement; interaction limits lapse after 6 months unless renewed |
-| A cloud session merges or pushes to `main` itself | Ruleset (PR required, only Patrick merges, no direct or force push); session settings deny `gh pr merge` | Unproven until test 0.3; fallback: a second admin account (D8) |
-| A cloud session pushes to the IC repo | Claude GitHub App only on `portfolio-site`; IC docs read with a read-only token | A leaked read token exposes Vision's docs text (no secrets) |
+| A cloud session merges or pushes to `main` itself | Sessions act as the bot `patrick-diaz-bot` (Write only, no bypass); ruleset (PR required, only Patrick merges, no direct or force push); session settings deny merges and pushes to `main` | Tested in item 0.3: the bot's merge blocked, its direct commit refused (D8) |
+| A cloud session reaches the IC repo | No access at all: no token, no GitHub App, not attached; the session proxy refuses repos outside the session (D21, D4) | None from the cloud side; the sync PR's content is the Vision side's responsibility |
+| A sync PR carries unscrubbed detail | Vision side scrubs before pushing; `check` workflow scan on the PR; Patrick's review and merge; authoritative build scan | The sync branch is public before any portfolio check runs (D20 risk 1) |
 | Malicious npm package | 14-day release age, build scripts blocked, lockfile, few dependencies; runs in a cloud VM or Cloudflare's build, never on the Vision machine | In Cloudflare's build it could misuse the deploy token (e.g. swap the chat Worker to steal the key) → capped by $5/month; rotate keys |
 | Chat abuse / cost | Invisible Turnstile, session and invite limits, global daily breaker, $5 workspace cap, prepaid credits | Captcha farms can hit the caps → the chat pauses for the day, the site is unaffected |
 | Prompt injection / system-prompt leak | Visitor input as data; no tools; plain-text output; own-domain links only; leak-marker tests | The system prompt may leak; it holds nothing secret |

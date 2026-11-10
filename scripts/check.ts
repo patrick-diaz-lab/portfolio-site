@@ -1,4 +1,4 @@
-// `pnpm check`: types, schemas, links, redaction scan (PLAN 0.2). Runs every step and
+// `pnpm check`: types, schemas, links, verbatim-copy warning (D21), redaction scan (PLAN 0.2). Runs every step and
 // fails if any failed. Extra arguments go to the scan (for example --dir dist).
 import { spawnSync } from "node:child_process";
 import { join, resolve } from "node:path";
@@ -9,6 +9,7 @@ const steps: [string, string, string[]][] = [
   ["types", node, [join(ROOT, "node_modules", "typescript", "bin", "tsc"), "--noEmit", "-p", ROOT]],
   ["schemas", node, [join(ROOT, "scripts", "check-schemas.ts")]],
   ["links", node, [join(ROOT, "scripts", "check-links.ts")]],
+  ["verbatim", node, [join(ROOT, "scripts", "check-verbatim.ts")]],
   ["scan", node, [join(ROOT, "scripts", "scan.ts"), ...process.argv.slice(2)]],
 ];
 

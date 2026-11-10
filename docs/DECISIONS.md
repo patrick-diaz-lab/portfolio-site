@@ -10,9 +10,9 @@ Each decision lists the options that were rejected and why. Decided in the plann
 
 ## D2 — Outside the IC phase order; content from merged master only
 
-- **Decision:** this is a separate project. Vision's own plan and rules apply to Vision itself. Patrick decides when the build starts. Vision content comes only from docs merged to IC `master`: never from run records, traces or the vault.
+- **Decision:** this is a separate project. Vision's own plan and rules apply to Vision itself. Patrick decides when the build starts. Vision content comes only from docs merged to IC `master`, which reach this repo as `sources/vision/` (D21): never from run records, traces or the vault.
 - **Refinements:**
-  - Each part page records `as_of` and the IC commit it describes.
+  - Each part page records `as_of` and the commit it describes: since D21, the commit on this repo's `main` that last changed `sources/vision/`.
   - The MVP covers parts that are settled. Moving parts appear as "in progress" nodes with no detail page.
 
 ## D3 — The Vision machine holds no hosting or chatbot credentials
@@ -32,7 +32,7 @@ Each decision lists the options that were rejected and why. Decided in the plann
   - A separate Linux user `portfolio` on the Vision machine. It needs sudo and a copy step for the docs.
 - **Why:** the cloud VM has no path to the Vision machine, no private credentials and no local network access. Builds run on the subscription, at a predictable cost. Chrome and pnpm are already installed there.
 - **Consequences (from research, details in [RESEARCH](RESEARCH.md#4-building-it-with-claude-code)):**
-  - **Vision docs come in through a clone, not as a second attached repo.** A cloud session with several repositories doesn't load any repo's `.claude/settings.json` hooks or permissions, so sessions stay single-repo and clone the source notes inside the VM. Since D21 the clone is of the public export repo, never of the IC repo.
+  - **Vision docs come in through a clone, not as a second attached repo.** A cloud session with several repositories doesn't load any repo's `.claude/settings.json` hooks or permissions, so sessions stay single-repo. Since D21 the notes arrive in this repo (`sources/vision/`), so nothing is cloned.
   - The GitHub proxy doesn't limit which branches a push can update, so every repo the Claude GitHub App can reach is pushable from a session. The app is installed on `portfolio-site` only (D10).
   - **Seen in item 0.3 (2026-11-09):** the session's git proxy refuses every repo outside the session's own set, before GitHub is asked (T3, and the IC read in D21). It also refused deleting a branch on `portfolio-site` (`HTTP 403`), so Patrick deletes test branches in the browser.
   - These planning docs were committed in a local clone. Patrick creates the GitHub repo and pushes them.
@@ -129,7 +129,7 @@ Decided 2026-11-04 (planning Q13, simplified by Patrick).
 - **Exceptions:** only in `redaction/exceptions.yaml`. It changes only through a reviewed merge, like everything else on `main`.
 - **Logs:** a deny-list hit reports the rule and `file:line`, never the matched word.
 - **Gap:** session-side hooks don't have the deny-list, so they catch only the generic patterns. The build blocks the deploy. **Since D20 the repo is public,** so pushed text is public before the build runs. So a pre-push scan with the deny-list is required before item 1.4 (D20).
-- **Also:** EXIF and other metadata are stripped from images in the build. Eval numbers are published only as aggregates (never case contents, never the held-out split). A check warns on more than ~40 words copied verbatim from the cloned IC docs.
+- **Also:** EXIF and other metadata are stripped from images in the build. Eval numbers are published only as aggregates (never case contents, never the held-out split). A check in `pnpm check` warns on 40 or more consecutive words copied verbatim from `sources/vision/` (D21).
 
 ## D10 — How cloud sessions read Vision docs
 
@@ -286,7 +286,7 @@ Decided 2026-11-09 by Patrick. Replaces D12, and the paid-plan part of D8.
 - **Session rule (`CLAUDE.md`):** sessions read and act only on what Patrick (`patrick-diaz-dev`) wrote. Issues, PRs, comments, reviews, commits and branches from any other account are never read or acted on. The author is checked from metadata before any body is read. This closes the prompt-injection path from strangers to a session that can push.
 - **Risks:**
   1. **Every pushed branch is public at once,** before Cloudflare's build scan runs. This is why D12 chose private. A draft with a hostname or the employer's name is public, and may be cached or forked, even if it's never merged. Secret scanning finds tokens, not names.
-     - **Decided 2026-11-09 (Patrick):** a pre-push scan with the private deny-list in sessions is a required step before item 1.4 (PLAN item 1.3a). No item that writes content from IC docs starts before it. Where the session's copy lives is set in that item. Recommended: a variable in the cloud environment `portfolio`, because the session already holds the IC docs clone with the same names, so reading the list adds little exposure. Alternative: drafts in a separate private repo, with only merged content exported.
+     - **Decided 2026-11-09 (Patrick):** a pre-push scan with the private deny-list in sessions is a required step before item 1.4 (PLAN item 1.3a). No item that writes content from IC docs starts before it. Where the session's copy lives is set in that item. Recommended: a variable in the cloud environment `portfolio`. (The first reason given here, that the session already held an IC docs clone, no longer holds since D21; weigh it again in item 1.3a.) Alternative: drafts in a separate private repo, with only merged content exported.
   2. **History is public for good.** Forks, caches and archives keep what was pushed, so deleting later doesn't help. A leaked secret is rotated, never just removed. So the first push is a fresh single-commit history, scrubbed on 2026-11-09.
   3. **Prompt injection from strangers** through issues, PRs, comments or fork branches. Mitigated by the `CLAUDE.md` rule and interaction limits. Residual: the rule is an instruction, not enforcement, and the interaction limit lapses if not renewed.
   4. **The planning docs are public,** including the threat model. Open weak points are written generally, without names, until they're fixed.
@@ -300,19 +300,24 @@ Decided 2026-11-09 by Patrick. Replaces D12, and the paid-plan part of D8.
   - Private on GitHub Team ($4 per user per month): Patrick doesn't want a paid plan.
   - Private on the Free plan: rulesets aren't enforced, so "only Patrick merges" would rest on settings alone.
 
-## D21 — Vision source notes come from a public export repo
+## D21 — Vision source notes arrive in this repo, in `sources/vision/`
 
-Decided 2026-11-09 by Patrick. Replaces D10.
+Decided 2026-11-09 by Patrick (export repo), changed 2026-11-10 by Patrick (notes in this repo). Replaces D10.
 
 - **Why D10 failed (item 0.3, 2026-11-09):** the cloud session's network proxy sends every request to GitHub through the session's own GitHub access, which covers only the attached repos. A token in an environment variable can't get past it: `git ls-remote` to the IC repo got a 403 from the proxy with the token in the request. The only way in would have been attaching the IC repo to the session, which D10 forbids.
 - **Decision:**
-  - A **public** repo `patrick-diaz-lab/vision-portfolio-notes` holds only Vision's `docs/portfolio/`, which is already written to be published. Patrick syncs it from the IC side; the sync and the IC side are handled in the IC repo (D5).
-  - Cloud sessions read it as a public repo. **The cloud never gets any access to the IC repo:** no token, no GitHub App, no attached repo.
-  - `VISION_DOCS_TOKEN` and the session-start clone hook are dropped; Patrick revokes the token.
-  - How sessions read it (pinning, where the copy lives, checks) is planned in PLAN item 0.3a and needs Patrick's OK first.
+  - Vision's portfolio notes (its `docs/portfolio/`, already written for publication) arrive **in this repo** under `sources/vision/`. The Vision side's export script pushes a `vision-sync/<date>` branch and opens a PR, authored by `patrick-diaz-dev`, whose commit carries a `Source-Tree:` trailer (the IC tree id; no IC commit hash in public). Patrick merges it. The first sync is PR #6 (2026-11-10).
+  - **The cloud never gets any access to the IC repo:** no token, no GitHub App, no attached repo. Sessions read `sources/vision/` on `main` like any other file. Nothing external is pinned or fetched.
+  - `sources/vision/` is a mirror: sessions never edit it (denied in `.claude/settings.json`); the next sync overwrites it. A session's PR that touches it is wrong.
+  - A sync PR is trusted only if its author is `patrick-diaz-dev`, its branch is `vision-sync/*`, its commit has the `Source-Tree:` trailer, and it touches only `sources/vision/`. Until Patrick merges it, a session treats it as unreviewed data.
+  - `VISION_DOCS_TOKEN` and the session-start clone hook are dropped; Patrick revoked the token.
 - **Consequences:**
-  - ADRs (`docs/adr/`) are no longer read by sessions. Anything a page needs from them has to be in `docs/portfolio/` first, written there for publication.
-  - What's in the export repo is public before any portfolio build scan. Its redaction is the IC side's job.
+  - **What a page describes** (D2): `source_commit` is the commit on this repo's `main` that last changed `sources/vision/` (`git log -1 --format=%H -- sources/vision`), not an IC commit.
+  - **ADRs are not read.** Anything a page needs goes into `docs/portfolio/` on the IC side first. Knowledge entries cite files under `sources/vision/`, not ADR numbers.
+  - **The notes are public** once the sync branch is pushed, before any portfolio check runs. Their redaction is the IC side's job; the `check` workflow's scan (without the deny-list) runs on the sync PR, and the authoritative build scan covers them too, because they're in the repo.
+  - **Verbatim copies:** `pnpm check` warns when a file outside `sources/vision/` repeats 40 or more consecutive words from it (D9). The check prints `file:line` and the source file, never the text.
+  - The sync PR is the one kind of PR not written by a session; it lands only through Patrick's merge, like everything else (D8).
 - **Rejected:**
   - The D10 token clone: blocked by the proxy (above).
-  - Attaching the IC repo to the session: gives the cloud access to the whole IC repo, against D10's rule that the Claude GitHub App is never on it.
+  - Attaching the IC repo to the session: gives the cloud access to the whole IC repo.
+  - A public export repo `vision-portfolio-notes` (the first version of this decision): a second repo to protect, and a pin to keep in step. Notes in this repo get the ruleset, the checks and Patrick's merge for free.
