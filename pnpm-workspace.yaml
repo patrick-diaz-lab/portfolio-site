@@ -8,3 +8,7 @@ allowBuilds:
   # Reviewed exceptions (PLAN 0.4): each downloads its own native binary at install.
   esbuild: true    # bundler under Vite/Astro and wrangler
   workerd: true    # Workers runtime used by wrangler
+# sharp (and its prebuilt libvips binaries) is never used: Astro runs with the passthrough
+# image service, and miniflare loads it only lazily for local image emulation (PLAN 0.4).
+overrides:
+  sharp: "-"
