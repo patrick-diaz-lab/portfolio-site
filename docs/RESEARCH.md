@@ -84,6 +84,12 @@ Assumptions: Haiku 5.5, thinking off, 16k-token cached prefix (system prompt + a
 
 Cloudflare stays at $0 on the free plan at these volumes (10,000 questions/month is far below 100,000 requests/day). The domain costs extra each year. The worst case under abuse equals the provider spend limit.
 
+### Cloudflare Workers Builds image (checked 2026-11-10, item 0.4)
+
+- Preinstalled defaults: Go 1.24.3 (override with `GO_VERSION`), pnpm 10.x (override with `PNPM_VERSION`), Node set by `NODE_VERSION`, `.nvmrc` or `.node-version`. A July 2026 changelog moved the default Node to 24.18.0; the image also carries a 22.23.x release. Pin explicitly rather than rely on defaults ([build image](https://developers.cloudflare.com/workers/ci-cd/builds/build-image), [Node 24 changelog](https://developers.cloudflare.com/changelog/post/2026-07-30-workers-builds-nodejs-24/), [build image policies](https://developers.cloudflare.com/changelog/2025-12-01-build-image-policies-dev-plat/)).
+- Whether Workers Builds honours `packageManager` through Corepack isn't stated in Cloudflare's docs; one third-party post says it does ([senhongo.com](https://senhongo.com/blog/cloudflare-workers-node-pnpm/)). STEPS B.10 sets `PNPM_VERSION` as well, so the first build shows which one applies.
+- Read through search results only: `developers.cloudflare.com` isn't reachable from the session's network. Confirm on the first build log.
+
 ## 4. Building it with Claude Code
 
 - **Cloud sessions** run in an isolated VM. They count toward the subscription's usage limits, with no separate VM charge, so the cost is predictable ([cloud sessions](https://code.claude.com/docs/en/claude-code-on-the-web)). API billing for design work is open-ended, because screenshots are image tokens and loops repeat.

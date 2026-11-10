@@ -30,9 +30,9 @@ Rules that hold everywhere:
 
 | Layer | Choice | Pin candidate (2026-11-04) |
 |---|---|---|
-| Framework | Astro 7, fully static, MDX content collections, islands for map and chat (D7) | `astro` 7.4.1, `@astrojs/mdx` 8.1.0 |
-| Runtime / package manager | Node ≥ 22.22.0; pnpm via `packageManager`, `minimumReleaseAge` 14 days, build scripts off except an allowlist | `pnpm` 12.14.0 (check the key names for this major) |
-| Hosting | Cloudflare Workers with static assets, free plan; Cloudflare Git builds on `main` only | `wrangler` 4.151.3 |
+| Framework | Astro 7, fully static, MDX content collections, islands for map and chat (D7) | `astro` **7.4.2 pinned** (0.4); `@astrojs/mdx` 8.1.0 |
+| Runtime / package manager | Node ≥ 22.23.4 (`.node-version`, astro 7.4.2); pnpm via `packageManager`, `minimumReleaseAge` 14 days, build scripts off except an allowlist | `pnpm` **12.15.0 pinned**; build-script allowlist `esbuild`, `workerd` (0.4) |
+| Hosting | Cloudflare Workers with static assets, free plan; Cloudflare Git builds on `main` only | `wrangler` **4.153.0 pinned** (0.4) |
 | Map | Hand-drawn annotated-schematic SVG + `map.yaml` + ~3 KB TypeScript (D7, D13) | no library |
 | Tests | Playwright screenshots, axe-core, Lighthouse budget | `@playwright/test` 1.64.1 |
 | Search on the site (optional) | Pagefind, static | `pagefind` 1.5.2 |
