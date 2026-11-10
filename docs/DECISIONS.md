@@ -79,7 +79,7 @@ Decided 2026-11-04 (planning Q11a–d). This replaces the first draft, which sen
 
 Decided 2026-11-04 (planning Q8–Q10).
 
-- **Framework:** Astro 7, fully static (pin candidates `astro` 7.4.1, `@astrojs/mdx` 8.1.0). Typed content collections in MDX; islands only for the map and the chat; no server rendering. Node `>=22.22.0` is checked in the cloud VM. pnpm is pinned through `packageManager`, with `minimumReleaseAge` 14 days and dependency build scripts off except an allowlist.
+- **Framework:** Astro 7, fully static (pin candidates `astro` 7.4.1, `@astrojs/mdx` 8.1.0). Typed content collections in MDX; islands only for the map and the chat; no server rendering. Node `>=22.23.4` (astro 7.4.2's minimum, since item 0.4) is checked in the cloud VM. pnpm is pinned through `packageManager`, with `minimumReleaseAge` 14 days and dependency build scripts off except an allowlist.
   - Rejected: Next.js 16 (a React runtime the site doesn't need); SvelteKit 3 (no built-in typed collections).
 - **Map:**
   - An SVG illustration whose parts carry ids, plus `map.yaml` (id, label, one-line description, page, status), plus ~3 KB of own TypeScript for the hover/focus cards.
@@ -317,6 +317,7 @@ Decided 2026-11-09 by Patrick (export repo), changed 2026-11-10 by Patrick (note
   - **The notes are public** once the sync branch is pushed, before any portfolio check runs. Their redaction is the IC side's job; the `check` workflow's scan (without the deny-list) runs on the sync PR, and the authoritative build scan covers them too, because they're in the repo.
   - **Verbatim copies:** `pnpm check` warns when a file outside `sources/vision/` repeats 40 or more consecutive words from it (D9). The check prints `file:line` and the source file, never the text.
   - The sync PR is the one kind of PR not written by a session; it lands only through Patrick's merge, like everything else (D8).
+  - **Residual risk, accepted by Patrick 2026-11-10:** the deploy key ic-core uses to push sync branches can push *any* branch to `portfolio-site`, not only `vision-sync/*`. Accepted because the key lives only on ic-core behind its guardrail, `main` is protected by the ruleset, and any other branch it pushed would be public and visible.
 - **Rejected:**
   - The D10 token clone: blocked by the proxy (above).
   - Attaching the IC repo to the session: gives the cloud access to the whole IC repo.

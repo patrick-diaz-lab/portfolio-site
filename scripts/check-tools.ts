@@ -1,9 +1,9 @@
 // `pnpm check-tools`: the toolchain in this environment (PLAN 0.3). Prints the versions of
-// Node, pnpm, Go, git and Chrome; fails if Node is older than 22.22.0.
+// Node, pnpm, Go, git and Chrome; fails if Node is older than 22.23.4 (astro 7.4.2).
 import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 
-const MIN_NODE = [22, 22, 0];
+const MIN_NODE = [22, 23, 4];
 
 function version(cmd: string, args: string[]): string {
   const r = spawnSync(cmd, args, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });

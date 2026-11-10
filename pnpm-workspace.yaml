@@ -4,4 +4,7 @@ minimumReleaseAge: 20160
 minimumReleaseAgeStrict: true
 # Dependency build scripts stay off; an entry here is a reviewed exception.
 strictDepBuilds: true
-allowBuilds: {}
+allowBuilds:
+  # Reviewed exceptions (PLAN 0.4): each downloads its own native binary at install.
+  esbuild: true    # bundler under Vite/Astro and wrangler
+  workerd: true    # Workers runtime used by wrangler

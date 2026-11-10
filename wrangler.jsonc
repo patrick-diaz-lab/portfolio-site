@@ -1,0 +1,17 @@
+// Cloudflare Worker with static assets only (D7, PLAN 0.4): no Worker script, no bindings.
+// Deployed by Cloudflare's Git build on merges to main; builds for other branches are off.
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "portfolio-site",
+  "compatibility_date": "2026-10-26",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page"
+  },
+  // Served on workers.dev until the domain is attached in item 1.9.
+  "workers_dev": true,
+  // No preview URLs for uploaded versions (D3: no public previews).
+  "preview_urls": false,
+  // Worker logs and traces off (D7, D11).
+  "observability": { "enabled": false }
+}
