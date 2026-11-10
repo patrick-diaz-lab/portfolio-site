@@ -28,7 +28,7 @@ The repo is public in `patrick-diaz-lab` on GitHub Free (D20). Settings come **b
    - Connect Claude's GitHub (claude.ai) to the bot account, not to `patrick-diaz-dev`. Check in a session that GitHub reports the bot and that only `portfolio-site` is listed.
    - Create the cloud environment `portfolio` at claude.ai/code. It holds no token or secret (D21): revoke the earlier IC docs token on GitHub and remove the `VISION_DOCS_TOKEN` variable from the environment.
 10. **Connect Cloudflare's Git build** to `portfolio-site` (D7, item 0.4). Workers & Pages → Create → Import a repository:
-    - First choose a **neutral `workers.dev` subdomain** for the account (nothing personal; the hello page lives there until item 1.9).
+    - `workers.dev` subdomain: keep the existing one (Patrick's public GitHub handle; decided 2026-11-10, nothing new revealed). The hello page lives there until item 1.9.
     - Worker name `portfolio-site` (must match `wrangler.jsonc`). Production branch `main`. **Builds for non-production branches: off.**
     - Build command `pnpm check && pnpm build`; deploy command `npx wrangler deploy` (uses the pinned wrangler).
     - Build variables (plain): `GO_VERSION` = `1.24.11` (the image's default Go is older than `tools/gitleaks/go.mod` needs), `PNPM_VERSION` = `12.15.0`, `WRANGLER_SEND_METRICS` = `false`. Node comes from `.node-version`.
