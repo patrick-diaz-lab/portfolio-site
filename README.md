@@ -7,6 +7,7 @@ Status: planned, nothing built. Start with [docs/PLAN.md](docs/PLAN.md); the des
 ## Checks
 
 - `pnpm install` installs the pinned tools and points git at `.githooks` (pre-commit: scan of staged files; pre-push: `pnpm check` plus a scan of every commit being pushed).
-- `pnpm check` runs types, schemas, links and the redaction scan (generic rules + pinned gitleaks; the private deny-list only when `REDACTION_DENYLIST` or `REDACTION_DENYLIST_FILE` is set). Hits print the rule and `file:line`, never the matched text.
-- `pnpm test:check` runs the planted-finding tests.
+- `pnpm check` runs types, schemas, links, a verbatim-copy warning against `sources/vision/` and the redaction scan (generic rules + pinned gitleaks; the private deny-list only when `REDACTION_DENYLIST` or `REDACTION_DENYLIST_FILE` is set). Hits print the rule and `file:line`, never the matched text.
+- `pnpm test:check` runs the planted-finding and verbatim-copy tests.
+- `pnpm check-tools` prints the toolchain versions and fails on Node < 22.22.0.
 - gitleaks is built from `tools/gitleaks` (pinned in `go.mod`/`go.sum`), so Go ≥ 1.24 must be on `PATH`; Go fetches the exact toolchain it needs.
