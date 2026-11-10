@@ -133,7 +133,7 @@ Decided 2026-11-04 (planning Q13, simplified by Patrick).
 - **Item 0.4 test result (2026-11-10):** the deny-list works in the production build.
   - After the separator fix (PR #10), the production build's scan reported `(deny-list: 18 entries)`, found **2 real deny-list hits** (a hostname in `docs/DECISIONS.md:321`, removed in PR #11) and **stopped before deploy**. The log named only the rule and `file:line`.
   - The planted canary was proven locally: `scan.ts` with a test list holding the canary mid-list reported `deny-list  docs/test-0.4-planted.md:3` and exited 1, without printing the word.
-  - After the canary was removed and PR #11 merged, the production build passed with the full entry count.
+  - After the canary was removed and PR #11 merged, production build `de27d6eb` reported `(deny-list: 17 entries)`, passed and deployed.
   - **Preview builds can't be used for this test:** three fresh preview builds of the canary branch all reported `(deny-list: 1 entry)` although the Previews secret had been re-entered with `|` separators. Cloudflare apparently doesn't pass that secret as entered. Not debugged: preview builds stay off, and the Previews secret was deleted.
 - **Gap:** session-side hooks don't have the deny-list, so they catch only the generic patterns. The build blocks the deploy. **Since D20 the repo is public,** so pushed text is public before the build runs. So a pre-push scan with the deny-list is required before item 1.4 (D20).
 - **Also:** EXIF and other metadata are stripped from images in the build. Eval numbers are published only as aggregates (never case contents, never the held-out split). A check in `pnpm check` warns on 40 or more consecutive words copied verbatim from `sources/vision/` (D21).

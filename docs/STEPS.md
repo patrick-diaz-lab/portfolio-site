@@ -36,7 +36,7 @@ The repo is public in `patrick-diaz-lab` on GitHub Free (D20). Settings come **b
 12. **Run the item 0.3 tests with Claude** (as the bot): a push of a test branch to `patrick-diaz-lab/.github`, a merge of a test PR on `portfolio-site` and a direct push to `main` must all fail. If any succeeds, D8 comes back to you.
 12a. **Item 0.4 deny-list test** (done 2026-11-10; details in [DECISIONS](DECISIONS.md#d9--redaction-scan) D9):
     - The planned canary on a preview build didn't work: preview builds never received the Previews secret as entered (always 1 entry). Preview builds are off again, the Previews secret is deleted, the test branch is deleted and the canary is out of the list.
-    - Evidence used instead: the production build after PR #10 (18 entries, 2 real hits, stopped before deploy), a local canary run of `scan.ts`, and a passing production build after PR #11.
+    - Evidence used instead: the production build after PR #10 (18 entries, 2 real hits, stopped before deploy), a local canary run of `scan.ts`, and production build `de27d6eb` after PR #11 (17 entries, passed and deployed).
     - **After every change to `REDACTION_DENYLIST`:** start a fresh production build (a merge, not a retry; a retry may reuse the old values) and check that the log shows the expected `(deny-list: N entries)`.
 13. **Worker logs off:** `wrangler.jsonc` sets `observability.enabled: false`; check in the Worker's Settings → Observability that logs and traces show as off after the first deploy (D7).
 
