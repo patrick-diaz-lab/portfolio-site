@@ -58,19 +58,20 @@ redaction/exceptions.yaml        the only place for scan exceptions (changes via
 evals/retrieval.yaml             public retrieval eval (questions → expected entry ids)
 ```
 
-**Part page frontmatter:** `id, piece, title, summary, status (built | in-progress | planned), as_of, source_commit, sources[], evals[] {name, metric, value, n, date, baseline?, cost_usd?}, related[]`.
+**Part page frontmatter:** `id, piece, title, summary, status (built | in-progress | planned), as_of, source_commit, sources[], evals[] {name, metric, value, n, date, baseline?, cost_usd?}, related[]`. `evals[]` is aggregates only (D19): `name` is a slug of at most 48 characters, `metric` one of `accuracy, hit_at_5, mrr, rate, count, cost_usd, seconds`, every other field a number or an ISO date, and no other keys.
 
 **Fixed sections:** *What it does* (MDX body) · *Why this way* (entries `decision` + `rejected`) · *How it's tested* (entries `testing` + `evals[]`) · *What I learned* (entries `learning`).
 
 **Knowledge entry frontmatter:** `id, piece, part, page, anchor, kind (overview | decision | rejected | testing | learning), sources (files under sources/vision/), as_of, source_commit`.
 
-**Build rules (fail the build):**
-- A missing or wrong field.
-- An entry whose `page`/`anchor` doesn't exist.
+**Rules (`scripts/check-content.ts` in `pnpm check`, before the build; schemas in `src/content/schemas.ts`, shared with the Astro collections):**
+- A missing, unknown or wrong field (every object is strict).
+- An entry whose `page` isn't its part's page, whose part has no page, or whose `anchor` repeats on that page. Each part page renders its own entries under their anchors, so these checks are enough for the anchor to exist.
+- A `related[]` part, a `sources` file or a `map.yaml` page that doesn't exist.
 - A `built` part with a page but without at least one `decision`, `rejected`, `testing` and `learning` entry.
 - Free text in `evals[]`.
-- A `map.yaml` part without its SVG element, or without a page or `status: in-progress | planned`.
-- A starter citing a missing entry.
+- A `map.yaml` part without its SVG element (item 1.3).
+- A starter citing a missing entry (Phase 3; starters and `evals/retrieval.yaml` get their schemas when first used).
 
 A starter whose cited entry changed after the starter's `as_of` gives a warning.
 
