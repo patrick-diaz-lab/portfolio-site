@@ -55,3 +55,23 @@ test("clean file passes", () => {
   const { status, output } = scanFixture("nothing private");
   assert.equal(status, 0, output);
 });
+
+// PLAN 0.4: a single-line secret field turns line breaks into spaces, so "|" and ";" also
+// separate entries, and the summary prints the entry count (never the entries).
+for (const [name, sep] of [["newline", "\n"], ["pipe", " | "], ["semicolon", ";"]] as const) {
+  test(`deny-list entries separated by ${name} are each matched; count printed`, () => {
+    const word = "brindle" + "vortash";
+    const list = ["first entry", word, "third"].join(sep);
+    const { status, output } = scanFixture(word, { REDACTION_DENYLIST: list });
+    assert.equal(status, 1, output);
+    assert.match(output, /deny-list\s+planted\.md:3/);
+    assert.match(output, /\(deny-list: 3 entries\)/);
+    assert.ok(!output.includes(word) && !output.includes("first entry"), "entries must never be printed");
+  });
+}
+
+test("a clean scan with a list prints the entry count", () => {
+  const { status, output } = scanFixture("nothing private", { REDACTION_DENYLIST: "# comment;alpha|beta" });
+  assert.equal(status, 0, output);
+  assert.match(output, /files clean \(deny-list: 2 entries\)/);
+});

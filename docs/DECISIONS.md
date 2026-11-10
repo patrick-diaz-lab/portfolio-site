@@ -127,7 +127,8 @@ Decided 2026-11-04 (planning Q13, simplified by Patrick).
   - Generic patterns: IP addresses, MAC addresses, private network names, ports, absolute and home paths, env-file paths, VM IDs, emails other than the public contact, phone numbers, UUIDs, the IC guardrail's secret patterns, and pinned gitleaks.
   - The private deny-list (hostnames, LAN names, canary words, employer name, other people's names) is a **secret Cloudflare build variable**, never in the repo. Patrick keeps a local copy for `pnpm scan` on his own machine.
 - **Exceptions:** only in `redaction/exceptions.yaml`. It changes only through a reviewed merge, like everything else on `main`.
-- **Logs:** a deny-list hit reports the rule and `file:line`, never the matched word.
+- **Logs:** a deny-list hit reports the rule and `file:line`, never the matched word. The summary line reports the number of deny-list entries (never the entries), so a list that doesn't parse is visible.
+- **Found in item 0.4 (2026-11-10):** Cloudflare's secret field is single-line, so a list entered one entry per line became one long entry that never matched: the canary test passed the scan, and the production builds before it ran with an ineffective list. Fix: `|` and `;` also separate entries, and the entry count is printed.
 - **Gap:** session-side hooks don't have the deny-list, so they catch only the generic patterns. The build blocks the deploy. **Since D20 the repo is public,** so pushed text is public before the build runs. So a pre-push scan with the deny-list is required before item 1.4 (D20).
 - **Also:** EXIF and other metadata are stripped from images in the build. Eval numbers are published only as aggregates (never case contents, never the held-out split). A check in `pnpm check` warns on 40 or more consecutive words copied verbatim from `sources/vision/` (D21).
 
