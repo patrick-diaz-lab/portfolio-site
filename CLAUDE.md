@@ -14,4 +14,5 @@ This repo is **public** (D20). Start with [docs/PLAN.md](docs/PLAN.md).
 ## Everything pushed is public
 
 - A pushed branch is public at once, before any build scan. Push only after the pre-push scan passes. Never commit `.cache/` or `.env*`. Pages and knowledge entries are rewritten from `sources/vision/`, never pasted (`pnpm check` warns at 40 copied words).
+- Never write hostnames, machine names or LAN names, even when Patrick uses them in the session: write a role ("the home server", "the Vision machine"). The session's scan doesn't have the deny-list, so it can't catch them before a push (D9).
 - No commits on `main`; work goes to a branch and a PR. Only Patrick merges (D8).
