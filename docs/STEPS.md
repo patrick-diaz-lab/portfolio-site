@@ -34,12 +34,10 @@ The repo is public in `patrick-diaz-lab` on GitHub Free (D20). Settings come **b
     - Build variables (plain): `GO_VERSION` = `1.24.11` (the image's default Go is older than `tools/gitleaks/go.mod` needs), `PNPM_VERSION` = `12.15.0`, `WRANGLER_SEND_METRICS` = `false`. Node comes from `.node-version`.
 11. **Deny-list:** write your private list (hostnames, LAN names, canary words, employer name and variants, other people's names) and store it as a **secret build variable `REDACTION_DENYLIST`** in the Worker's build settings. The secret field is single-line, so separate entries with `|` (or `;`), e.g. `entry one | entry two | entry three`; line breaks also work in a file. Matching is case-insensitive and whole-word (details in [README](../README.md#checks)). Check the next build log: the scan line must say `(deny-list: N entries)` with your number of entries. Keep a local copy for `pnpm scan` on your own machine, never on the Vision machine (D9). Before item 1.4, also give the sessions' pre-push scan its copy, where item 1.3a says (D20).
 12. **Run the item 0.3 tests with Claude** (as the bot): a push of a test branch to `patrick-diaz-lab/.github`, a merge of a test PR on `portfolio-site` and a direct push to `main` must all fail. If any succeeds, D8 comes back to you.
-12a. **Item 0.4 planted-finding test with Claude** (approved 2026-11-10):
-    1. Add a made-up canary word to `REDACTION_DENYLIST` (not a real name; tell Claude the word in the session).
-    2. Turn **builds for non-production branches on**.
-    3. Claude pushes `test/0.4-planted` with the canary word only. (Generic findings such as an IP never get past the session's own pre-commit and pre-push scans, so they can't be planted on a pushed branch; the `check` workflow already proved them in item 0.2.)
-    4. The build must fail in `pnpm check`, the log naming the rule and `file:line` and never the word. Nothing is deployed.
-    5. Turn non-production builds **off** again, delete the branch, and remove the canary word from the list.
+12a. **Item 0.4 deny-list test** (done 2026-11-10; details in [DECISIONS](DECISIONS.md#d9--redaction-scan) D9):
+    - The planned canary on a preview build didn't work: preview builds never received the Previews secret as entered (always 1 entry). Preview builds are off again, the Previews secret is deleted, the test branch is deleted and the canary is out of the list.
+    - Evidence used instead: the production build after PR #10 (18 entries, 2 real hits, stopped before deploy), a local canary run of `scan.ts`, and production build `de27d6eb` after PR #11 (17 entries, passed and deployed).
+    - **After every change to `REDACTION_DENYLIST`:** start a fresh production build (a merge, not a retry; a retry may reuse the old values) and check that the log shows the expected `(deny-list: N entries)`.
 13. **Worker logs off:** `wrangler.jsonc` sets `observability.enabled: false`; check in the Worker's Settings → Observability that logs and traces show as off after the first deploy (D7).
 
 ## C. Before Phase 3 (item 3.1)
