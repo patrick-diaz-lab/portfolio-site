@@ -78,6 +78,16 @@ export const RULES: Rule[] = [
 
 export const RULE_IDS = new Set([...RULES.map((r) => r.id), "deny-list", "gitleaks"]);
 
+// Splits a raw deny-list into entries. Separators: line breaks, "|" and ";" (so a list
+// survives a single-line secret field, PLAN 0.4). Entries are trimmed; empty entries and
+// entries starting with "#" are dropped. An entry can't itself contain "|" or ";".
+export function parseDenyList(raw: string): string[] {
+  return raw
+    .split(/\r?\n|[|;]/)
+    .map((w) => w.trim())
+    .filter((w) => w.length > 0 && !w.startsWith("#"));
+}
+
 export function denyListRule(words: string[]): Rule | undefined {
   const cleaned = words.map((w) => w.trim()).filter((w) => w.length > 0 && !w.startsWith("#"));
   if (cleaned.length === 0) return undefined;

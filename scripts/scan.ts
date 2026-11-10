@@ -5,8 +5,9 @@
 //   node scripts/scan.ts --commits <sha>… files each commit adds or changes (pre-push)
 //   node scripts/scan.ts --dir <path>     every file under a directory (dist/, tests)
 //
-// Private deny-list (never in git): REDACTION_DENYLIST (one entry per line) and/or
-// REDACTION_DENYLIST_FILE (a path to such a list). Without either, only the generic
+// Private deny-list (never in git): REDACTION_DENYLIST and/or REDACTION_DENYLIST_FILE (a
+// path to such a list). Entries are separated by line breaks, "|" or ";". The summary line
+// prints the number of entries (never the entries); without a list, only the generic
 // rules and gitleaks run, and the scan says so.
 import { execFileSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
@@ -14,7 +15,7 @@ import { tmpdir } from "node:os";
 import { dirname, join, relative, resolve } from "node:path";
 import { parse } from "yaml";
 import { runGitleaks } from "./lib/gitleaks.ts";
-import { RULES, denyListRule, type Rule } from "./lib/rules.ts";
+import { RULES, denyListRule, parseDenyList, type Rule } from "./lib/rules.ts";
 
 const ROOT = resolve(import.meta.dirname, "..");
 
@@ -91,9 +92,9 @@ function lineOf(text: string, index: number): number {
 function loadDenyList(): string[] {
   const words: string[] = [];
   const inline = process.env.REDACTION_DENYLIST;
-  if (inline) words.push(...inline.split(/\r?\n/));
+  if (inline) words.push(...parseDenyList(inline));
   const file = process.env.REDACTION_DENYLIST_FILE;
-  if (file) words.push(...readFileSync(file, "utf8").split(/\r?\n/));
+  if (file) words.push(...parseDenyList(readFileSync(file, "utf8")));
   return words;
 }
 
@@ -128,7 +129,8 @@ function scanText(src: Source, text: string, rules: Rule[]): Finding[] {
 
 function main(): number {
   const sources = collect(process.argv.slice(2)).filter((s) => !isBinary(s.content));
-  const deny = denyListRule(loadDenyList());
+  const denyWords = loadDenyList();
+  const deny = denyListRule(denyWords);
   const rules = deny ? [...RULES, deny] : RULES;
 
   const findings: Finding[] = [];
@@ -167,7 +169,9 @@ function main(): number {
       ),
   );
 
-  const note = deny ? "" : " (no deny-list set: generic rules and gitleaks only)";
+  const note = deny
+    ? ` (deny-list: ${denyWords.length} ${denyWords.length === 1 ? "entry" : "entries"})`
+    : " (no deny-list set: generic rules and gitleaks only)";
   if (reported.length === 0) {
     process.stdout.write(`scan: ${sources.length} files clean${note}\n`);
     return 0;
