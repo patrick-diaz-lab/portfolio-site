@@ -178,6 +178,7 @@ docs/                      PLAN, ARCHITECTURE, DECISIONS, RESEARCH, STEPS
 sources/vision/            Vision's portfolio notes, synced by PR from the Vision side (D21); never edited here
 pieces/  content/  redaction/  evals/
 src/                       Astro pages, layouts, components (Map, PartCard, Chat island)
+src/styles/                tokens.css (design tokens, D13) and base.css; /styleguide/ renders them
 workers/knowledge/         retrieve, sync cron, eval, /_status, (later) /mcp
 workers/chat/              /api/ask, Turnstile, limits, invites, Durable Object
 scripts/                   scan, chunk, invite (create/stats/revoke), check-*
