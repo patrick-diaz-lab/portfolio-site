@@ -5,12 +5,12 @@
 parts:
   - id: telegram-adapter
     label: Telegram adapter
-    hover: The chat I talk to Vision through. Each message goes to agent core; only the last 6 hours count as context.
+    hover: "The chat I talk to Vision through. Each message goes to agent core; only the last 10 turns from the past 6 hours count as context."
     status: built
     line: surfaces
   - id: console
     label: Console
-    hover: Vision's web console. Built and live; its own page comes later.
+    hover: "Private web console for chat and run traces: every step, tool call and cost of a run. Reachable only over Tailscale."
     status: built
     line: surfaces
   - id: agent-core
@@ -20,17 +20,17 @@ parts:
     line: core
   - id: claude-worker
     label: Claude worker tier
-    hover: A Claude Code worker on my subscription, only for messages I send myself. Read-only tools, kept off the gateway's network.
+    hover: "A Claude Code worker on my subscription, only for my own messages. A filtering proxy lets it reach only the provider API and gateway tools."
     status: built
     line: core
   - id: run-records
     label: Run records
-    hover: Every piece of work is a run with steps, joined to the gateway's spend log. Names, counts and costs; never queries or notes.
+    hover: "Every piece of work is a run with steps, tokens and costs. Full traces stay 30 days for review, then are deleted unless I flag a run."
     status: built
     line: core
   - id: litellm-gateway
     label: LiteLLM gateway
-    hover: Every model call passes one gateway. Code names aliases, not models, and each flow has its own key and 30-day budget.
+    hover: "One gateway for every model call: aliases, not model names; a key and 30-day budget per flow. Prompt caching cut costs by 65 %."
     status: built
     line: models-and-tools
   - id: mcp-servers
