@@ -54,6 +54,7 @@ The repo is public in `patrick-diaz-lab` on GitHub Free (D20). Settings come **b
     2. Check the wiring in `pieces/vision/map.svg`, especially where the console connects. A wire is a claim about the system.
     3. Look at the screenshots in the PR (desktop, phone, an open card) and the `pnpm map-check` and `pnpm lighthouse` results.
     4. Run `pnpm scan` with your local deny-list copy, then merge. After the merge, check that the Cloudflare build log shows `(deny-list: N entries)` and that `/vision/` is served.
+2. **Item 1.8, browser gates:** after the first green run of the `gates` job, add **`gates`** as a required status check on the `main` ruleset, next to `check`. Then a PR whose gates fail can't be merged.
 
 ## C. Before Phase 3 (item 3.1)
 

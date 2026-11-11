@@ -4,30 +4,16 @@
 //
 //   node scripts/design-check.ts [--shots <dir>]     default dir: .cache/screens (git-ignored)
 //
-// Needs a Chromium through Playwright. In the cloud VM the preinstalled Playwright is used
-// (it isn't a repo dependency); the CI gate for this comes with PLAN 1.8.
+// Uses the pinned Playwright's Chromium (scripts/lib/browser.ts); a gate in CI since PLAN 1.8.
 import { createReadStream, existsSync, mkdirSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { createServer } from "node:http";
-import { createRequire } from "node:module";
 import { extname, join, resolve } from "node:path";
+import { devices, launch } from "./lib/browser.ts";
 
 const ROOT = resolve(import.meta.dirname, "..");
 const DIST = join(ROOT, "dist");
 const i = process.argv.indexOf("--shots");
 const SHOTS = resolve(i > 0 ? (process.argv[i + 1] ?? ".cache/screens") : join(ROOT, ".cache", "screens"));
-
-type Page = { goto(u: string, o?: object): Promise<unknown>; addScriptTag(o: object): Promise<unknown>; evaluate<T>(f: string): Promise<T>; screenshot(o: object): Promise<unknown>; on(e: string, f: (r: { url(): string }) => void): void; close(): Promise<void> };
-type Browser = { newContext(o?: object): Promise<{ newPage(): Promise<Page>; close(): Promise<void> }>; close(): Promise<void> };
-type PW = { chromium: { launch(o?: object): Promise<Browser> }; devices: Record<string, object> };
-
-function loadPlaywright(): PW {
-  const req = createRequire(import.meta.url);
-  try {
-    return req("playwright") as PW;
-  } catch {
-    throw new Error("Playwright isn't available here. In the cloud VM it is preinstalled; elsewhere run this in CI (PLAN 1.8).");
-  }
-}
 
 const TYPES: Record<string, string> = { ".html": "text/html", ".css": "text/css", ".js": "text/javascript", ".woff2": "font/woff2", ".woff": "font/woff", ".svg": "image/svg+xml", ".png": "image/png", ".json": "application/json" };
 
@@ -61,8 +47,7 @@ async function main(): Promise<number> {
   const port = (server.address() as { port: number }).port;
   const origin = `http://localhost:${port}`;
 
-  const { chromium, devices } = loadPlaywright();
-  const browser = await chromium.launch();
+  const browser = await launch();
   const axe = readFileSync(join(ROOT, "node_modules", "axe-core", "axe.min.js"), "utf8");
   mkdirSync(SHOTS, { recursive: true });
 

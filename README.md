@@ -13,6 +13,11 @@ Status: planned, nothing built. Start with [docs/PLAN.md](docs/PLAN.md); the des
 - In cloud sessions the plaintext list never exists: `REDACTION_DENYLIST_HASHES` holds salted scrypt hashes made by `scripts/denylist-hash.ts` on Patrick's machine (stdin only, Node standard library only; STEPS B.11a). The scan matches every whole-word run of 1 to `span` words against them and prints `(deny-list: N hashed entries, span K)`. Short entries are guessable from their hashes; Cloudflare's plaintext gate stays authoritative (D20).
 - `pnpm test:check` runs the planted-finding and verbatim-copy tests.
 - `pnpm build` builds the static site into `dist/` (Astro) and scans `dist/`; Cloudflare deploys it with `wrangler.jsonc` on merges to `main` (D7).
-- `pnpm design-check` (after `pnpm build`) serves `dist/`, runs axe-core (WCAG 2 A/AA) on every page, fails on any request to another host, and saves desktop and phone screenshots to `.cache/screens/`. It uses the cloud VM's preinstalled Playwright; the CI gate comes with PLAN 1.8.
+- `pnpm gates` (after `pnpm build`) runs every browser gate over `dist/`. It is the CI job `gates` and runs in sessions too (PLAN 1.8):
+  - `pnpm design-check`: axe-core (WCAG 2.2 A/AA) on every page, desktop and phone; fails on any request to another host; saves screenshots to `.cache/screens/`.
+  - `pnpm map-check`: every piece map's names, Tab order, cards, touch, links and click focus.
+  - `pnpm page-check`: on every page, visible focus at every Tab stop, nothing missing with JS off, and no animation under reduced motion. `--self-test` hides every focus indicator and passes only if the focus gate then fails.
+  - `pnpm lighthouse`: mobile, every category ≥ 95, and a size budget per page (script ≤ 5 KB, fonts ≤ 130 KB, total ≤ 250 KB, no other hosts).
+- The browser is the pinned `playwright` (1.64.1) package's own Chromium. CI installs it with `pnpm exec playwright install --with-deps chromium`. In a cloud session, the gates fall back to the preinstalled Chromium under `PLAYWRIGHT_BROWSERS_PATH` when the pinned build is missing. No system Chrome is used.
 - `pnpm check-tools` prints the toolchain versions and fails on Node < 22.23.4.
 - gitleaks is built from `tools/gitleaks` (pinned in `go.mod`/`go.sum`), so Go ≥ 1.24 must be on `PATH`; Go fetches the exact toolchain it needs.

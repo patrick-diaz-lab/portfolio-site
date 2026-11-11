@@ -5,20 +5,14 @@
 //   - with JS off, every part is still a link and the list holds every part
 //   - the signal dot runs on hover, and stands still under prefers-reduced-motion
 //   - on a phone the list (the vertical wire) is shown
-// Needs Playwright's Chromium (preinstalled in the cloud VM; the CI gate comes with PLAN 1.8).
-import { createRequire } from "node:module";
+// Uses the pinned Playwright's Chromium (scripts/lib/browser.ts); a gate in CI since PLAN 1.8.
 import { loadPieces } from "../src/lib/pieces.ts";
+import { devices, launch, type Page } from "./lib/browser.ts";
 import { serveDist } from "./lib/serve.ts";
 
-type Loc = { count(): Promise<number>; getAttribute(n: string): Promise<string | null>; isVisible(): Promise<boolean>; hover(): Promise<void>; tap(): Promise<void>; textContent(): Promise<string | null>; evaluate<T>(f: string | ((el: Element) => T)): Promise<T>; first(): Loc };
-type Page = { goto(u: string): Promise<unknown>; url(): string; locator(s: string): Loc; keyboard: { press(k: string): Promise<void> }; evaluate<T>(f: string | (() => T)): Promise<T>; waitForTimeout(ms: number): Promise<void>; waitForURL(u: (url: URL) => boolean, o?: object): Promise<void> };
-type Ctx = { newPage(): Promise<Page>; close(): Promise<void> };
-type PW = { chromium: { launch(): Promise<{ newContext(o?: object): Promise<Ctx>; close(): Promise<void> }> }; devices: Record<string, object> };
-
-const pw = createRequire(import.meta.url)("playwright") as PW;
 const pieces = loadPieces();
 const { origin, server } = await serveDist();
-const browser = await pw.chromium.launch();
+const browser = await launch();
 const desktop = { viewport: { width: 1280, height: 900 } };
 
 let failures = 0;
@@ -156,7 +150,7 @@ try {
     }
 
     // JS off: parts are still links, the list holds every part.
-    for (const [view, opts] of [["desktop", desktop], ["phone", pw.devices["iPhone 13"]!]] as const) {
+    for (const [view, opts] of [["desktop", desktop], ["phone", devices["iPhone 13"]!]] as const) {
       const ctx = await browser.newContext({ ...opts, javaScriptEnabled: false });
       const page = await ctx.newPage();
       await page.goto(url);

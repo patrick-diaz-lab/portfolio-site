@@ -1,20 +1,20 @@
-// `pnpm lighthouse` (PLAN 1.3 done-when, gate in CI with 1.8): mobile Lighthouse on every
-// piece overview page and every part page its map links to (PLAN 1.4). Each category must
-// score at least 95.
+// `pnpm lighthouse` (PLAN 1.3, a CI gate since 1.8): mobile Lighthouse on every piece
+// overview page and every part page its map links to. Each category must score at least 95,
+// and each page must stay inside the budget below (from Lighthouse's own request list).
 //
 //   node scripts/lighthouse.ts [--min 95] [path ...]     default: those pages
 //
-// Lighthouse 13.6.0 is a pinned dev dependency; Chrome is Playwright's Chromium (preinstalled
-// in the cloud VM), or CHROME_PATH. `is-crawlable` is skipped while pages carry noindex
-// until launch (PLAN 1.9). Lighthouse sends nothing anywhere: the Node API has no telemetry.
+// Lighthouse 13.6.0 is a pinned dev dependency. The browser is the pinned Playwright's
+// Chromium (scripts/lib/browser.ts), never a system Chrome. `is-crawlable` is skipped while
+// pages carry noindex until launch (PLAN 1.9). The Node API sends nothing anywhere.
 import { spawn } from "node:child_process";
 import { mkdtempSync, rmSync } from "node:fs";
 import { createServer } from "node:net";
-import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import lighthouse from "lighthouse";
 import { loadPieces } from "../src/lib/pieces.ts";
+import { chromiumPath } from "./lib/browser.ts";
 import { serveDist } from "./lib/serve.ts";
 
 const args = process.argv.slice(2);
@@ -23,10 +23,25 @@ const MIN = mi >= 0 ? Number(args.splice(mi, 2)[1]) : 95;
 const paths = args.length ? args : loadPieces().flatMap((p) => [`/${p.id}/`, ...p.parts.flatMap((x) => (x.page ? [x.page] : []))]);
 const CATEGORIES = ["performance", "accessibility", "best-practices", "seo"];
 
-function chromePath(): string {
-  if (process.env.CHROME_PATH) return process.env.CHROME_PATH;
-  const pw = createRequire(import.meta.url)("playwright") as { chromium: { executablePath(): string } };
-  return pw.chromium.executablePath();
+// Size budget per page (PLAN 1.8), on transferred bytes as Lighthouse measured them.
+const KB = 1024;
+const BUDGET = { script: 5 * KB, font: 130 * KB, total: 250 * KB };
+type Req = { url: string; resourceType?: string; transferSize?: number };
+
+function budget(items: Req[], pageOrigin: string): { ok: boolean; line: string } {
+  let script = 0, font = 0, total = 0;
+  const foreign = new Set<string>();
+  for (const r of items) {
+    if (r.url.startsWith("data:")) continue;
+    const size = r.transferSize ?? 0;
+    total += size;
+    if (r.resourceType === "Script") script += size;
+    if (r.resourceType === "Font") font += size;
+    if (new URL(r.url).origin !== pageOrigin) foreign.add(new URL(r.url).host);
+  }
+  const ok = script <= BUDGET.script && font <= BUDGET.font && total <= BUDGET.total && foreign.size === 0;
+  const k = (n: number) => `${(n / KB).toFixed(1)} KB`;
+  return { ok, line: `script ${k(script)} · fonts ${k(font)} · total ${k(total)} · other hosts ${foreign.size}` };
 }
 
 async function freePort(): Promise<number> {
@@ -52,7 +67,7 @@ async function waitForDebugger(port: number): Promise<void> {
 const { origin, server } = await serveDist();
 const port = await freePort();
 const profile = mkdtempSync(join(tmpdir(), "lh-profile-"));
-const chrome = spawn(chromePath(), ["--headless=new", "--no-sandbox", "--disable-gpu", "--no-first-run", "--disable-extensions", `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`, "about:blank"], { stdio: "ignore" });
+const chrome = spawn(chromiumPath().path, ["--headless=new", "--no-sandbox", "--disable-gpu", "--no-first-run", "--disable-extensions", `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`, "about:blank"], { stdio: "ignore" });
 
 let failed = 0;
 try {
@@ -64,10 +79,14 @@ try {
     });
     if (!result) throw new Error(`no Lighthouse result for ${path}`);
     const scores = CATEGORIES.map((c) => [c, Math.round((result.lhr.categories[c]?.score ?? 0) * 100)] as const);
-    const ok = scores.every(([, s]) => s >= MIN);
+    const requests = ((result.lhr.audits["network-requests"]?.details as { items?: Req[] } | undefined)?.items ?? []);
+    const b = budget(requests, origin);
+    const scored = scores.every(([, s]) => s >= MIN);
+    const ok = scored && b.ok && requests.length > 0;
     if (!ok) failed++;
     process.stdout.write(`${ok ? "ok    " : "FAILED"} ${path.padEnd(12)} ${scores.map(([c, s]) => `${c} ${s}`).join(" · ")}\n`);
-    if (!ok) {
+    process.stdout.write(`       budget: ${b.line}${b.ok ? "" : "  (over: script ≤ 5 KB, fonts ≤ 130 KB, total ≤ 250 KB, no other hosts)"}\n`);
+    if (!scored) {
       for (const a of Object.values(result.lhr.audits)) {
         if (a.score !== null && a.score < 0.9 && a.scoreDisplayMode !== "informative" && a.scoreDisplayMode !== "notApplicable") process.stdout.write(`       ${a.id}: ${a.displayValue ?? a.score}\n`);
       }
@@ -80,5 +99,5 @@ try {
   server.close();
   rmSync(profile, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
 }
-process.stdout.write(failed ? `lighthouse: FAILED (${failed} page(s) under ${MIN})\n` : `lighthouse: ok (mobile, every category ≥ ${MIN})\n`);
+process.stdout.write(failed ? `lighthouse: FAILED (${failed} page(s) under ${MIN} or over budget)\n` : `lighthouse: ok (mobile, every category ≥ ${MIN}, every page inside the budget)\n`);
 process.exitCode = failed ? 1 : 0;

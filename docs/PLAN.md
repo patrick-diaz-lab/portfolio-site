@@ -243,7 +243,7 @@ The guardrails page, on the 1.4 template. **Layers and reasons only:** no rules,
   - Patrick signs off the checklist in the PR and merges, and the Cloudflare build's scan is clean.
 - **Cost:** build session on the subscription; no API spend.
 
-### Item 1.8 plan (draft 2026-11-12, waiting for Patrick's OK)
+### Item 1.8 plan (Patrick's OK 2026-11-12, both choices as proposed)
 
 Turn the browser checks from items 1.1 and 1.3 into gates that run on every PR, and close their gaps.
 
@@ -262,6 +262,12 @@ Turn the browser checks from items 1.1 and 1.3 into gates that run on every PR, 
 
   Today's sizes: about 13 KB CSS, 113 KB fonts for five faces, under 2 KB inline script, and 13–16 KB of HTML per page.
 - **Broken focus must fail:** `pnpm gates --self-test` injects a style that hides every focus indicator, and passes only if the focus gate then fails. CI runs it on every PR, so the gate can't silently stop catching anything.
+- **CI rules (Patrick):**
+  - Every GitHub Action pinned by full commit SHA.
+  - Workflow permission `contents: read` only.
+  - No secrets in CI.
+  - Triggered by `pull_request`, never `pull_request_target`.
+  - The CI browser comes from the pinned Playwright version. No system Chrome, in CI or in sessions; Lighthouse uses the same browser.
 - **Screenshots:** stay review output, desktop and phone from `design-check`, kept in the session's git-ignored cache. There are no pixel-diff baselines: font rendering differs between CI and sessions, so they would fail without a real change, and binary baselines would grow the public repo.
 - **Done when:**
   - All gates pass in CI and in the session.
