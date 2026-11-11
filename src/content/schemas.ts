@@ -40,6 +40,17 @@ export const evalSchema = z.strictObject({
   cost_usd: z.number().finite().nonnegative().optional(),
 });
 
+/** A metric chip on a piece's overview page (item 1.3 follow-up): one aggregate number,
+ *  sourced from sources/vision/, with the date it holds for. No case text (D19). */
+export const chipSchema = z.strictObject({
+  label: text(40),
+  metric: z.enum(METRICS),
+  value: z.number().finite(),
+  n: z.number().int().positive(),
+  sources: z.array(sourcePath).min(1),
+  as_of: isoDate,
+});
+
 export const pieceSchema = z.strictObject({
   id: slug,
   title: text(80),
@@ -51,6 +62,7 @@ export const pieceSchema = z.strictObject({
   order: z.number().int().nonnegative(),
   map_svg: z.string().regex(/^[\w-]+\.svg$/, "must be an .svg file name in the piece folder"),
   chat_enabled: z.boolean(),
+  chips: z.array(chipSchema).max(4, "at most 4 chips").default([]),
 });
 
 export const mapSchema = z.strictObject({

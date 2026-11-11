@@ -48,6 +48,14 @@ try {
         if (name && name.startsWith(p.label) && href) named++;
       }
       check(named === ids.length, `every part is a link with a name (${named}/${ids.length})`);
+      const drawn = await page.locator("svg.schematic .part").count();
+      check(drawn === ids.length, `only built parts are drawn (${drawn} drawn, ${ids.length} built)`);
+      const titles = await page.locator("svg.schematic title").count();
+      check(titles === 0 && !!(await page.locator("svg.schematic").getAttribute("aria-label")), "the schematic has an aria-label and no <title> tooltip");
+      const underlined = await page.evaluate(() =>
+        [...document.querySelectorAll("svg.schematic a.part, svg.schematic a.part text")].filter((el) => getComputedStyle(el).textDecorationLine !== "none").length,
+      );
+      check(underlined === 0, "part links and their labels have no underline");
 
       const reached = new Set<string>();
       for (let i = 0; i < 80 && reached.size < ids.length; i++) {

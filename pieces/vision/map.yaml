@@ -1,7 +1,8 @@
 # Map of the Vision piece (PLAN 1.3, D19). Order here is the order of the list and of the
-# phone's vertical wire; `line` groups the list. Every id is a <g class="part"> in map.svg.
-# The four MVP parts get `page:` with their items (1.4–1.7); until then they link to their
-# list entry. Nothing planned is presented as running (D19).
+# phone's vertical wire; `line` groups the list. Every built id is a <g class="part"> in
+# map.svg. Only `built` parts render (Patrick, 2026-11-11): planned parts stay off the map
+# until they are built; their design notes come in Phase 5. The four MVP parts get `page:`
+# with their items (1.4–1.7); until then they link to their list entry.
 parts:
   - id: telegram-adapter
     label: Telegram adapter
@@ -48,21 +49,6 @@ parts:
     hover: Runs the production code on dev and held-out sets with its own key and budget. Code checks the metrics, not an LLM judge.
     status: built
     line: models-and-tools
-  - id: heartbeat
-    label: Heartbeat
-    hover: Scheduled checks that speak up only when something is wrong, never a daily all-clear. Designed, not built.
-    status: planned
-    line: planned
-  - id: job-contract
-    label: Job contract
-    hover: One approval per job, with goal, allowed actions, budget and deadline; risky tools still ask every time. Designed, not built.
-    status: planned
-    line: planned
-  - id: sandbox
-    label: Sandbox
-    hover: One locked-down container per job for code a model wrote. No network, read-only root, tight limits. Designed, not built.
-    status: planned
-    line: planned
   - id: guardrails
     label: Guardrails
     hover: Hooks that check every command Claude Code runs while it builds Vision, backed by a pre-push hook and a secret scan.

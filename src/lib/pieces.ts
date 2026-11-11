@@ -19,7 +19,8 @@ export function loadPieces(): Piece[] {
       const piece = pieceSchema.parse(parse(readFileSync(join(ROOT, n, "piece.yaml"), "utf8")));
       const map = mapSchema.parse(parse(readFileSync(join(ROOT, n, "map.yaml"), "utf8")));
       const svg = readFileSync(join(ROOT, n, piece.map_svg), "utf8");
-      return { ...piece, parts: map.parts, svg };
+      // Only built parts render (Patrick, 2026-11-11); `status` stays in the data model.
+      return { ...piece, parts: map.parts.filter((p) => p.status === "built"), svg };
     })
     .sort((a, b) => a.order - b.order);
 }

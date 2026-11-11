@@ -179,7 +179,7 @@ Decided 2026-11-04 by Patrick (planning Q17).
   - **Dark only.** No light variant: the instrument look is the point, and every text pair passes AA (silk 12.5:1, dim silk 6.5:1, amber 8.6:1 on the panel).
   - **One amber** for the signal dot, notes, focus and link hover; these are told apart by shape (dot, dashed lead line, outline), not by a second accent.
   - **Type:** Barlow for running text, Barlow Condensed for panel titles, JetBrains Mono for labels and values. All OFL, self-hosted from `@fontsource`, Latin subset only.
-  - **Status (D19) by line style:** built solid, in progress dashed, planned dotted, so it never rests on color alone.
+  - **Status (D19) by line style:** built solid, in progress dashed, planned dotted, so it never rests on color alone. Since 2026-11-11 the map draws only built parts (D19), so the line styles stay in the tokens but the map shows none.
   - Tokens live in `src/styles/tokens.css`; `/styleguide/` renders every one. Rejected on the mood board: cyanotype, drafting vellum, standard sheet, patent figure.
 - **Rules:**
   - The palette meets at least WCAG AA, checked by axe in item 1.
@@ -278,6 +278,8 @@ Decided 2026-11-04 by Patrick (planning Q23–Q25).
 
   Map nodes without a page: MCP servers, knowledge core, Claude worker tier, Telegram adapter (`built`); console (`in-progress`); job contract, heartbeat, sandbox (`planned`). Nothing planned is presented as done.
 - **Map nodes, updated 2026-11-11 by Patrick (item 1.3):** the console is **built** (live), not in progress. **Run records** join the map as a built node without a page. Builder tooling (deploy lane, Remote Control, worktrees) gets its own piece later; guardrails stays on the Vision map because it is an MVP page. A node without a page links to its entry in the list under the map, so D7's build check becomes "every `map.yaml` part has its SVG element, and a page it names exists".
+- **Only built parts render (Patrick, 2026-11-11, item 1.3 follow-up):** heartbeat, job contract and sandbox leave the map and its list; the map shows no status labels and no legend. `status` stays in the schema and the content check: a built part needs its SVG element, and a part that isn't built must not be drawn. Planned parts come back only as Phase 5 design notes.
+- **Metric chips (Patrick, 2026-11-11):** up to 4 aggregate numbers under a piece's intro (`chips` in `piece.yaml`: label, metric, value, n, sources, as_of). Each comes from `sources/vision/`; a number that isn't there gets no chip.
 - **Piece template (Q24):** `piece.yaml`, `map.yaml`, part MDX with fixed sections, knowledge entries and starters, all schema-enforced (details in [ARCHITECTURE](ARCHITECTURE.md#3-content-model-the-reusable-piece-template)). A `built` part with a page needs at least one `decision`, `rejected`, `testing` and `learning` entry. `evals[]` takes numbers only.
 - **`evals[]` holds aggregate numbers only (Patrick, 2026-11-10):** never individual cases, case ids or examples, and from a held-out set nothing beyond its totals. Enforced by the schema: each entry has only `name` (a slug, at most 48 characters), `metric` (`accuracy`, `hit_at_5`, `mrr`, `rate`, `count`, `cost_usd`, `seconds`), `value`, `n`, `date` and optional `baseline` and `cost_usd`, all numbers except the slug and the date; any other key fails `pnpm check` (item 1.2).
 - **Phases (Q25):** 0 Setup → 1 MVP (launch without chatbot) → 2 Knowledge index → 3 Chatbot → 4 Public MCP endpoint → 5 Later. One phase at a time.

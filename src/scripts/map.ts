@@ -8,7 +8,6 @@ export function initMap(root: HTMLElement): void {
   const card = root.querySelector<HTMLElement>("[data-card]");
   if (!frame || !card) return;
   const title = card.querySelector<HTMLElement>("[data-card-title]")!;
-  const status = card.querySelector<HTMLElement>("[data-card-status]")!;
   const text = card.querySelector<HTMLElement>("[data-card-text]")!;
   const open = card.querySelector<HTMLAnchorElement>("[data-card-open]")!;
   const parts = [...frame.querySelectorAll<SVGAElement>("a.part")];
@@ -35,7 +34,6 @@ export function initMap(root: HTMLElement): void {
     if (current && current !== a) current.classList.remove("is-open");
     current = a;
     title.textContent = a.dataset.label ?? "";
-    status.textContent = a.dataset.statusText ?? "";
     text.textContent = a.dataset.hover ?? "";
     open.href = a.getAttribute("href") ?? "#h-parts";
     card.hidden = false;
