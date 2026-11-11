@@ -344,7 +344,7 @@ Decided 2026-11-09 by Patrick (export repo), changed 2026-11-10 by Patrick (note
   - **The notes are public** once the sync branch is pushed, before any portfolio check runs. Their redaction is the IC side's job; the `check` workflow's scan (without the deny-list) runs on the sync PR, and the authoritative build scan covers them too, because they're in the repo.
   - **Verbatim copies:** `pnpm check` warns when a file outside `sources/vision/` repeats 40 or more consecutive words from it (D9). The check prints `file:line` and the source file, never the text.
   - The sync PR is the one kind of PR not written by a session; it lands only through Patrick's merge, like everything else (D8).
-  - **Residual risk, accepted by Patrick 2026-11-10:** the deploy key the home server uses to push sync branches can push *any* branch to `portfolio-site`, not only `vision-sync/*`. Accepted because the key lives only on the home server behind its guardrail, `main` is protected by the ruleset, and any other branch it pushed would be public and visible.
+  - **Residual risk on the sync route, accepted by Patrick 2026-11-10:** an open item, tracked in Patrick's private notes. `main` stays protected by the ruleset either way (D8).
 - **Rejected:**
   - The D10 token clone: blocked by the proxy (above).
   - Attaching the IC repo to the session: gives the cloud access to the whole IC repo.
