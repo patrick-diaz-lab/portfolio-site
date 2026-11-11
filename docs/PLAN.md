@@ -121,6 +121,48 @@ The first part page, which also builds the part-page template that items 1.5–1
 - **Cost:** build session on the subscription; no API spend.
 - **Not in 1.4:** chunking and search (Phase 2), and the other part pages (1.5–1.7).
 
+### Item 1.5 plan (draft 2026-11-11, waiting for Patrick's OK)
+
+The agent core page, on the 1.4 template with no code change.
+
+- **Source:** `sources/vision/deep/agent-core-routing.md` and the agent-core section of `notes.md`, at `source_commit` `bb4fb37…` (2026-11-10). Everything is rewritten, never pasted.
+- **Held back until the next sync:** the rejected option "the gateway on the worker's network". It rests on the worker-network wording that is being corrected upstream, so it comes with the post-sync PR from 1.4. Two other worker points stay, because they don't depend on its network: the worker gets read-only tools, and it checks the tool stream.
+- **Files:**
+  - `content/parts/vision/agent-core.mdx`: frontmatter plus a short *What it does*.
+  - `content/knowledge/vision/agent-core/NN-<id>.md`: 17 entries.
+
+    | Kind | Entries |
+    |---|---|
+    | Decisions (5) | three tiers; one run step per model request; tools only on `smart` and the worker (read-only, at most 6 calls, wrapped as untrusted data); probe, short deadline, fallback to `smart`; chat context hygiene |
+    | Rejected (6) | one model for everything; logging at the framework level; wrapping inside each server; a worker without tools; keeping the model loaded on the GPU PC; one prompt line for the reply language |
+    | Testing (3) | the classifier evals; the agent eval (right source, planted instruction); latency |
+    | Learning (3) | the classifier made me wait; a memory that never happened; one injection got through |
+
+    Each rejected option has `lost_to`. The tools decision has two of them (wrapping inside each server, a worker without tools).
+  - `evals[]` holds only rows with a stated case count:
+
+    | Name | Metric | Value | n | Baseline |
+    |---|---|---|---|---|
+    | classifier `local`, dev | accuracy | 0.95 | 40 | |
+    | classifier `local`, held-out | accuracy | 1.0 | 27 | |
+    | classifier `cheap`, held-out | accuracy | 0.963 | 27 | |
+    | planted instruction repeated | rate | 0 | 12 | 0.5 |
+    | right source retrieved | rate | 1.0 | 18 | |
+
+    Numbers without a case count stay in the testing text, not in the table: reply language 0.8 → 1.0, homelab questions 1.0, about 3 tool calls per question, median 6 s, 95th percentile 11.6 s.
+  - `pieces/vision/map.yaml`: agent core gets `page: /vision/agent-core/`.
+- **Wording rules:**
+  - The "classifier made me wait" lesson says only that the GPU PC was unreachable. The cause (an update had reset its firewall rules) stays out, as a LAN-side detail.
+  - Held-out results stay totals only (D19).
+- **Done when:**
+  - `pnpm check` passes: all four entry kinds, `lost_to` valid, no 40-word copies.
+  - axe finds 0 violations, desktop and phone.
+  - Lighthouse mobile is ≥ 95 on `/vision/agent-core/`.
+  - `map-check` checks that the map and list link to the page and that it loads.
+  - Patrick merges, and the Cloudflare build's scan is clean.
+- **Cost:** build session on the subscription; no API spend.
+- **Not in 1.5:** items 1.6 and 1.7, and the post-sync additions.
+
 ## Phase 2 — Shared knowledge index
 
 | # | Item | Done when |
