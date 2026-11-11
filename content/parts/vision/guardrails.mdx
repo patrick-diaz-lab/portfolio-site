@@ -1,0 +1,25 @@
+---
+id: guardrails
+piece: vision
+title: Guardrails for the coding agent
+summary: Claude Code builds most of Vision on its own. Written rules hold most of the time; layered checks catch the rest, and every merge stays with me. The layers and reasons, not the rules.
+status: built
+as_of: 2026-11-10
+source_commit: bb4fb3747aa6d7a80666b2d19dd718d1e4bedd98
+sources:
+  - sources/vision/deep/guardrails.md
+  - sources/vision/notes.md
+evals:
+  - name: pre-push-hook-tests-passing
+    metric: rate
+    value: 1.0
+    n: 24
+    date: 2026-11-04
+related:
+  - eval-harness
+layers_only: true
+---
+
+Most of Vision is written by Claude Code, working on its own inside plans I approve. It follows the written project rules most of the time, but not every time, and the one time it doesn't is usually the expensive one. So the rules don't rest on good behaviour alone: there are checks before a command runs, checks when work leaves for the shared repository, and a merge that only I perform.
+
+This page describes those layers and why each exists. The exact rules stay private: a list of what is blocked, and how, would mostly help someone get around it.

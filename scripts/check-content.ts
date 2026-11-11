@@ -17,6 +17,8 @@
 //   sources        a source file under sources/vision/ doesn't exist (parts, entries, chips)
 //   lost-to        a rejected entry's lost_to doesn't name a decision on the same part, a
 //                  non-rejected entry has lost_to, or two entries share an id (item 1.4)
+//   layers-only    a part with layers_only: true (or one of its entries) holds code, a path, a
+//                  command-line flag or a file name (item 1.7)
 //   map            map.yaml points at a page that doesn't exist, or repeats a part id
 //   svg            a built map.yaml part has no <g id class="part"> in the piece's SVG, the
 //                  SVG has a part map.yaml doesn't list or that isn't built (only built
@@ -94,6 +96,37 @@ function validate<T>(schema: z.ZodType<T>, doc: Doc, file: string, out: Problem[
   return undefined;
 }
 
+// What a layers-only page may not contain. Matched per line of the body (the frontmatter is
+// skipped); the targets of Markdown links are ignored, so links between pages stay allowed.
+const LAYERS_ONLY: [RegExp, string][] = [
+  [/`/, "inline or fenced code"],
+  [/(?:^|[\s("'])(?:~|\.{1,2})?\/[\w.-]+/, "a path"],
+  [/\b[\w-]+\/[\w-]+\/[\w.\/-]*/, "a path"],
+  [/\b[A-Za-z]:\\/, "a path"],
+  [/(?:^|\s)--?[A-Za-z][\w-]*/, "a command-line flag"],
+  [/\b[\w-]+\.(?:sh|bash|py|ts|js|mjs|json|ya?ml|toml|mdx?|env|conf|cfg|ini|txt|sql|lock|service|key|pem)\b/i, "a file name"],
+];
+
+export function layersOnlyHits(text: string): { line: number; msg: string }[] {
+  const lines = text.split(/\r?\n/);
+  let start = 0;
+  if (lines[0] === "---") {
+    const end = lines.indexOf("---", 1);
+    start = end < 0 ? 0 : end + 1;
+  }
+  const hits: { line: number; msg: string }[] = [];
+  for (let i = start; i < lines.length; i++) {
+    const l = lines[i]!.replace(/\]\([^)]*\)/g, "]");
+    for (const [re, what] of LAYERS_ONLY) {
+      if (re.test(l)) {
+        hits.push({ line: i + 1, msg: `${what} on a layers-only page (name the layer and the reason, not the mechanics)` });
+        break;
+      }
+    }
+  }
+  return hits;
+}
+
 export function checkContent(root: string): { problems: Problem[]; counts: { pieces: number; parts: number; entries: number } } {
   const P: Problem[] = [];
   const rel = (f: string) => relative(root, f).split("\\").join("/");
@@ -156,7 +189,7 @@ export function checkContent(root: string): { problems: Problem[]; counts: { pie
   }
 
   // Part pages.
-  const parts = new Map<string, { file: string; doc: Doc; status: string; related: string[]; sources: string[] }>();
+  const parts = new Map<string, { file: string; doc: Doc; status: string; related: string[]; sources: string[]; layersOnly: boolean }>();
   for (const f of walk(join(root, "content", "parts"), ".mdx")) {
     const file = rel(f);
     const doc = readFrontmatter(f);
@@ -166,20 +199,20 @@ export function checkContent(root: string): { problems: Problem[]; counts: { pie
     const name = basename(f, ".mdx");
     if (part.id !== name) P.push({ rule: "path", file, line: lineOf(doc, ["id"]), msg: `id "${part.id}" must match the file name "${name}"` });
     if (part.piece !== pieceDir) P.push({ rule: "path", file, line: lineOf(doc, ["piece"]), msg: `piece "${part.piece}" must match the folder "${pieceDir}"` });
-    parts.set(`${part.piece}/${part.id}`, { file, doc, status: part.status, related: part.related, sources: part.sources });
+    parts.set(`${part.piece}/${part.id}`, { file, doc, status: part.status, related: part.related, sources: part.sources, layersOnly: part.layers_only === true });
   }
 
   // Knowledge entries.
   const kinds = new Map<string, Set<string>>();
   const anchors = new Map<string, string>();
-  const entries: { file: string; doc: Doc; sources: string[] }[] = [];
+  const entries: { file: string; doc: Doc; sources: string[]; partKey: string }[] = [];
   const byId = new Map<string, { file: string; doc: Doc; kind: string; part: string; lost_to?: string }>();
   for (const f of walk(join(root, "content", "knowledge"), ".md")) {
     const file = rel(f);
     const doc = readFrontmatter(f);
     const e = validate(knowledgeSchema, doc, file, P);
     if (!e) continue;
-    entries.push({ file, doc, sources: e.sources });
+    entries.push({ file, doc, sources: e.sources, partKey: `${e.piece}/${e.part}` });
     const idKey = `${e.piece}/${e.id}`;
     const dup = byId.get(idKey);
     if (dup) P.push({ rule: "lost-to", file, line: lineOf(doc, ["id"]), msg: `entry id "${e.id}" is already used by ${dup.file}` });
@@ -222,6 +255,13 @@ export function checkContent(root: string): { problems: Problem[]; counts: { pie
   }
   for (const s of [...parts.values(), ...entries]) {
     for (const src of s.sources) if (!existsSync(join(root, src))) P.push({ rule: "sources", file: s.file, line: lineOf(s.doc, ["sources"]), msg: `${src} doesn't exist` });
+  }
+  // layers-only (item 1.7): a security page names layers and reasons, never mechanics.
+  for (const [key, p] of parts) {
+    if (!p.layersOnly) continue;
+    for (const f of [p.file, ...entries.filter((e) => e.partKey === key).map((e) => e.file)]) {
+      for (const hit of layersOnlyHits(readFileSync(join(root, f), "utf8"))) P.push({ rule: "layers-only", file: f, line: hit.line, msg: hit.msg });
+    }
   }
   for (const m of maps) {
     for (const part of m.parts) {

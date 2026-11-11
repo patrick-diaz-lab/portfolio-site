@@ -192,7 +192,7 @@ The eval harness page, on the 1.4 template with no code change.
   - The rest matches 1.5: `pnpm check`, axe, Lighthouse ≥ 95 and the map-check link test, then Patrick's merge and a clean Cloudflare build scan.
 - **Cost:** build session on the subscription; no API spend.
 
-### Item 1.7 plan (draft 2026-11-11, waiting for Patrick's OK)
+### Item 1.7 plan (Patrick's OK 2026-11-11, with the layers-only check)
 
 The guardrails page, on the 1.4 template. **Layers and reasons only:** no rules, patterns, paths, file names, command examples, or any limit that would show how to get around a layer (Patrick).
 
@@ -227,6 +227,7 @@ The guardrails page, on the 1.4 template. **Layers and reasons only:** no rules,
   - file extensions.
 
   It gets tests. This makes the rule hold for later edits too, not only in this review.
+- **Lessons (Patrick, 2026-11-11):** a fixed weakness may be told at layer level together with its fix, with no mechanism details. An open one stays "open item" without detail. Every claim still needs its source in `sources/vision/`.
 - **Patrick's sign-off checklist** (in the PR, per D19/PLAN 1.7), for every entry:
   1. It names a layer or a reason, not a rule.
   2. It has no pattern, path, file name or command.
@@ -246,6 +247,7 @@ The guardrails page, on the 1.4 template. **Layers and reasons only:** no rules,
 - Agent core page: the rejected option "the gateway on the worker's network" (held back in 1.5).
 - Map texts: check run records and the Claude worker tier against the corrected notes.
 - Eval harness page: that the harness can't reach the subscription worker, including its network (held back in 1.6).
+- Guardrails page, "Claude spoke as me": the signed sender identity as the fix. The synced notes still list it as decided, not built (Patrick says it's done), so the lesson names only the layers the notes back up.
 - Guardrails page, once the guardrail-fix item is merged and in the notes (Patrick, 2026-11-11): this week's guardrail gap, where force pushes went through twice, the sessions found it themselves, and the guardrail-fix item closed it. It's written at layer level, like the rest of the page: what failed, who found it, which layer closed it, never how.
 - If the notes have it by then (Patrick, 2026-11-11): the lesson from the ADR full-text item. A search for "ADR 18" never found titles written "ADR 0018", and the baseline eval exposed it. It probably belongs on the eval harness page (1.6) or the knowledge core.
 

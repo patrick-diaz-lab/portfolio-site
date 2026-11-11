@@ -263,3 +263,25 @@ test("lost_to must name a decision on the same part, and only on rejected entrie
   });
   assert.match(wrongKind.output, /lost-to\s+.*only rejected entries name a decision they lost to \(this one is testing\)/);
 });
+
+// layers-only (item 1.7): security pages name layers and reasons, never mechanics.
+test("a layers-only part refuses code, paths, flags and file names, with file:line", () => {
+  const { status, output } = fixture((f) => {
+    f["content/parts/demo/gateway.mdx"] = PART.replace("related: []", "related: []\nlayers_only: true") + "Run `tool` here.\nIt reads ./hooks/thing and runs with --force.\nSee rules.yaml for more.\nA [link](/demo/gateway/) is fine.\n";
+    f["content/knowledge/demo/why-gateway.md"] = entry("why-gateway", "decision") + "Kept in config/hooks/deny.txt.\n";
+  });
+  assert.equal(status, 1, output);
+  assert.match(output, /layers-only\s+content\/parts\/demo\/gateway\.mdx:\d+\s+inline or fenced code/);
+  assert.match(output, /layers-only\s+content\/parts\/demo\/gateway\.mdx:\d+\s+a path/);
+  assert.match(output, /layers-only\s+content\/parts\/demo\/gateway\.mdx:\d+\s+a file name/);
+  assert.match(output, /layers-only\s+content\/knowledge\/demo\/why-gateway\.md:\d+\s+a path/);
+  assert.equal((output.match(/^\s+layers-only\s/gm) ?? []).length, 4, output);
+});
+
+test("without layers_only the same text passes", () => {
+  const { status, output } = fixture((f) => {
+    f["content/parts/demo/gateway.mdx"] = PART + "Run `tool` with --force on ./hooks/thing.\n";
+  });
+  assert.equal(status, 0, output);
+});
+
