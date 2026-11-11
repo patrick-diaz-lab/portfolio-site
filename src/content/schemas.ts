@@ -91,6 +91,9 @@ export const partSchema = z.strictObject({
   sources: z.array(sourcePath).min(1),
   evals: z.array(evalSchema).default([]),
   related: z.array(slug).default([]),
+  /** Security pages (item 1.7): the page and its entries may name layers and reasons only.
+   *  `pnpm check` then refuses code, paths, command-line flags and file names in them. */
+  layers_only: z.boolean().optional(),
 });
 
 export const knowledgeSchema = z.strictObject({

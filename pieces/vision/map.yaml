@@ -55,5 +55,6 @@ parts:
   - id: guardrails
     label: Guardrails
     hover: Hooks that check every command Claude Code runs while it builds Vision, backed by a pre-push hook and a secret scan.
+    page: /vision/guardrails/
     status: built
     line: build-side
