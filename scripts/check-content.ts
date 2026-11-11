@@ -15,6 +15,8 @@
 //                  and learning entry
 //   related        related[] names a part that doesn't exist
 //   sources        a source file under sources/vision/ doesn't exist (parts, entries, chips)
+//   lost-to        a rejected entry's lost_to doesn't name a decision on the same part, a
+//                  non-rejected entry has lost_to, or two entries share an id (item 1.4)
 //   map            map.yaml points at a page that doesn't exist, or repeats a part id
 //   svg            a built map.yaml part has no <g id class="part"> in the piece's SVG, the
 //                  SVG has a part map.yaml doesn't list or that isn't built (only built
@@ -171,12 +173,17 @@ export function checkContent(root: string): { problems: Problem[]; counts: { pie
   const kinds = new Map<string, Set<string>>();
   const anchors = new Map<string, string>();
   const entries: { file: string; doc: Doc; sources: string[] }[] = [];
+  const byId = new Map<string, { file: string; doc: Doc; kind: string; part: string; lost_to?: string }>();
   for (const f of walk(join(root, "content", "knowledge"), ".md")) {
     const file = rel(f);
     const doc = readFrontmatter(f);
     const e = validate(knowledgeSchema, doc, file, P);
     if (!e) continue;
     entries.push({ file, doc, sources: e.sources });
+    const idKey = `${e.piece}/${e.id}`;
+    const dup = byId.get(idKey);
+    if (dup) P.push({ rule: "lost-to", file, line: lineOf(doc, ["id"]), msg: `entry id "${e.id}" is already used by ${dup.file}` });
+    else byId.set(idKey, { file, doc, kind: e.kind, part: e.part, lost_to: e.lost_to });
     const [, , pieceDir] = file.split("/");
     if (e.piece !== pieceDir) P.push({ rule: "path", file, line: lineOf(doc, ["piece"]), msg: `piece "${e.piece}" must match the folder "${pieceDir}"` });
     const key = `${e.piece}/${e.part}`;
@@ -202,6 +209,16 @@ export function checkContent(root: string): { problems: Problem[]; counts: { pie
     for (const r of p.related) {
       if (!parts.has(`${piece}/${r}`)) P.push({ rule: "related", file: p.file, line: lineOf(p.doc, ["related"]), msg: `related part "${r}" doesn't exist` });
     }
+  }
+  // lost_to (item 1.4): a rejected option names the decision it lost to, on the same part.
+  for (const [key, e] of byId) {
+    if (!e.lost_to) continue;
+    const at = { rule: "lost-to", file: e.file, line: lineOf(e.doc, ["lost_to"]) };
+    const target = byId.get(`${key.split("/")[0]}/${e.lost_to}`);
+    if (e.kind !== "rejected") P.push({ ...at, msg: `only rejected entries name a decision they lost to (this one is ${e.kind})` });
+    else if (!target) P.push({ ...at, msg: `decision "${e.lost_to}" doesn't exist` });
+    else if (target.kind !== "decision") P.push({ ...at, msg: `"${e.lost_to}" is a ${target.kind} entry, not a decision` });
+    else if (target.part !== e.part) P.push({ ...at, msg: `decision "${e.lost_to}" is on part "${target.part}", not "${e.part}"` });
   }
   for (const s of [...parts.values(), ...entries]) {
     for (const src of s.sources) if (!existsSync(join(root, src))) P.push({ rule: "sources", file: s.file, line: lineOf(s.doc, ["sources"]), msg: `${src} doesn't exist` });

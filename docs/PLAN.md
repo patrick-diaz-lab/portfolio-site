@@ -68,6 +68,59 @@ Portfolio site for Patrick's work as an AI/LLM engineer. The first piece is **Vi
 - **Cost:** build session on the subscription; no API spend.
 - **Not in 1.3:** the detail pages (1.4–1.7) and the CI gates (1.8).
 
+### Item 1.4 plan (Patrick's OK 2026-11-11: build now, rejected options under their decision)
+
+The first part page, which also builds the part-page template that items 1.5–1.7 reuse.
+
+- **Source:** `sources/vision/deep/litellm-gateway.md` and the gateway section of `notes.md`, at `source_commit` `bb4fb37…` (2026-11-10). Everything is rewritten, never pasted (`pnpm check` warns at 40 copied words).
+- **Held back until the next sync:**
+  - The worker's network in the subscription exception: the note's wording is being corrected upstream. The page names the exception (own messages only, explicit command, daily cap of 30, clean workspace) and leaves out its network.
+  - The 65 % prompt-caching cut: not in the note yet.
+
+  A small PR adds both after the sync.
+- **Files:**
+  - `src/pages/[piece]/[part].astro`, the template. A header has the title, summary and "as of"; then the fixed sections:
+    - *What it does*: the MDX body.
+    - *Why this way*: `decision` and `rejected` entries.
+    - *How it's tested*: `testing` entries and an `evals[]` table.
+    - *What I learned*: `learning` entries.
+
+    Each entry renders under its own anchor, with a back link to `/vision/`. The page is `noindex` until launch.
+  - `content/parts/vision/litellm-gateway.mdx`: frontmatter plus a short *What it does*. `evals[]` holds aggregates from the note:
+    - the first 31 chat runs cost $0.05 in total (`cost_usd`, n 31);
+    - 40 classifier cases on `cheap` cost $0.0023 (`cost_usd`, n 40).
+  - `content/knowledge/vision/litellm-gateway/NN-<id>.md`: 16 entries, each a short rewritten paragraph; the file names set the order on the page. Rejected entries name the decision they lost to in `lost_to` (option b), checked by the content rule `lost-to`.
+    - Decisions:
+      - aliases only;
+      - prices pinned in config;
+      - one key and budget per flow, under a global cap;
+      - out of funds is its own outcome;
+      - the subscription exception.
+    - Rejected:
+      - a provider key in each service;
+      - LiteLLM's own price map;
+      - a cap matching the credits;
+      - a generic error;
+      - the subscription as the default.
+    - Testing:
+      - out of credit and over budget each get their own outcome and reply;
+      - the cold-reboot check;
+      - the budget numbers.
+    - Learning:
+      - budgets that never fired;
+      - the DNS race after a reboot (fixed upstream DNS; no router, VPN or LAN details);
+      - the fallback I couldn't see.
+  - `pieces/vision/map.yaml`: the gateway gets `page: /vision/litellm-gateway/`, so the map, the card's "Open" and the list link there.
+- **Done when** (PLAN row 1.4, plus):
+  - `pnpm check` passes. The gateway part has all four entry kinds, and no run of 40 or more words is copied.
+  - axe finds 0 violations, desktop and phone.
+  - Lighthouse mobile is ≥ 95 on `/vision/litellm-gateway/`.
+  - `map-check` checks that "Open" on the gateway reaches the page.
+  - The page works with JS off.
+  - Patrick merges the page and its entries, and the Cloudflare build's scan is clean.
+- **Cost:** build session on the subscription; no API spend.
+- **Not in 1.4:** chunking and search (Phase 2), and the other part pages (1.5–1.7).
+
 ## Phase 2 — Shared knowledge index
 
 | # | Item | Done when |

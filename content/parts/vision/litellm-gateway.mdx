@@ -1,0 +1,28 @@
+---
+id: litellm-gateway
+piece: vision
+title: LiteLLM gateway, aliases and budgets
+summary: Every model call in Vision passes one self-hosted gateway. Services ask for an alias, each flow spends from its own key and budget, and running out of money is an answer, not a crash.
+status: built
+as_of: 2026-11-10
+source_commit: bb4fb3747aa6d7a80666b2d19dd718d1e4bedd98
+sources:
+  - sources/vision/deep/litellm-gateway.md
+  - sources/vision/notes.md
+evals:
+  - name: first-chat-runs-total-cost
+    metric: cost_usd
+    value: 0.05
+    n: 31
+    date: 2026-11-04
+  - name: classifier-cases-on-cheap-cost
+    metric: cost_usd
+    value: 0.0023
+    n: 40
+    date: 2026-11-04
+related: []
+---
+
+Several services in Vision talk to language models: the chat agent, the eval harness, the indexer. None of them holds a provider key or names a model. They all send their requests to one LiteLLM gateway that I host myself, and ask for a role instead of a model: `smart`, `cheap`, `local` or `embed`.
+
+The gateway decides which concrete model sits behind each role, knows what every call costs, and stops a flow that has spent its share. That gives me one place to switch providers, one place to read the bill, and one place where a runaway loop hits a wall.
