@@ -17,6 +17,7 @@ parts:
   - id: agent-core
     label: Agent core
     hover: The supervisor behind the chat. Commands run with no model; a local classifier sends the rest to a cheap or a smart model.
+    page: /vision/agent-core/
     status: built
     line: core
   - id: claude-worker

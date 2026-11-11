@@ -121,7 +121,7 @@ The first part page, which also builds the part-page template that items 1.5–1
 - **Cost:** build session on the subscription; no API spend.
 - **Not in 1.4:** chunking and search (Phase 2), and the other part pages (1.5–1.7).
 
-### Item 1.5 plan (draft 2026-11-11, waiting for Patrick's OK)
+### Item 1.5 plan (Patrick's OK 2026-11-11, both proposals as written)
 
 The agent core page, on the 1.4 template with no code change.
 
@@ -162,6 +162,13 @@ The agent core page, on the 1.4 template with no code change.
   - Patrick merges, and the Cloudflare build's scan is clean.
 - **Cost:** build session on the subscription; no API spend.
 - **Not in 1.5:** items 1.6 and 1.7, and the post-sync additions.
+
+### After the next sync of `sources/vision/` (one small PR)
+
+- Gateway page: the worker's network in the subscription exception, and the 65 % prompt-caching cut (held back in 1.4).
+- Agent core page: the rejected option "the gateway on the worker's network" (held back in 1.5).
+- Map texts: check run records and the Claude worker tier against the corrected notes.
+- If the notes have it by then (Patrick, 2026-11-11): the lesson from the ADR full-text item. A search for "ADR 18" never found titles written "ADR 0018", and the baseline eval exposed it. It probably belongs on the eval harness page (1.6) or the knowledge core.
 
 ## Phase 2 — Shared knowledge index
 

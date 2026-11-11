@@ -35,7 +35,12 @@ const looseRejected = rejected.filter((r) => !r.data.lost_to || !decisionIds.has
 
 const back = `/${part.data.piece}/`;
 const money = (v: number) => `$${v}`;
-const evalValue = (m: string, v: number) => (m === "cost_usd" ? money(v) : m === "seconds" ? `${v} s` : String(v));
+// Ratios keep at least one decimal (1.0, not 1), like the chips on the overview page.
+const evalValue = (m: string, v: number) =>
+  m === "cost_usd" ? money(v)
+  : m === "seconds" ? `${v} s`
+  : m === "count" ? String(v)
+  : v.toLocaleString("en", { minimumFractionDigits: 1, maximumFractionDigits: 4 });
 const evalName = (s: string) => (s.charAt(0).toUpperCase() + s.slice(1)).replace(/-/g, " ");
 ---
 <Base title={`${part.data.title} — Vision — Patrick Diaz`} description={part.data.summary} noindex>
