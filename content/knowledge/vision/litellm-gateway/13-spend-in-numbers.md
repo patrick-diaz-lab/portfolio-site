@@ -14,6 +14,6 @@ source_commit: bb4fb3747aa6d7a80666b2d19dd718d1e4bedd98
 
 ### What it costs
 
-The first 31 real chat runs cost $0.05 together. A complex question with six tool calls on `smart` cost $0.107, and a homelab status question $0.018. The chat agent's key now has $5 per 30 days and the eval harness's key $1, plus a $2 stop per eval run.
+The first 31 real chat runs cost $0.05 together. A complex question with six tool calls on `smart` cost $0.107, and a homelab status question $0.018. On top of its key's budget, the eval harness stops any single run at $2.
 
 There is no with-and-without number for the gateway itself: what it buys is control, not speed.
