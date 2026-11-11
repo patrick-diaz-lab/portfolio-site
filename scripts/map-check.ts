@@ -97,6 +97,21 @@ try {
       await ctx.close();
     }
 
+    // A mouse press focuses a part without the browser's own outline (Patrick, 2026-11-12).
+    {
+      const ctx = await browser.newContext(desktop);
+      const page = await ctx.newPage();
+      await page.goto(url);
+      const box = await page.locator(`${sel(ids[0]!)} .box`).boundingBox();
+      if (box) {
+        await page.mouse.move(box.x + 10, box.y + 10);
+        await page.mouse.down();
+      }
+      const outline = await page.locator(sel(ids[0]!)).evaluate((el) => (document.activeElement === el ? getComputedStyle(el).outlineStyle : "not focused"));
+      check(outline === "none", `a mouse press on a part shows no browser outline (${outline})`);
+      await ctx.close();
+    }
+
     // Hover opens the card.
     {
       const ctx = await browser.newContext(desktop);
