@@ -49,6 +49,7 @@ parts:
   - id: eval-harness
     label: Eval harness
     hover: Runs the production code on dev and held-out sets with its own key and budget. Code checks the metrics, not an LLM judge.
+    page: /vision/eval-harness/
     status: built
     line: models-and-tools
   - id: guardrails
