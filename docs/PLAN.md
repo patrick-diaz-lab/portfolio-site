@@ -38,6 +38,35 @@ Portfolio site for Patrick's work as an AI/LLM engineer. The first piece is **Vi
 | 1.8 | Quality gates in `pnpm check` and CI: axe on every page, Lighthouse budget, no-JS test, reduced-motion test, Playwright screenshots | All gates run in the Cloudflare build or the session and pass; a deliberately broken focus style fails |
 | 1.9 | Launch: About page (bio by Patrick, education, links, D18), Privacy page (no cookies yet), domain live, contact alias | `https://patrickdiaz.dev` serves the MVP; `hello@` forwards; no third-party requests on any page |
 
+### Item 1.3 plan (Patrick's decisions 2026-11-11)
+
+- **Map nodes (D19 list plus run records):**
+  - Built, page in items 1.4–1.7: LiteLLM gateway, agent core, eval harness, guardrails. Each gets its `page:` in `map.yaml` with its item; until then it links to its entry in the list.
+  - Built, no page: MCP servers, knowledge core, Claude worker tier, Telegram adapter, console, run records. The console is built and live, not in progress (Patrick).
+  - Planned: job contract, heartbeat, sandbox. Dotted, labelled "planned, not built".
+  - Builder tooling (deploy lane, Remote Control, worktrees) comes later as its own piece. Guardrails stays on this map, apart from the runtime in a "build side" box, because it is an MVP page.
+- **Files:**
+  - `pieces/vision/piece.yaml`, `map.yaml` and `map.svg`, the hand-drawn schematic. Each part is a `<g id>` equal to its `map.yaml` id, holding its box, label, wire and signal dot.
+  - `src/pages/[piece]/index.astro`: one overview page per piece folder, so a second piece needs no code change.
+  - `src/components/Map.astro` and `src/scripts/map.ts`: turns each part group into an `<a>`, plus the card and the list.
+  - `scripts/check-content.ts`: new rule `svg`, which needs each `map.yaml` part to have its element in the SVG, and each SVG part to be in `map.yaml`.
+  - `scripts/map-check.ts` (`pnpm map-check`) and `scripts/lighthouse.ts` (`pnpm lighthouse`).
+- **Behaviour:**
+  - Every part is an `<a>` named "label, status", described by its list entry.
+  - The card (label, status, ≤ 140-character text, "Open") opens on hover or focus and closes with Escape. On touch, the first tap opens the card and the "Open" button navigates.
+  - The list under the map works without JS. On phones (< 48rem) the schematic is hidden and the list becomes the vertical wire with the modules along it (D13).
+  - The signal dot runs along the part's own wire, in CSS only, and stays still under reduced motion.
+- **Tests (in the session; CI gates come with item 1.8):**
+  - `pnpm map-check` (Playwright) checks that:
+    - every part is focusable and named;
+    - the first tap opens the card without navigating;
+    - with JS off, the list and every link are there;
+    - under reduced motion no animation runs.
+  - `pnpm lighthouse` runs mobile Lighthouse with `lighthouse` **13.6.0** as a pinned dev dependency (released 2026-10-27; its tree adds no install scripts, the only ones in the repo are still the allowlisted `esbuild` and `workerd`). Performance, accessibility, best practices and SEO must each be ≥ 95. `is-crawlable` is skipped while pages carry `noindex` until launch (1.9).
+  - `pnpm design-check` (axe) also covers `/vision/`.
+- **Cost:** build session on the subscription; no API spend.
+- **Not in 1.3:** the detail pages (1.4–1.7) and the CI gates (1.8).
+
 ## Phase 2 — Shared knowledge index
 
 | # | Item | Done when |

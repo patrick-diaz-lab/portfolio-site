@@ -1,0 +1,14 @@
+# The Vision piece (PLAN 1.3, D19). Text rewritten from sources/vision/, never pasted.
+id: vision
+title: Vision
+tagline: A self-hosted agent harness for my home intelligence center.
+summary: >-
+  One chat in front, a supervisor that sends each message to the cheapest model that can
+  handle it, read-only tools, one gateway for every key and budget, and evals before and
+  after each change. Claude Code builds it, under guardrails I wrote.
+status: built
+as_of: 2026-11-10
+source_commit: bb4fb3747aa6d7a80666b2d19dd718d1e4bedd98
+order: 1
+map_svg: map.svg
+chat_enabled: false

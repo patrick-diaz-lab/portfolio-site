@@ -15,12 +15,16 @@
 //                  and learning entry
 //   related        related[] names a part that doesn't exist
 //   sources        a source file under sources/vision/ doesn't exist
-//   map            map.yaml points at a page that doesn't exist
+//   map            map.yaml points at a page that doesn't exist, or repeats a part id
+//   svg            a map.yaml part has no <g id class="part"> in the piece's SVG, the SVG has
+//                  a part map.yaml doesn't list, the SVG file is missing, or a part group
+//                  holds a nested <g> (PLAN 1.3)
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { basename, join, relative, resolve } from "node:path";
 import { parse } from "yaml";
 import type { z } from "astro/zod";
 import { REQUIRED_KINDS, knowledgeSchema, mapSchema, partSchema, pieceSchema } from "../src/content/schemas.ts";
+import { svgNestedParts, svgPartIds } from "../src/lib/map-svg.ts";
 
 type Problem = { rule: string; file: string; line: number; msg: string };
 
@@ -107,7 +111,37 @@ export function checkContent(root: string): { problems: Problem[]; counts: { pie
     if (existsSync(mf)) {
       const mdoc = readYaml(mf);
       const map = validate(mapSchema, mdoc, rel(mf), P);
-      if (map) maps.push({ file: rel(mf), doc: mdoc, parts: map.parts });
+      if (map) {
+        maps.push({ file: rel(mf), doc: mdoc, parts: map.parts });
+        const lineOfId = (id: string) => {
+          const i = mdoc.text.split(/\r?\n/).findIndex((l) => new RegExp(`^\\s*-?\\s*id:\\s*["']?${id}["']?\\s*$`).test(l));
+          return i < 0 ? 1 : i + 1;
+        };
+        const seen = new Set<string>();
+        for (const p of map.parts) {
+          if (seen.has(p.id)) P.push({ rule: "map", file: rel(mf), line: lineOfId(p.id), msg: `part "${p.id}" is listed twice` });
+          seen.add(p.id);
+        }
+        if (piece) {
+          const sf = join(root, "pieces", dir, piece.map_svg);
+          if (!existsSync(sf)) {
+            P.push({ rule: "svg", file: rel(pf), line: lineOf(pdoc, ["map_svg"]), msg: `${piece.map_svg} doesn't exist in the piece folder` });
+          } else {
+            const svg = readFileSync(sf, "utf8");
+            const ids = svgPartIds(svg);
+            const svgLine = (id: string) => svg.slice(0, svg.indexOf(`id="${id}"`)).split("\n").length;
+            for (const p of map.parts) {
+              if (!ids.includes(p.id)) P.push({ rule: "svg", file: rel(mf), line: lineOfId(p.id), msg: `part "${p.id}" has no <g id="${p.id}" class="part"> in ${piece.map_svg}` });
+            }
+            for (const id of ids) {
+              if (!seen.has(id)) P.push({ rule: "svg", file: rel(sf), line: svgLine(id), msg: `part "${id}" isn't in map.yaml` });
+            }
+            for (const id of svgNestedParts(svg)) {
+              P.push({ rule: "svg", file: rel(sf), line: svgLine(id), msg: `part "${id}" holds a nested <g>; parts must be flat` });
+            }
+          }
+        }
+      }
     }
   }
 
