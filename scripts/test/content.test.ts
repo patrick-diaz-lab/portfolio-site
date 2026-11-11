@@ -156,14 +156,19 @@ const MAP = `parts:
     hover: The gateway.
     page: /demo/gateway/
     status: built
+  - id: router
+    label: Router
+    hover: Built, no page yet.
+    status: built
   - id: sandbox
     label: Sandbox
     hover: Not built.
     status: planned
 `;
+// Only built parts are drawn (Patrick, 2026-11-11): the planned sandbox has no element.
 const SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
   <g id="gateway" class="part"><rect class="box" x="0" y="0" width="10" height="10" /></g>
-  <g id="sandbox" class="part"><rect class="box" x="20" y="0" width="10" height="10" /></g>
+  <g id="router" class="part"><rect class="box" x="20" y="0" width="10" height="10" /></g>
 </svg>
 `;
 const withPiece = (f: Record<string, string>) => {
@@ -172,31 +177,56 @@ const withPiece = (f: Record<string, string>) => {
   f["pieces/demo/map.svg"] = SVG;
 };
 
-test("a piece whose map parts all have their SVG element passes", () => {
+test("a piece whose built parts all have their SVG element passes", () => {
   const { status, output } = fixture(withPiece);
   assert.equal(status, 0, output);
   assert.match(output, /content: ok \(1 piece\(s\)/);
 });
 
-test("a map part without its SVG element fails, naming map.yaml:line", () => {
+test("a built part without its SVG element fails, naming map.yaml:line", () => {
   const { status, output } = fixture((f) => {
     withPiece(f);
-    f["pieces/demo/map.svg"] = SVG.replace(/\s*<g id="sandbox"[^\n]*/, "");
+    f["pieces/demo/map.svg"] = SVG.replace(/\s*<g id="router"[^\n]*/, "");
   });
   assert.equal(status, 1, output);
-  assert.match(output, /svg\s+pieces\/demo\/map\.yaml:7\s+part "sandbox" has no <g id="sandbox" class="part">/);
+  assert.match(output, /svg\s+pieces\/demo\/map\.yaml:7\s+part "router" has no <g id="router" class="part">/);
+});
+
+test("a drawn part that isn't built fails", () => {
+  const { status, output } = fixture((f) => {
+    withPiece(f);
+    f["pieces/demo/map.svg"] = SVG.replace("</svg>", `  <g id="sandbox" class="part"><rect /></g>\n</svg>`);
+  });
+  assert.equal(status, 1, output);
+  assert.match(output, /svg\s+pieces\/demo\/map\.svg:4\s+part "sandbox" is planned; only built parts are drawn/);
 });
 
 test("an SVG part missing from map.yaml, a nested group and a duplicate id fail", () => {
   const { status, output } = fixture((f) => {
     withPiece(f);
     f["pieces/demo/map.svg"] = SVG.replace("</svg>", `  <g id="extra" class="part"><g><rect /></g></g>\n</svg>`);
-    f["pieces/demo/map.yaml"] = MAP + MAP.split("\n").slice(6).join("\n");
+    f["pieces/demo/map.yaml"] = MAP + MAP.split("\n").slice(6, 10).join("\n") + "\n";
   });
   assert.equal(status, 1, output);
   assert.match(output, /svg\s+pieces\/demo\/map\.svg:4\s+part "extra" isn't in map\.yaml/);
   assert.match(output, /svg\s+pieces\/demo\/map\.svg:4\s+part "extra" holds a nested <g>/);
-  assert.match(output, /map\s+pieces\/demo\/map\.yaml:\d+\s+part "sandbox" is listed twice/);
+  assert.match(output, /map\s+pieces\/demo\/map\.yaml:\d+\s+part "router" is listed twice/);
+});
+
+test("a chip with a missing source fails; more than 4 chips fail", () => {
+  const chip = (src: string) => `  - label: Accuracy\n    metric: accuracy\n    value: 1.0\n    n: 27\n    sources:\n      - ${src}\n    as_of: 2026-11-04\n`;
+  const { status, output } = fixture((f) => {
+    withPiece(f);
+    f["pieces/demo/piece.yaml"] = PIECE + "chips:\n" + chip("sources/vision/gone.md");
+  });
+  assert.equal(status, 1, output);
+  assert.match(output, /sources\s+pieces\/demo\/piece\.yaml:\d+\s+chip "Accuracy": sources\/vision\/gone\.md doesn't exist/);
+  const many = fixture((f) => {
+    withPiece(f);
+    f["pieces/demo/piece.yaml"] = PIECE + "chips:\n" + chip("sources/vision/notes.md").repeat(5);
+  });
+  assert.equal(many.status, 1, many.output);
+  assert.match(many.output, /schema\s+.*chips: at most 4 chips/);
 });
 
 test("a missing SVG file and a map link to a missing page fail", () => {

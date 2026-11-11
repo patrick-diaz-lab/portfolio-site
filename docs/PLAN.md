@@ -43,7 +43,7 @@ Portfolio site for Patrick's work as an AI/LLM engineer. The first piece is **Vi
 - **Map nodes (D19 list plus run records):**
   - Built, page in items 1.4–1.7: LiteLLM gateway, agent core, eval harness, guardrails. Each gets its `page:` in `map.yaml` with its item; until then it links to its entry in the list.
   - Built, no page: MCP servers, knowledge core, Claude worker tier, Telegram adapter, console, run records. The console is built and live, not in progress (Patrick).
-  - Planned: job contract, heartbeat, sandbox. Dotted, labelled "planned, not built".
+  - Planned (job contract, heartbeat, sandbox): first drawn dotted; since the follow-up (2026-11-11) **only built parts render**, with no status labels or legend. `status` stays in the data model and the content check.
   - Builder tooling (deploy lane, Remote Control, worktrees) comes later as its own piece. Guardrails stays on this map, apart from the runtime in a "build side" box, because it is an MVP page.
 - **Files:**
   - `pieces/vision/piece.yaml`, `map.yaml` and `map.svg`, the hand-drawn schematic. Each part is a `<g id>` equal to its `map.yaml` id, holding its box, label, wire and signal dot.
@@ -52,7 +52,8 @@ Portfolio site for Patrick's work as an AI/LLM engineer. The first piece is **Vi
   - `scripts/check-content.ts`: new rule `svg`, which needs each `map.yaml` part to have its element in the SVG, and each SVG part to be in `map.yaml`.
   - `scripts/map-check.ts` (`pnpm map-check`) and `scripts/lighthouse.ts` (`pnpm lighthouse`).
 - **Behaviour:**
-  - Every part is an `<a>` named "label, status", described by its list entry.
+  - Every part is an `<a>` named by its label, described by its list entry, with no underline; focus shows as the amber ring.
+  - Follow-up (2026-11-11): metric chips under the intro (aggregates from `sources/vision/` with `as_of`), larger box labels, the gateway annotated with the local model on the GPU PC on the LAN.
   - The card (label, status, ≤ 140-character text, "Open") opens on hover or focus and closes with Escape. On touch, the first tap opens the card and the "Open" button navigates.
   - The list under the map works without JS. On phones (< 48rem) the schematic is hidden and the list becomes the vertical wire with the modules along it (D13).
   - The signal dot runs along the part's own wire, in CSS only, and stays still under reduced motion.

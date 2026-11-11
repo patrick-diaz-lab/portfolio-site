@@ -75,7 +75,7 @@ evals/retrieval.yaml             public retrieval eval (questions → expected e
 
 A starter whose cited entry changed after the starter's `as_of` gives a warning.
 
-**Status labels:** `built` parts show their page. `in-progress` and `planned` nodes show a clear label and no "running" claims. Phase 5 design notes are labelled "designed, not built" (D19).
+**Status:** `status` stays in the data model and the content check, but **only `built` parts render** on the map and in its list, with no status labels (Patrick, 2026-11-11). Planned parts appear only as Phase 5 design notes, labelled "designed, not built" (D19).
 
 ## 4. Content and redaction pipeline
 
@@ -149,7 +149,7 @@ Cost ≈ $0.0005 per question → ≈ $0.05 / $0.50 / $5.10 per month at 100 / 1
 
 ## 7. The map and accessibility
 
-- **Each part is an `<a>`** in the inline SVG, with an accessible name ("label, status"), a visible focus ring, and a hover/focus card (label, ≤ 140-character text, "Open"). On touch screens the first tap opens the card. No pan or zoom. A part without a page links to its entry in the list (item 1.3). The page turns each `<g id class="part">` of the hand-drawn SVG into its link (`src/lib/map-svg.ts`), so the SVG holds no URLs.
+- **Each part is an `<a>`** in the inline SVG, with an accessible name (its label; the SVG itself has an `aria-label` and no `<title>`, which would show as a tooltip), a visible focus ring, and a hover/focus card (label, ≤ 140-character text, "Open"). On touch screens the first tap opens the card. No pan or zoom. A part without a page links to its entry in the list (item 1.3). The page turns each `<g id class="part">` of the hand-drawn SVG into its link (`src/lib/map-svg.ts`), so the SVG holds no URLs.
 - **List fallback:** a plain list of all parts under the map, which works without JS.
 - **Phone layout:** below 48rem the schematic is hidden and the list becomes the vertical wire with the modules along it.
 - **Motion:** the signal dot along a wire runs on hover/focus only. CSS only, off under `prefers-reduced-motion`.

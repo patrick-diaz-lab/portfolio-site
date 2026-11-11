@@ -42,16 +42,14 @@ export function linkParts(svg: string, parts: MapPart[]): string {
     .replace(PART, (whole, id: string, body: string) => {
       const p = byId.get(id);
       if (!p) return whole;
-      const status = STATUS_TEXT[p.status];
+      // Only built parts render, so the name carries no status (Patrick, 2026-11-11).
       const attrs = [
         `id="${esc(id)}"`,
         `class="part"`,
         `href="${esc(partHref(p))}"`,
-        `aria-label="${esc(`${p.label}, ${status.toLowerCase()}`)}"`,
+        `aria-label="${esc(p.label)}"`,
         `aria-describedby="desc-${esc(id)}"`,
-        `data-status="${p.status}"`,
         `data-label="${esc(p.label)}"`,
-        `data-status-text="${esc(status)}"`,
         `data-hover="${esc(p.hover)}"`,
       ];
       return `<a ${attrs.join(" ")}>${body}</a>`;

@@ -14,11 +14,12 @@
 //   built-entries  a `built` part page without at least one decision, rejected, testing
 //                  and learning entry
 //   related        related[] names a part that doesn't exist
-//   sources        a source file under sources/vision/ doesn't exist
+//   sources        a source file under sources/vision/ doesn't exist (parts, entries, chips)
 //   map            map.yaml points at a page that doesn't exist, or repeats a part id
-//   svg            a map.yaml part has no <g id class="part"> in the piece's SVG, the SVG has
-//                  a part map.yaml doesn't list, the SVG file is missing, or a part group
-//                  holds a nested <g> (PLAN 1.3)
+//   svg            a built map.yaml part has no <g id class="part"> in the piece's SVG, the
+//                  SVG has a part map.yaml doesn't list or that isn't built (only built
+//                  parts render), the SVG file is missing, or a part group holds a nested <g>
+//                  (PLAN 1.3)
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { basename, join, relative, resolve } from "node:path";
 import { parse } from "yaml";
@@ -107,6 +108,9 @@ export function checkContent(root: string): { problems: Problem[]; counts: { pie
     const pdoc = readYaml(pf);
     const piece = validate(pieceSchema, pdoc, rel(pf), P);
     if (piece && piece.id !== dir) P.push({ rule: "path", file: rel(pf), line: lineOf(pdoc, ["id"]), msg: `id "${piece.id}" must match the folder "${dir}"` });
+    for (const c of piece?.chips ?? []) {
+      for (const src of c.sources) if (!existsSync(join(root, src))) P.push({ rule: "sources", file: rel(pf), line: lineOf(pdoc, ["chips"]), msg: `chip "${c.label}": ${src} doesn't exist` });
+    }
     const mf = join(root, "pieces", dir, "map.yaml");
     if (existsSync(mf)) {
       const mdoc = readYaml(mf);
@@ -130,11 +134,15 @@ export function checkContent(root: string): { problems: Problem[]; counts: { pie
             const svg = readFileSync(sf, "utf8");
             const ids = svgPartIds(svg);
             const svgLine = (id: string) => svg.slice(0, svg.indexOf(`id="${id}"`)).split("\n").length;
+            // Only built parts render (Patrick, 2026-11-11): a built part needs its element,
+            // and a part that isn't built must not be drawn.
+            const status = new Map(map.parts.map((p) => [p.id, p.status]));
             for (const p of map.parts) {
-              if (!ids.includes(p.id)) P.push({ rule: "svg", file: rel(mf), line: lineOfId(p.id), msg: `part "${p.id}" has no <g id="${p.id}" class="part"> in ${piece.map_svg}` });
+              if (p.status === "built" && !ids.includes(p.id)) P.push({ rule: "svg", file: rel(mf), line: lineOfId(p.id), msg: `part "${p.id}" has no <g id="${p.id}" class="part"> in ${piece.map_svg}` });
             }
             for (const id of ids) {
               if (!seen.has(id)) P.push({ rule: "svg", file: rel(sf), line: svgLine(id), msg: `part "${id}" isn't in map.yaml` });
+              else if (status.get(id) !== "built") P.push({ rule: "svg", file: rel(sf), line: svgLine(id), msg: `part "${id}" is ${status.get(id)}; only built parts are drawn` });
             }
             for (const id of svgNestedParts(svg)) {
               P.push({ rule: "svg", file: rel(sf), line: svgLine(id), msg: `part "${id}" holds a nested <g>; parts must be flat` });

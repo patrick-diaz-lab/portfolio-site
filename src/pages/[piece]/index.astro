@@ -11,6 +11,15 @@ export function getStaticPaths() {
 
 const { piece } = Astro.props;
 const n = String(piece.order).padStart(2, "0");
+
+// Chip values: aggregates only (D19). A count reads "value / n"; ratios keep a decimal.
+type Chip = (typeof piece.chips)[number];
+const chipValue = (c: Chip) =>
+  c.metric === "count" ? `${c.value} / ${c.n}`
+  : c.metric === "cost_usd" ? `$${c.value}`
+  : c.metric === "seconds" ? `${c.value} s`
+  : c.value.toLocaleString("en", { minimumFractionDigits: 1, maximumFractionDigits: 3 });
+const chipNote = (c: Chip) => (c.metric === "count" ? `as of ${c.as_of}` : `n = ${c.n} · as of ${c.as_of}`);
 ---
 <Base title={`${piece.title} — Patrick Diaz`} description={piece.tagline} noindex>
   <main class="page">
@@ -20,6 +29,17 @@ const n = String(piece.order).padStart(2, "0");
       <p class="piece-tagline">{piece.tagline}</p>
       <p>{piece.summary}</p>
       <p class="label">As of {piece.as_of}</p>
+      {piece.chips.length > 0 && (
+        <ul class="chips" aria-label="Measured results">
+          {piece.chips.map((c) => (
+            <li class="chip">
+              <span class="chip-value">{chipValue(c)}</span>
+              <span class="chip-label">{c.label}</span>
+              <span class="label">{chipNote(c)}</span>
+            </li>
+          ))}
+        </ul>
+      )}
     </header>
     <Map svg={piece.svg} parts={piece.parts} />
   </main>
@@ -29,4 +49,9 @@ const n = String(piece.order).padStart(2, "0");
   .piece-head { display: grid; gap: var(--space-4); }
   .piece-head a { color: inherit; }
   .piece-tagline { font-size: var(--step-1); line-height: 1.4; }
+  .chips { list-style: none; margin: var(--space-2) 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-3); }
+  .chip { display: grid; gap: var(--space-1); min-width: 13rem; padding: var(--space-3) var(--space-4); background: var(--color-panel-raised); border: var(--line-thin) solid var(--color-silk-dim); border-left: 3px solid var(--color-amber); border-radius: var(--radius); }
+  .chip-value { font: 400 var(--step-2) / 1 var(--font-mono); color: var(--color-silk); }
+  .chip-label { font-size: var(--step--1); line-height: 1.35; }
+  @media (max-width: 47.99rem) { .chip { flex: 1 1 100%; } }
 </style>
