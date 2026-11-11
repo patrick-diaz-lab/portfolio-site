@@ -243,6 +243,38 @@ The guardrails page, on the 1.4 template. **Layers and reasons only:** no rules,
   - Patrick signs off the checklist in the PR and merges, and the Cloudflare build's scan is clean.
 - **Cost:** build session on the subscription; no API spend.
 
+### Item 1.8 plan (Patrick's OK 2026-11-12, both choices as proposed)
+
+Turn the browser checks from items 1.1 and 1.3 into gates that run on every PR, and close their gaps.
+
+- **Where the gates run:** a second job, `gates`, in the existing `check` workflow (GitHub Actions, read-only token), plus `pnpm gates` in sessions. The Cloudflare build stays `pnpm check && pnpm build`: it has no browser, and adding one would put a large download into every deploy. After its first run, Patrick adds `gates` as a required status check on `main` (STEPS B2).
+- **Pin:** `playwright` **1.64.1** (2026-10-14) as a dev dependency. It has no install scripts; CI installs its Chromium with Playwright's own installer. Sessions keep the preinstalled browser: a shared launcher falls back to it when the pinned version's own browser isn't there. Lighthouse uses the same browser.
+- **Gates (`pnpm gates` runs them all, over `dist/`):**
+
+  | Gate | Covers | Fails when |
+  |---|---|---|
+  | axe (`design-check`) | every page, desktop and phone | any WCAG 2.2 A/AA violation, or any request to another host |
+  | focus (new) | every page | a focusable element shows no visible focus: no outline of at least 2 px, or on the map no focus ring |
+  | no-JS (new, all pages) | every page, desktop and phone | a link or a block of text present with JS is missing without it |
+  | reduced motion (new, all pages) | every page | any animation or transition runs under `prefers-reduced-motion`, after hovering and focusing every part |
+  | map (`map-check`) | every piece map | as today: names, Tab, cards, touch, links |
+  | Lighthouse budget (`lighthouse`) | every piece and part page, mobile | any category under 95, or the page goes over budget: script > 5 KB, fonts > 130 KB, total > 250 KB, any third-party request |
+
+  Today's sizes: about 13 KB CSS, 113 KB fonts for five faces, under 2 KB inline script, and 13–16 KB of HTML per page.
+- **Broken focus must fail:** `pnpm gates --self-test` injects a style that hides every focus indicator, and passes only if the focus gate then fails. CI runs it on every PR, so the gate can't silently stop catching anything.
+- **CI rules (Patrick):**
+  - Every GitHub Action pinned by full commit SHA.
+  - Workflow permission `contents: read` only.
+  - No secrets in CI.
+  - Triggered by `pull_request`, never `pull_request_target`.
+  - The CI browser comes from the pinned Playwright version. No system Chrome, in CI or in sessions; Lighthouse uses the same browser.
+- **Screenshots:** stay review output, desktop and phone from `design-check`, kept in the session's git-ignored cache. There are no pixel-diff baselines: font rendering differs between CI and sessions, so they would fail without a real change, and binary baselines would grow the public repo.
+- **Done when:**
+  - All gates pass in CI and in the session.
+  - The self-test shows a broken focus style failing.
+  - Patrick has made `gates` a required check.
+- **Cost:** CI minutes on a public repo (free); no API spend.
+
 ### After the next sync of `sources/vision/` (one small PR)
 
 - Gateway page: the worker's network in the subscription exception, and the 65 % prompt-caching cut (held back in 1.4).

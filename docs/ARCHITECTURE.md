@@ -34,7 +34,7 @@ Rules that hold everywhere:
 | Runtime / package manager | Node ≥ 22.23.4 (`.node-version`, astro 7.4.2); pnpm via `packageManager`, `minimumReleaseAge` 14 days, build scripts off except an allowlist | `pnpm` **12.15.0 pinned**; build-script allowlist `esbuild`, `workerd` (0.4) |
 | Hosting | Cloudflare Workers with static assets, free plan; Cloudflare Git builds on `main` only | `wrangler` **4.153.0 pinned** (0.4) |
 | Map | Hand-drawn annotated-schematic SVG + `map.yaml` + ~3 KB TypeScript (D7, D13) | no library |
-| Tests | Playwright screenshots, axe-core, Lighthouse budget | `@playwright/test` 1.64.1 |
+| Tests | Browser gates in CI and sessions: axe-core, focus, no-JS, reduced motion, map, Lighthouse with a size budget (PLAN 1.8) | `playwright` **1.64.1 pinned**; `lighthouse` **13.6.0 pinned** |
 | Search on the site (optional) | Pagefind, static | `pagefind` 1.5.2 |
 | Knowledge index | Workers AI `@cf/baai/bge-m3` + Vectorize, through bindings (D6) | — |
 | Chat model | Claude Haiku 5.5 (`claude-haiku-5-5`), Anthropic SDK | `@anthropic-ai/sdk` 0.137.0 (check again in Phase 3) |
@@ -155,7 +155,13 @@ Cost ≈ $0.0005 per question → ≈ $0.05 / $0.50 / $5.10 per month at 100 / 1
 - **Phone layout:** below 48rem the schematic is hidden and the list becomes the vertical wire with the modules along it.
 - **Motion:** the signal dot along a wire runs on hover/focus only. CSS only, off under `prefers-reduced-motion`.
 - **Labels and contrast:** labels are real text; hand lettering is decoration only. Palette at least WCAG AA.
-- **Gates:** axe-core with 0 violations on every page (`pnpm design-check`); Lighthouse mobile ≥ 95 in every category (`pnpm lighthouse`, `lighthouse` 13.6.0 pinned); no-JS, touch, keyboard and reduced-motion tests (`pnpm map-check`). They run in the session from item 1.3, and in CI from item 1.8.
+- **Gates:** `pnpm gates`, the CI job `gates` (a required check on `main`), runs:
+  - axe-core with 0 violations on every page;
+  - visible focus at every Tab stop, with a self-test that a broken focus style fails;
+  - no-JS, reduced-motion and map tests;
+  - Lighthouse mobile ≥ 95 in every category, with a size budget.
+
+  The Cloudflare build doesn't run them: it has no browser (PLAN 1.8).
 - **The site works without the chatbot.** The chat is an island loaded on interaction, and a kill switch turns it off.
 
 ## 8. Secrets and where they live

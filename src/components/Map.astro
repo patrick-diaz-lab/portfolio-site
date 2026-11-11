@@ -77,7 +77,9 @@ for (const p of parts) {
   .schematic .lbl { fill: var(--color-silk); font: 400 17px var(--font-mono); letter-spacing: 0.04em; }
   /* No underline under the box labels; focus shows as the amber ring only. */
   .schematic .part { cursor: pointer; text-decoration: none; }
-  .schematic .part:focus-visible { outline: none; }
+  /* No browser outline on any focus (a mouse click showed one around box and wires); keyboard
+     focus shows the amber ring below. */
+  .schematic .part:focus { outline: none; }
   .schematic .part:is(:hover, :focus-visible, .is-open) .box { stroke: var(--color-amber); }
   .schematic .part:is(:hover, :focus-visible, .is-open) .lbl { fill: var(--color-amber); }
   .schematic .part:focus-visible .ring { opacity: 1; }

@@ -16,6 +16,8 @@
     "preview": "astro preview",
     "design-check": "node scripts/design-check.ts",
     "map-check": "node scripts/map-check.ts",
+    "page-check": "node scripts/page-check.ts",
+    "gates": "node scripts/gates.ts",
     "lighthouse": "node scripts/lighthouse.ts"
   },
   "devDependencies": {
@@ -27,6 +29,7 @@
     "astro": "7.4.2",
     "axe-core": "4.14.0",
     "lighthouse": "13.6.0",
+    "playwright": "1.64.1",
     "typescript": "6.0.3",
     "wrangler": "4.153.0",
     "yaml": "2.9.1"
