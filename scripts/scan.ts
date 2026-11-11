@@ -9,13 +9,19 @@
 // path to such a list). Entries are separated by line breaks, "|" or ";". The summary line
 // prints the number of entries (never the entries); without a list, only the generic
 // rules and gitleaks run, and the scan says so.
+//
+// In sessions the plaintext list never exists (D20): REDACTION_DENYLIST_HASHES holds salted
+// hashes of it instead (scripts/denylist-hash.ts, PLAN 1.3a), matched as whole words of 1..span
+// tokens. A malformed value fails the scan rather than being skipped.
 import { execFileSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import { dirname, join, relative, resolve } from "node:path";
 import { parse } from "yaml";
 import { runGitleaks } from "./lib/gitleaks.ts";
 import { RULES, denyListRule, parseDenyList, type Rule } from "./lib/rules.ts";
+import { matchHashes, missKey, parseValue, type HashSet } from "./denylist-hash.ts";
 
 const ROOT = resolve(import.meta.dirname, "..");
 
@@ -127,14 +133,44 @@ function scanText(src: Source, text: string, rules: Rule[]): Finding[] {
   return out;
 }
 
+// Known misses of the hashed scan, cached across runs in the git-ignored .cache/ (one file per
+// salt and cost). Only candidates that are NOT on the list are stored, as truncated SHA-256,
+// so the cache never holds a deny-list word. Hits are never written anywhere.
+function missCacheFile(value: string): string {
+  const id = createHash("sha256").update(value.split(";h=")[0]!).digest("hex").slice(0, 16);
+  return join(ROOT, ".cache", `denylist-misses-${id}.txt`);
+}
+function saveMisses(file: string, cache: Map<string, boolean>): void {
+  const keys = new Set<string>();
+  for (const [k, hit] of cache) if (!hit) keys.add(k.startsWith("#") ? k.slice(1) : missKey(k));
+  mkdirSync(dirname(file), { recursive: true });
+  writeFileSync(file, [...keys].join("\n"));
+}
+
 function main(): number {
   const sources = collect(process.argv.slice(2)).filter((s) => !isBinary(s.content));
   const denyWords = loadDenyList();
   const deny = denyListRule(denyWords);
   const rules = deny ? [...RULES, deny] : RULES;
+  const hashVar = process.env.REDACTION_DENYLIST_HASHES;
+  const hashed: HashSet | undefined = hashVar ? parseValue(hashVar) : undefined;
+  if (!deny && !hashed && process.env.REDACTION_REQUIRE_DENYLIST === "1") {
+    throw new Error("REDACTION_REQUIRE_DENYLIST=1 but no deny-list is set (REDACTION_DENYLIST_HASHES missing from the environment?)");
+  }
+  const hashCache = new Map<string, boolean>();
+  const missFile = hashed && process.env.REDACTION_HASH_CACHE !== "off" ? missCacheFile(hashVar!) : undefined;
+  if (missFile && existsSync(missFile)) for (const k of readFileSync(missFile, "utf8").split("\n")) if (k) hashCache.set(`#${k}`, false);
 
   const findings: Finding[] = [];
-  for (const src of sources) findings.push(...scanText(src, src.content.toString("utf8"), rules));
+  for (const src of sources) {
+    const text = src.content.toString("utf8");
+    findings.push(...scanText(src, text, rules));
+    if (hashed) {
+      for (const index of matchHashes(text, hashed, hashCache)) {
+        findings.push({ rule: "deny-list", label: src.label, path: src.path, line: lineOf(text, index), snap: src.snap });
+      }
+    }
+  }
 
   // gitleaks over the same file set, materialized in a temp dir.
   if (sources.length > 0) {
@@ -156,6 +192,8 @@ function main(): number {
     }
   }
 
+  if (missFile) saveMisses(missFile, hashCache);
+
   const reported = findings.filter(
     (f) =>
       f.rule === "deny-list" ||
@@ -169,9 +207,10 @@ function main(): number {
       ),
   );
 
-  const note = deny
-    ? ` (deny-list: ${denyWords.length} ${denyWords.length === 1 ? "entry" : "entries"})`
-    : " (no deny-list set: generic rules and gitleaks only)";
+  const lists: string[] = [];
+  if (deny) lists.push(`${denyWords.length} ${denyWords.length === 1 ? "entry" : "entries"}`);
+  if (hashed) lists.push(`${hashed.count} hashed ${hashed.count === 1 ? "entry" : "entries"}, span ${hashed.span}`);
+  const note = lists.length ? ` (deny-list: ${lists.join("; ")})` : " (no deny-list set: generic rules and gitleaks only)";
   if (reported.length === 0) {
     process.stdout.write(`scan: ${sources.length} files clean${note}\n`);
     return 0;
