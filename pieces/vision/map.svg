@@ -31,7 +31,7 @@
     <circle cx="680" cy="48" r="4" />
     <text class="dim-t" x="692" y="52">SMART · CHEAP → MODEL PROVIDER</text>
     <circle cx="680" cy="80" r="4" />
-    <text class="note" x="692" y="86">local → model on my GPU PC, on the LAN</text>
+    <text class="dim-t" x="692" y="84">LOCAL → GPU PC ON THE LAN</text>
   </g>
 
   <g id="telegram-adapter" class="part">
