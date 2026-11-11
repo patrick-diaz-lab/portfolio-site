@@ -163,11 +163,41 @@ The agent core page, on the 1.4 template with no code change.
 - **Cost:** build session on the subscription; no API spend.
 - **Not in 1.5:** items 1.6 and 1.7, and the post-sync additions.
 
+### Item 1.6 plan (Patrick's OK 2026-11-11, without classifier rows in the table)
+
+The eval harness page, on the 1.4 template with no code change.
+
+- **Source:** `sources/vision/deep/eval-harness.md` and the eval section of `notes.md`, at `source_commit` `bb4fb37…`. Everything is rewritten, never pasted.
+- **Files:**
+  - `content/parts/vision/eval-harness.mdx`
+  - `content/knowledge/vision/eval-harness/NN-<id>.md`: 16 entries.
+
+    | Kind | Entries |
+    |---|---|
+    | Decisions (5) | measure the production code; held-out sets are mine; code-checked metrics first; its own key and stop rules; scoped fixtures and a stop rule before tuning |
+    | Rejected (4) | a prompt copy; one shared set; an LLM judge as the default; evals on the chat key. The fixtures decision has none. |
+    | Testing (3) | the retrieval sets; the with-and-without results; what evals cost |
+    | Learning (4) | result files leaked note names; the first comparison run failed on every case; a test that failed the right answer; a held-out set that wasn't independent |
+
+  - `pieces/vision/map.yaml`: the eval harness gets `page: /vision/eval-harness/`.
+- **`evals[]`:** only docs retrieval hit@5, held-out: 0.875 (n 16).
+  - No classifier rows (Patrick): their v1 numbers next to agent core's v2 numbers would read as a contradiction. The text says the classifier results are on the agent core page and links it.
+  - Numbers without a case count stay in the text.
+- **Held back or changed:**
+  - The eval key's "$5 per 30 days" is from before 2026-11-06, so it's dropped; the $2 stop per run stays.
+  - "Can't reach the subscription worker" includes "not on its network", which waits for the sync (post-sync list).
+  - The leaked-names lesson says "headed for publication", with no repo, note names or paths.
+- **Done when:**
+  - Every number traces to a file in `sources/vision/` (D21), listed in its entry's `sources`.
+  - The rest matches 1.5: `pnpm check`, axe, Lighthouse ≥ 95 and the map-check link test, then Patrick's merge and a clean Cloudflare build scan.
+- **Cost:** build session on the subscription; no API spend.
+
 ### After the next sync of `sources/vision/` (one small PR)
 
 - Gateway page: the worker's network in the subscription exception, and the 65 % prompt-caching cut (held back in 1.4).
 - Agent core page: the rejected option "the gateway on the worker's network" (held back in 1.5).
 - Map texts: check run records and the Claude worker tier against the corrected notes.
+- Eval harness page: that the harness can't reach the subscription worker, including its network (held back in 1.6).
 - If the notes have it by then (Patrick, 2026-11-11): the lesson from the ADR full-text item. A search for "ADR 18" never found titles written "ADR 0018", and the baseline eval exposed it. It probably belongs on the eval harness page (1.6) or the knowledge core.
 
 ## Phase 2 — Shared knowledge index

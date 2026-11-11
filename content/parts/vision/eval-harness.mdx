@@ -1,0 +1,25 @@
+---
+id: eval-harness
+piece: vision
+title: Eval harness and held-out sets
+summary: A small harness that measures the code Vision really runs, before and after every prompt, model or tool change, on held-out sets that only I can write and only totals leave.
+status: built
+as_of: 2026-11-10
+source_commit: bb4fb3747aa6d7a80666b2d19dd718d1e4bedd98
+sources:
+  - sources/vision/deep/eval-harness.md
+  - sources/vision/notes.md
+evals:
+  - name: docs-retrieval-hit-at-5-held-out
+    metric: hit_at_5
+    value: 0.875
+    n: 16
+    date: 2026-11-04
+related:
+  - agent-core
+  - litellm-gateway
+---
+
+I want a number before and after every change to a prompt, a model or a tool, measured on cases the thing being improved has never seen. The harness gives me that. It runs the same code the chat runs, against two kinds of sets per eval: dev sets that Claude drafts and I review, and held-out sets that I write myself and agents can't touch.
+
+It covers routing, retrieval over my docs, notes and files, and whole agent answers. The classifier results it produced are on the [agent core page](/vision/agent-core/); retrieval is below.
