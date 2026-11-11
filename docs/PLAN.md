@@ -192,12 +192,61 @@ The eval harness page, on the 1.4 template with no code change.
   - The rest matches 1.5: `pnpm check`, axe, Lighthouse ≥ 95 and the map-check link test, then Patrick's merge and a clean Cloudflare build scan.
 - **Cost:** build session on the subscription; no API spend.
 
+### Item 1.7 plan (draft 2026-11-11, waiting for Patrick's OK)
+
+The guardrails page, on the 1.4 template. **Layers and reasons only:** no rules, patterns, paths, file names, command examples, or any limit that would show how to get around a layer (Patrick).
+
+- **Source:** `sources/vision/deep/guardrails.md` and the guardrail section of `notes.md`, at `bb4fb37…`. Everything is rewritten at the level of layers, never pasted.
+- **What the page says, and what it leaves out:**
+
+  | Note section | On the page | Left out |
+  |---|---|---|
+  | A check before every command | A check runs before every command and file access, and answers deny, ask or allow. Every hard rule names what to do instead. A refusal names its rule. | The hook mechanism's name and how it matches |
+  | Deny / ask | Categories only: what can't be undone and secrets are denied; privileged and production changes are asked. The reason: deny what can't be undone, ask what I should see. | The concrete deny and ask lists, the scoped exception, and how plan approval lifts an ask |
+  | Pushes and merges | Four layers: the pre-run check, a second check at push time, a secret scan on every commit and push, and a merge only I perform | Refspec rules and branch names |
+  | Worktrees and deploy lane | Each session in its own working copy; one locked lane holds secrets and deploys | How the lock works |
+  | Honest limits | "A seatbelt, not a wall": it can't see everything a command does, and a stronger separation is an open item | What it can't see, and the group membership that would expose secrets |
+  | Lesson "Claude spoke as me" | A test produced messages that looked like mine; now Claude never acts as my chat, and identity tests come from me | The token, user ID and trust model, and the open next step |
+  | Lesson "Two sessions in one folder" | As in the note: process, no mechanics | — |
+  | Lesson "A guardrail out of date" | A merged change wasn't in force everywhere; I measured instead of assuming; now there is one current copy, and a change that would block every session can't be merged | Server, restart window and ADR number |
+
+- **Entries (13):**
+
+  | Kind | Entries |
+  |---|---|
+  | Decisions (5) | a check before every command; deny the irreversible, ask what I should see; pushes and merges stay with me; one working copy per session, one locked lane; honest limits |
+  | Rejected (3) | rules in text only; asking for everything; relying on the hosting side as the backstop (worded as "I couldn't count on it, so protection is local and written down", with no plan or product detail) |
+  | Testing (2) | hook tests grew from 106 to 768, and a new deny must fail on the previous version; the pre-push tests |
+  | Learning (3) | the three lessons above |
+
+- **`evals[]`:** pre-push hook tests passing, rate 1.0 (n 24). The test counts stay in the text.
+- **Layers-only check (proposed):** a new optional `layers_only: true` on a part. For such a part, `pnpm check` fails on any of these in its page or its entries:
+  - inline or fenced code;
+  - path-like strings;
+  - command-line flags;
+  - file extensions.
+
+  It gets tests. This makes the rule hold for later edits too, not only in this review.
+- **Patrick's sign-off checklist** (in the PR, per D19/PLAN 1.7), for every entry:
+  1. It names a layer or a reason, not a rule.
+  2. It has no pattern, path, file name or command.
+  3. It names no limit that tells how to get around a layer.
+  4. Open weaknesses appear only as "open item", without detail.
+  5. It names no infrastructure products or machine names.
+- **Map:** guardrails gets `page: /vision/guardrails/`.
+- **Done when:**
+  - `pnpm check` passes, including the layers-only check.
+  - axe finds 0 violations; Lighthouse is ≥ 95; the map-check link test passes.
+  - Patrick signs off the checklist in the PR and merges, and the Cloudflare build's scan is clean.
+- **Cost:** build session on the subscription; no API spend.
+
 ### After the next sync of `sources/vision/` (one small PR)
 
 - Gateway page: the worker's network in the subscription exception, and the 65 % prompt-caching cut (held back in 1.4).
 - Agent core page: the rejected option "the gateway on the worker's network" (held back in 1.5).
 - Map texts: check run records and the Claude worker tier against the corrected notes.
 - Eval harness page: that the harness can't reach the subscription worker, including its network (held back in 1.6).
+- Guardrails page, once the guardrail-fix item is merged and in the notes (Patrick, 2026-11-11): this week's guardrail gap, where force pushes went through twice, the sessions found it themselves, and the guardrail-fix item closed it. It's written at layer level, like the rest of the page: what failed, who found it, which layer closed it, never how.
 - If the notes have it by then (Patrick, 2026-11-11): the lesson from the ADR full-text item. A search for "ADR 18" never found titles written "ADR 0018", and the baseline eval exposed it. It probably belongs on the eval harness page (1.6) or the knowledge core.
 
 ## Phase 2 — Shared knowledge index
