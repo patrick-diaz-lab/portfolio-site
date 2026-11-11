@@ -137,3 +137,75 @@ test("a missing source file and an unknown related part fail", () => {
   assert.match(output, /related\s+.*related part "router" doesn't exist/);
   assert.match(output, /sources\s+.*sources\/vision\/gone\.md doesn't exist/);
 });
+
+// Map checks (PLAN 1.3): a piece folder with piece.yaml, map.yaml and its SVG.
+const PIECE = `id: demo
+title: Demo
+tagline: A piece used only in tests.
+summary: A piece used only in tests.
+status: built
+as_of: 2026-11-10
+source_commit: ${SHA}
+order: 1
+map_svg: map.svg
+chat_enabled: false
+`;
+const MAP = `parts:
+  - id: gateway
+    label: Gateway
+    hover: The gateway.
+    page: /demo/gateway/
+    status: built
+  - id: sandbox
+    label: Sandbox
+    hover: Not built.
+    status: planned
+`;
+const SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <g id="gateway" class="part"><rect class="box" x="0" y="0" width="10" height="10" /></g>
+  <g id="sandbox" class="part"><rect class="box" x="20" y="0" width="10" height="10" /></g>
+</svg>
+`;
+const withPiece = (f: Record<string, string>) => {
+  f["pieces/demo/piece.yaml"] = PIECE;
+  f["pieces/demo/map.yaml"] = MAP;
+  f["pieces/demo/map.svg"] = SVG;
+};
+
+test("a piece whose map parts all have their SVG element passes", () => {
+  const { status, output } = fixture(withPiece);
+  assert.equal(status, 0, output);
+  assert.match(output, /content: ok \(1 piece\(s\)/);
+});
+
+test("a map part without its SVG element fails, naming map.yaml:line", () => {
+  const { status, output } = fixture((f) => {
+    withPiece(f);
+    f["pieces/demo/map.svg"] = SVG.replace(/\s*<g id="sandbox"[^\n]*/, "");
+  });
+  assert.equal(status, 1, output);
+  assert.match(output, /svg\s+pieces\/demo\/map\.yaml:7\s+part "sandbox" has no <g id="sandbox" class="part">/);
+});
+
+test("an SVG part missing from map.yaml, a nested group and a duplicate id fail", () => {
+  const { status, output } = fixture((f) => {
+    withPiece(f);
+    f["pieces/demo/map.svg"] = SVG.replace("</svg>", `  <g id="extra" class="part"><g><rect /></g></g>\n</svg>`);
+    f["pieces/demo/map.yaml"] = MAP + MAP.split("\n").slice(6).join("\n");
+  });
+  assert.equal(status, 1, output);
+  assert.match(output, /svg\s+pieces\/demo\/map\.svg:4\s+part "extra" isn't in map\.yaml/);
+  assert.match(output, /svg\s+pieces\/demo\/map\.svg:4\s+part "extra" holds a nested <g>/);
+  assert.match(output, /map\s+pieces\/demo\/map\.yaml:\d+\s+part "sandbox" is listed twice/);
+});
+
+test("a missing SVG file and a map link to a missing page fail", () => {
+  const { status, output } = fixture((f) => {
+    withPiece(f);
+    delete f["pieces/demo/map.svg"];
+    f["pieces/demo/map.yaml"] = MAP.replace("page: /demo/gateway/", "page: /demo/router/");
+  });
+  assert.equal(status, 1, output);
+  assert.match(output, /svg\s+pieces\/demo\/piece\.yaml:\d+\s+map\.svg doesn't exist/);
+  assert.match(output, /map\s+.*part "gateway" links to \/demo\/router\/, which has no page/);
+});

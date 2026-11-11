@@ -1,0 +1,70 @@
+# Map of the Vision piece (PLAN 1.3, D19). Order here is the order of the list and of the
+# phone's vertical wire; `line` groups the list. Every id is a <g class="part"> in map.svg.
+# The four MVP parts get `page:` with their items (1.4–1.7); until then they link to their
+# list entry. Nothing planned is presented as running (D19).
+parts:
+  - id: telegram-adapter
+    label: Telegram adapter
+    hover: "The chat I talk to Vision through. Each message goes to agent core; only the last 10 turns from the past 6 hours count as context."
+    status: built
+    line: surfaces
+  - id: console
+    label: Console
+    hover: "Private web console for chat and run traces: every step, tool call and cost of a run. Reachable only over Tailscale."
+    status: built
+    line: surfaces
+  - id: agent-core
+    label: Agent core
+    hover: The supervisor behind the chat. Commands run with no model; a local classifier sends the rest to a cheap or a smart model.
+    status: built
+    line: core
+  - id: claude-worker
+    label: Claude worker tier
+    hover: "A Claude Code worker on my subscription, only for my own messages. A filtering proxy lets it reach only the provider API and gateway tools."
+    status: built
+    line: core
+  - id: run-records
+    label: Run records
+    hover: "Every piece of work is a run with steps, tokens and costs. Full traces stay 30 days for review, then are deleted unless I flag a run."
+    status: built
+    line: core
+  - id: litellm-gateway
+    label: LiteLLM gateway
+    hover: "One gateway for every model call: aliases, not model names; a key and 30-day budget per flow. Prompt caching cut costs by 65 %."
+    status: built
+    line: models-and-tools
+  - id: mcp-servers
+    label: MCP servers
+    hover: My own read-only servers for docs, notes, files and homelab state, reached only through the gateway with per-key tool lists.
+    status: built
+    line: models-and-tools
+  - id: knowledge-core
+    label: Knowledge core
+    hover: Search over my docs and notes behind the knowledge server. Its retrieval is measured as hit@5 in the eval harness.
+    status: built
+    line: models-and-tools
+  - id: eval-harness
+    label: Eval harness
+    hover: Runs the production code on dev and held-out sets with its own key and budget. Code checks the metrics, not an LLM judge.
+    status: built
+    line: models-and-tools
+  - id: heartbeat
+    label: Heartbeat
+    hover: Scheduled checks that speak up only when something is wrong, never a daily all-clear. Designed, not built.
+    status: planned
+    line: planned
+  - id: job-contract
+    label: Job contract
+    hover: One approval per job, with goal, allowed actions, budget and deadline; risky tools still ask every time. Designed, not built.
+    status: planned
+    line: planned
+  - id: sandbox
+    label: Sandbox
+    hover: One locked-down container per job for code a model wrote. No network, read-only root, tight limits. Designed, not built.
+    status: planned
+    line: planned
+  - id: guardrails
+    label: Guardrails
+    hover: Hooks that check every command Claude Code runs while it builds Vision, backed by a pre-push hook and a secret scan.
+    status: built
+    line: build-side

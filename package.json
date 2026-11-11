@@ -14,7 +14,9 @@
     "check-tools": "node scripts/check-tools.ts",
     "build": "ASTRO_TELEMETRY_DISABLED=1 astro build && node scripts/scan.ts --dir dist",
     "preview": "astro preview",
-    "design-check": "node scripts/design-check.ts"
+    "design-check": "node scripts/design-check.ts",
+    "map-check": "node scripts/map-check.ts",
+    "lighthouse": "node scripts/lighthouse.ts"
   },
   "devDependencies": {
     "@astrojs/mdx": "8.1.1",
@@ -24,6 +26,7 @@
     "@types/node": "22.20.5",
     "astro": "7.4.2",
     "axe-core": "4.14.0",
+    "lighthouse": "13.6.0",
     "typescript": "6.0.3",
     "wrangler": "4.153.0",
     "yaml": "2.9.1"

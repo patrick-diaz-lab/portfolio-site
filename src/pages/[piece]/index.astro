@@ -1,0 +1,32 @@
+---
+// Piece overview page (PLAN 1.3, D19): one page per folder in pieces/, so a second piece
+// needs no code change. Not indexed until launch (PLAN 1.9).
+import Base from "../../layouts/Base.astro";
+import Map from "../../components/Map.astro";
+import { loadPieces } from "../../lib/pieces.ts";
+
+export function getStaticPaths() {
+  return loadPieces().map((piece) => ({ params: { piece: piece.id }, props: { piece } }));
+}
+
+const { piece } = Astro.props;
+const n = String(piece.order).padStart(2, "0");
+---
+<Base title={`${piece.title} — Patrick Diaz`} description={piece.tagline} noindex>
+  <main class="page">
+    <header class="piece-head">
+      <p class="label"><a href="/">Patrick Diaz</a> · Piece {n}</p>
+      <h1>{piece.title}</h1>
+      <p class="piece-tagline">{piece.tagline}</p>
+      <p>{piece.summary}</p>
+      <p class="label">As of {piece.as_of}</p>
+    </header>
+    <Map svg={piece.svg} parts={piece.parts} />
+  </main>
+</Base>
+
+<style>
+  .piece-head { display: grid; gap: var(--space-4); }
+  .piece-head a { color: inherit; }
+  .piece-tagline { font-size: var(--step-1); line-height: 1.4; }
+</style>

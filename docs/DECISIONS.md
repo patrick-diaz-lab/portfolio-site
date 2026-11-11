@@ -84,7 +84,7 @@ Decided 2026-11-04 (planning Q8–Q10).
 - **Map:**
   - An SVG illustration whose parts carry ids, plus `map.yaml` (id, label, one-line description, page, status), plus ~3 KB of own TypeScript for the hover/focus cards.
   - Every part is a real `<a>`. On touch screens the first tap opens a card with an "Open" button. No pan or zoom. A plain list of all parts works without JS.
-  - Build check: every `map.yaml` part has its SVG element and a page or `status: in-progress`.
+  - Build check: every `map.yaml` part has its SVG element, and a page it names exists (changed 2026-11-11, see D19; first planned as "a page or `status: in-progress`").
   - CSS-only motion, off under `prefers-reduced-motion`. Gates: axe-core in CI, mobile Lighthouse ≥ 95.
   - Rejected: React/Svelte Flow (an editor we don't need; 59 KB gzip plus React for React Flow; generic look), D3 (built for data charts), Lottie/Rive (~70 KB each; canvas is invisible to screen readers).
 - **Hosting:** Cloudflare Workers with static assets, free plan. Cloudflare's own Git builds deploy on merges to `main`; builds for other branches are off. Build command `pnpm check && pnpm build`. Worker logs are off on the chat route.
@@ -277,6 +277,7 @@ Decided 2026-11-04 by Patrick (planning Q23–Q25).
   4. Guardrails for the coding agent (ADR 0019, 0025, 0030, guardrails runbook): layers and reasons, never rules, patterns or paths.
 
   Map nodes without a page: MCP servers, knowledge core, Claude worker tier, Telegram adapter (`built`); console (`in-progress`); job contract, heartbeat, sandbox (`planned`). Nothing planned is presented as done.
+- **Map nodes, updated 2026-11-11 by Patrick (item 1.3):** the console is **built** (live), not in progress. **Run records** join the map as a built node without a page. Builder tooling (deploy lane, Remote Control, worktrees) gets its own piece later; guardrails stays on the Vision map because it is an MVP page. A node without a page links to its entry in the list under the map, so D7's build check becomes "every `map.yaml` part has its SVG element, and a page it names exists".
 - **Piece template (Q24):** `piece.yaml`, `map.yaml`, part MDX with fixed sections, knowledge entries and starters, all schema-enforced (details in [ARCHITECTURE](ARCHITECTURE.md#3-content-model-the-reusable-piece-template)). A `built` part with a page needs at least one `decision`, `rejected`, `testing` and `learning` entry. `evals[]` takes numbers only.
 - **`evals[]` holds aggregate numbers only (Patrick, 2026-11-10):** never individual cases, case ids or examples, and from a held-out set nothing beyond its totals. Enforced by the schema: each entry has only `name` (a slug, at most 48 characters), `metric` (`accuracy`, `hit_at_5`, `mrr`, `rate`, `count`, `cost_usd`, `seconds`), `value`, `n`, `date` and optional `baseline` and `cost_usd`, all numbers except the slug and the date; any other key fails `pnpm check` (item 1.2).
 - **Phases (Q25):** 0 Setup → 1 MVP (launch without chatbot) → 2 Knowledge index → 3 Chatbot → 4 Public MCP endpoint → 5 Later. One phase at a time.

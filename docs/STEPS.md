@@ -47,6 +47,14 @@ The repo is public in `patrick-diaz-lab` on GitHub Free (D20). Settings come **b
     - **After every change to `REDACTION_DENYLIST`:** start a fresh production build (a merge, not a retry; a retry may reuse the old values) and check that the log shows the expected `(deny-list: N entries)`.
 13. **Worker logs off:** `wrangler.jsonc` sets `observability.enabled: false`; check in the Worker's Settings → Observability that logs and traces show as off after the first deploy (D7).
 
+## B2. Phase 1 reviews
+
+1. **Item 1.3, Vision overview and map** (plan in [PLAN](PLAN.md#item-13-plan-patricks-decisions-2026-11-11)):
+    1. Read the map texts in `pieces/vision/map.yaml`. Four nodes have no Vision note behind them (knowledge core, Claude worker tier, Telegram adapter, console), so their one-line texts are Claude's drafts from the other notes. Correct them, or add notes on the Vision side first.
+    2. Check the wiring in `pieces/vision/map.svg`, especially where the console connects. A wire is a claim about the system.
+    3. Look at the screenshots in the PR (desktop, phone, an open card) and the `pnpm map-check` and `pnpm lighthouse` results.
+    4. Run `pnpm scan` with your local deny-list copy, then merge. After the merge, check that the Cloudflare build log shows `(deny-list: N entries)` and that `/vision/` is served.
+
 ## C. Before Phase 3 (item 3.1)
 
 14. **Anthropic Console:** create workspaces `portfolio-chat` (limit **$5/month**) and `portfolio-dev` (a small limit). Not the Default workspace. Check that the UI allows workspace limits (D15).

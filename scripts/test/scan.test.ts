@@ -21,6 +21,9 @@ function scanFixture(planted: string, env: Record<string, string> = {}) {
   const clean = { ...process.env };
   delete clean.REDACTION_DENYLIST;
   delete clean.REDACTION_DENYLIST_FILE;
+  // A session's hashed list (PLAN 1.3a) must not leak into the plaintext-list fixtures.
+  delete clean.REDACTION_DENYLIST_HASHES;
+  delete clean.REDACTION_REQUIRE_DENYLIST;
   const r = spawnSync(process.execPath, [SCAN, "--dir", dir], { encoding: "utf8", env: { ...clean, ...env } });
   return { status: r.status, output: r.stdout + r.stderr, dir };
 }
