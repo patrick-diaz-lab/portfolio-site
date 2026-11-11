@@ -15,4 +15,5 @@ This repo is **public** (D20). Start with [docs/PLAN.md](docs/PLAN.md).
 
 - A pushed branch is public at once, before any build scan. Push only after the pre-push scan passes. Never commit `.cache/` or `.env*`. Pages and knowledge entries are rewritten from `sources/vision/`, never pasted (`pnpm check` warns at 40 copied words).
 - Never write hostnames, machine names or LAN names, even when Patrick uses them in the session: write a role ("the home server", "the Vision machine"). The session's scan doesn't have the deny-list, so it can't catch them before a push (D9).
+- The deny-list reaches sessions only as salted hashes (`REDACTION_DENYLIST_HASHES`, D20). Never print the variable, never try to reverse or guess its entries, and never run `scripts/denylist-hash.ts` (it's for Patrick's machine). At the start of a session, run `pnpm scan` once and report its `(deny-list: …)` line to Patrick.
 - No commits on `main`; work goes to a branch and a PR. Only Patrick merges (D8).
