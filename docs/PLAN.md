@@ -197,18 +197,20 @@ The eval harness page, on the 1.4 template with no code change.
 The guardrails page, on the 1.4 template. **Layers and reasons only:** no rules, patterns, paths, file names, command examples, or any limit that would show how to get around a layer (Patrick).
 
 - **Source:** `sources/vision/deep/guardrails.md` and the guardrail section of `notes.md`, at `bb4fb37…`. Everything is rewritten at the level of layers, never pasted.
-- **What the page says, and what it leaves out:**
+- **What the page says:**
 
-  | Note section | On the page | Left out |
-  |---|---|---|
-  | A check before every command | A check runs before every command and file access, and answers deny, ask or allow. Every hard rule names what to do instead. A refusal names its rule. | The hook mechanism's name and how it matches |
-  | Deny / ask | Categories only: what can't be undone and secrets are denied; privileged and production changes are asked. The reason: deny what can't be undone, ask what I should see. | The concrete deny and ask lists, the scoped exception, and how plan approval lifts an ask |
-  | Pushes and merges | Four layers: the pre-run check, a second check at push time, a secret scan on every commit and push, and a merge only I perform | Refspec rules and branch names |
-  | Worktrees and deploy lane | Each session in its own working copy; one locked lane holds secrets and deploys | How the lock works |
-  | Honest limits | One layer among several, "a seatbelt, not a wall"; known gaps are tracked as open items and closed | Any description of a gap |
-  | Lesson "Claude spoke as me" | A test produced messages that looked like mine; now Claude never acts as my chat, and identity tests come from me | The token, user ID and trust model, and the open next step |
-  | Lesson "Two sessions in one folder" | As in the note: process, no mechanics | — |
-  | Lesson "A guardrail out of date" | A merged change wasn't in force everywhere; I measured instead of assuming; now there is one current copy, and a change that would block every session can't be merged | Server, restart window and ADR number |
+  | Note section | On the page |
+  |---|---|
+  | A check before every command | A check runs before every command and file access, and answers deny, ask or allow. Every hard rule names what to do instead. A refusal names its rule. |
+  | Deny / ask | Categories only, with the reason: deny what can't be undone, ask what I should see. |
+  | Pushes and merges | Four layers: the pre-run check, a second check at push time, a secret scan on every commit and push, and a merge only I perform. |
+  | Working copies and deploy lane | Each session in its own working copy; one locked lane holds secrets and deploys. |
+  | Honest limits | One layer among several, "a seatbelt, not a wall"; known gaps are tracked as open items and closed. |
+  | Lesson "Claude spoke as me" | A test produced messages that looked like mine; now Claude never acts as my chat, and identity tests come from me. |
+  | Lesson "Two sessions in one folder" | Process only. |
+  | Lesson "A guardrail out of date" | A merged change wasn't in force everywhere; I measured instead of assuming; now there is one current copy, and a change that would block every session can't be merged. |
+
+  Everything else in the note stays out, and what stays out isn't described here either (D19, layers-only everywhere).
 
 - **Entries (13):**
 
