@@ -35,11 +35,12 @@ const looseRejected = rejected.filter((r) => !r.data.lost_to || !decisionIds.has
 
 const back = `/${part.data.piece}/`;
 const money = (v: number) => `$${v}`;
-// Ratios keep at least one decimal (1.0, not 1), like the chips on the overview page.
-const evalValue = (m: string, v: number) =>
+// Counts stay integers ("0 of 12", like the chip on the overview page); ratios keep at
+// least one decimal (1.0, not 1).
+const evalValue = (m: string, v: number, n: number) =>
   m === "cost_usd" ? money(v)
   : m === "seconds" ? `${v} s`
-  : m === "count" ? String(v)
+  : m === "count" ? `${v} of ${n}`
   : v.toLocaleString("en", { minimumFractionDigits: 1, maximumFractionDigits: 4 });
 const evalName = (s: string) => (s.charAt(0).toUpperCase() + s.slice(1)).replace(/-/g, " ");
 ---
@@ -99,7 +100,7 @@ const evalName = (s: string) => (s.charAt(0).toUpperCase() + s.slice(1)).replace
                 {part.data.evals.map((v) => (
                   <tr>
                     <th scope="row">{evalName(v.name)}</th>
-                    <td>{evalValue(v.metric, v.value)}{v.baseline !== undefined && <span class="label"> (before: {evalValue(v.metric, v.baseline)})</span>}</td>
+                    <td>{evalValue(v.metric, v.value, v.n)}{v.baseline !== undefined && <span class="label"> (before: {evalValue(v.metric, v.baseline, v.n)})</span>}</td>
                     <td>{v.n}</td>
                     <td>{v.date}</td>
                   </tr>
