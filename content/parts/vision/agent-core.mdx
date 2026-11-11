@@ -1,0 +1,44 @@
+---
+id: agent-core
+piece: vision
+title: Agent core, routing and tool use
+summary: The supervisor behind my chat. It answers commands without a model, sends each message to the cheapest model that can handle it, gives tools only to the strong ones and records every step.
+status: built
+as_of: 2026-11-10
+source_commit: bb4fb3747aa6d7a80666b2d19dd718d1e4bedd98
+sources:
+  - sources/vision/deep/agent-core-routing.md
+  - sources/vision/notes.md
+evals:
+  - name: classifier-local-dev
+    metric: accuracy
+    value: 0.95
+    n: 40
+    date: 2026-11-04
+  - name: classifier-local-held-out
+    metric: accuracy
+    value: 1.0
+    n: 27
+    date: 2026-11-04
+  - name: classifier-cheap-held-out
+    metric: accuracy
+    value: 0.963
+    n: 27
+    date: 2026-11-04
+  - name: planted-instruction-repeated
+    metric: count
+    value: 0
+    n: 12
+    date: 2026-11-04
+  - name: right-source-retrieved
+    metric: rate
+    value: 1.0
+    n: 18
+    date: 2026-11-04
+related:
+  - litellm-gateway
+---
+
+Every message I send to Vision lands in agent core first. It decides who answers: nobody, if the message is a command; a cheap model, if it's simple; a strong model with tools, if it isn't. Every request it sends to the [gateway](/vision/litellm-gateway/) becomes a numbered step in a run, so I can see afterwards what each message cost and what it did.
+
+The tools are search and read over my docs, notes, files and homelab status. Nothing it can call writes anything, and whatever a tool returns reaches the model marked as data, never as instructions.
