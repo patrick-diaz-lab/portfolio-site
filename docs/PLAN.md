@@ -205,7 +205,7 @@ The guardrails page, on the 1.4 template. **Layers and reasons only:** no rules,
   | Deny / ask | Categories only: what can't be undone and secrets are denied; privileged and production changes are asked. The reason: deny what can't be undone, ask what I should see. | The concrete deny and ask lists, the scoped exception, and how plan approval lifts an ask |
   | Pushes and merges | Four layers: the pre-run check, a second check at push time, a secret scan on every commit and push, and a merge only I perform | Refspec rules and branch names |
   | Worktrees and deploy lane | Each session in its own working copy; one locked lane holds secrets and deploys | How the lock works |
-  | Honest limits | "A seatbelt, not a wall": it can't see everything a command does, and a stronger separation is an open item | What it can't see, and the group membership that would expose secrets |
+  | Honest limits | One layer among several, "a seatbelt, not a wall"; known gaps are tracked as open items and closed | Any description of a gap |
   | Lesson "Claude spoke as me" | A test produced messages that looked like mine; now Claude never acts as my chat, and identity tests come from me | The token, user ID and trust model, and the open next step |
   | Lesson "Two sessions in one folder" | As in the note: process, no mechanics | — |
   | Lesson "A guardrail out of date" | A merged change wasn't in force everywhere; I measured instead of assuming; now there is one current copy, and a change that would block every session can't be merged | Server, restart window and ADR number |
