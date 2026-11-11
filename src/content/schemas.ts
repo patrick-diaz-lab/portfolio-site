@@ -100,6 +100,9 @@ export const knowledgeSchema = z.strictObject({
   page: z.string().regex(/^\/[a-z0-9-]+\/[a-z0-9-]+\/$/, "must be a part page path like /vision/litellm-gateway/"),
   anchor: slug,
   kind: z.enum(KINDS),
+  /** Rejected entries only: the id of the decision this option lost to, on the same part.
+   *  The page renders it right under that decision (Patrick, 2026-11-11, item 1.4). */
+  lost_to: slug.optional(),
   sources: z.array(sourcePath).min(1),
   as_of: isoDate,
   source_commit: sha,

@@ -1,0 +1,143 @@
+---
+// Part page template (PLAN 1.4, D19): one page per content/parts/<piece>/<part>.mdx, with
+// the fixed sections. Each knowledge entry renders under its own anchor (the content check
+// relies on that). Rejected options sit right under the decision they lost to (`lost_to`,
+// Patrick 2026-11-11). Entries keep the order of their file names. Not indexed until launch.
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import Base from "../../layouts/Base.astro";
+
+export async function getStaticPaths() {
+  const parts = await getCollection("parts");
+  const knowledge = await getCollection("knowledge");
+  return parts.map((part) => ({
+    params: { piece: part.data.piece, part: part.data.id },
+    props: {
+      part,
+      entries: knowledge
+        .filter((k) => k.data.piece === part.data.piece && k.data.part === part.data.id)
+        .sort((a, b) => a.id.localeCompare(b.id)),
+    },
+  }));
+}
+
+type K = CollectionEntry<"knowledge">;
+const { part, entries } = Astro.props as { part: CollectionEntry<"parts">; entries: K[] };
+const { Content } = await render(part);
+const rendered = new Map<string, Awaited<ReturnType<typeof render>>["Content"]>();
+for (const e of entries) rendered.set(e.data.id, (await render(e)).Content);
+
+const ofKind = (kind: K["data"]["kind"]) => entries.filter((e) => e.data.kind === kind);
+const decisions = ofKind("decision");
+const rejected = ofKind("rejected");
+const rejectedFor = (id: string) => rejected.filter((r) => r.data.lost_to === id);
+const decisionIds = new Set(decisions.map((d) => d.data.id));
+const looseRejected = rejected.filter((r) => !r.data.lost_to || !decisionIds.has(r.data.lost_to));
+
+const back = `/${part.data.piece}/`;
+const money = (v: number) => `$${v}`;
+const evalValue = (m: string, v: number) => (m === "cost_usd" ? money(v) : m === "seconds" ? `${v} s` : String(v));
+const evalName = (s: string) => (s.charAt(0).toUpperCase() + s.slice(1)).replace(/-/g, " ");
+---
+<Base title={`${part.data.title} — Vision — Patrick Diaz`} description={part.data.summary} noindex>
+  <main class="page part-page">
+    <header class="part-head">
+      <p class="label"><a href={back}>{part.data.piece === "vision" ? "Vision" : part.data.piece}</a> · Part</p>
+      <h1>{part.data.title}</h1>
+      <p class="part-summary">{part.data.summary}</p>
+      <p class="label">As of {part.data.as_of}</p>
+    </header>
+
+    <section aria-labelledby="what-it-does" class="part-sec">
+      <h2 id="what-it-does">What it does</h2>
+      <div class="prose"><Content /></div>
+      {ofKind("overview").map((e) => {
+        const C = rendered.get(e.data.id)!;
+        return <section id={e.data.anchor} class="entry prose"><C /></section>;
+      })}
+    </section>
+
+    {(decisions.length > 0 || rejected.length > 0) && (
+      <section aria-labelledby="why-this-way" class="part-sec">
+        <h2 id="why-this-way">Why this way</h2>
+        {decisions.map((d) => {
+          const C = rendered.get(d.data.id)!;
+          return (
+            <section id={d.data.anchor} class="entry decision prose">
+              <C />
+              {rejectedFor(d.data.id).map((r) => {
+                const R = rendered.get(r.data.id)!;
+                return <section id={r.data.anchor} class="rejected prose"><R /></section>;
+              })}
+            </section>
+          );
+        })}
+        {looseRejected.map((r) => {
+          const R = rendered.get(r.data.id)!;
+          return <section id={r.data.anchor} class="entry rejected prose"><R /></section>;
+        })}
+      </section>
+    )}
+
+    {(ofKind("testing").length > 0 || part.data.evals.length > 0) && (
+      <section aria-labelledby="how-its-tested" class="part-sec">
+        <h2 id="how-its-tested">How it's tested</h2>
+        {ofKind("testing").map((e) => {
+          const C = rendered.get(e.data.id)!;
+          return <section id={e.data.anchor} class="entry prose"><C /></section>;
+        })}
+        {part.data.evals.length > 0 && (
+          <div class="evals-wrap">
+            <table class="evals">
+              <caption class="label">Measured (aggregates only)</caption>
+              <thead><tr><th scope="col">What</th><th scope="col">Value</th><th scope="col">n</th><th scope="col">Date</th></tr></thead>
+              <tbody>
+                {part.data.evals.map((v) => (
+                  <tr>
+                    <th scope="row">{evalName(v.name)}</th>
+                    <td>{evalValue(v.metric, v.value)}{v.baseline !== undefined && <span class="label"> (before: {evalValue(v.metric, v.baseline)})</span>}</td>
+                    <td>{v.n}</td>
+                    <td>{v.date}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+    )}
+
+    {ofKind("learning").length > 0 && (
+      <section aria-labelledby="what-i-learned" class="part-sec">
+        <h2 id="what-i-learned">What I learned</h2>
+        {ofKind("learning").map((e) => {
+          const C = rendered.get(e.data.id)!;
+          return <section id={e.data.anchor} class="entry prose"><C /></section>;
+        })}
+      </section>
+    )}
+
+    <p><a href={back}>← Back to the Vision map</a></p>
+  </main>
+</Base>
+
+<style>
+  .part-page { max-width: 48rem; gap: var(--space-12); }
+  .part-head { display: grid; gap: var(--space-4); }
+  .part-head a { color: inherit; }
+  .part-summary { font-size: var(--step-1); line-height: 1.45; }
+  .part-sec { display: grid; gap: var(--space-6); }
+  .entry { display: grid; gap: var(--space-3); scroll-margin-top: var(--space-8); }
+  .entry + .entry { border-top: var(--line-thin) solid var(--color-silk-dim); padding-top: var(--space-6); }
+  .rejected { display: grid; gap: var(--space-2); margin-top: var(--space-2); padding: var(--space-3) var(--space-4); border-left: var(--focus-width) dashed var(--color-silk-dim); background: var(--color-panel-raised); scroll-margin-top: var(--space-8); }
+  .prose :global(h3) { font-size: var(--step-1); }
+  .prose :global(h4) { font: 600 var(--step-0) / var(--leading-tight) var(--font-panel); letter-spacing: var(--tracking-panel); text-transform: uppercase; color: var(--color-silk-dim); }
+  .prose :global(p) { line-height: var(--leading-body); }
+  .prose { display: grid; gap: var(--space-3); }
+  .evals-wrap { overflow-x: auto; }
+  .evals { border-collapse: collapse; width: 100%; font-size: var(--step--1); }
+  .evals caption { text-align: left; padding-bottom: var(--space-2); }
+  .evals :is(th, td) { text-align: left; padding: var(--space-2) var(--space-3); border-bottom: var(--line-thin) solid var(--color-silk-dim); }
+  .evals thead th { font: 400 var(--step--1) var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-silk-dim); }
+  .evals td { font-family: var(--font-mono); }
+  .evals tbody th { font-weight: 400; }
+</style>

@@ -62,12 +62,13 @@ evals/retrieval.yaml             public retrieval eval (questions → expected e
 
 **Fixed sections:** *What it does* (MDX body) · *Why this way* (entries `decision` + `rejected`) · *How it's tested* (entries `testing` + `evals[]`) · *What I learned* (entries `learning`).
 
-**Knowledge entry frontmatter:** `id, piece, part, page, anchor, kind (overview | decision | rejected | testing | learning), sources (files under sources/vision/), as_of, source_commit`.
+**Knowledge entry frontmatter:** `id, piece, part, page, anchor, kind (overview | decision | rejected | testing | learning), lost_to?, sources (files under sources/vision/), as_of, source_commit`. `lost_to` (rejected entries only) names the decision on the same part that the option lost to; the page renders it right under that decision (item 1.4). Entries render in the order of their file names (`NN-<id>.md`).
 
 **Rules (`scripts/check-content.ts` in `pnpm check`, before the build; schemas in `src/content/schemas.ts`, shared with the Astro collections):**
 - A missing, unknown or wrong field (every object is strict).
 - An entry whose `page` isn't its part's page, whose part has no page, or whose `anchor` repeats on that page. Each part page renders its own entries under their anchors, so these checks are enough for the anchor to exist.
 - A `related[]` part, a `sources` file or a `map.yaml` page that doesn't exist.
+- A `lost_to` that doesn't name a decision on the same part, `lost_to` on an entry that isn't `rejected`, or two entries of a piece with the same id (rule `lost-to`, item 1.4).
 - A `built` part with a page but without at least one `decision`, `rejected`, `testing` and `learning` entry.
 - Free text in `evals[]`.
 - A `map.yaml` part without its `<g id class="part">` in the SVG, an SVG part missing from `map.yaml`, a part listed twice, or a part group with a nested `<g>` (rule `svg`, item 1.3).

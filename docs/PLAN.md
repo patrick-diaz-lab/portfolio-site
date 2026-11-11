@@ -68,7 +68,7 @@ Portfolio site for Patrick's work as an AI/LLM engineer. The first piece is **Vi
 - **Cost:** build session on the subscription; no API spend.
 - **Not in 1.3:** the detail pages (1.4–1.7) and the CI gates (1.8).
 
-### Item 1.4 plan (draft 2026-11-11, waiting for Patrick's OK)
+### Item 1.4 plan (Patrick's OK 2026-11-11: build now, rejected options under their decision)
 
 The first part page, which also builds the part-page template that items 1.5–1.7 reuse.
 
@@ -89,7 +89,7 @@ The first part page, which also builds the part-page template that items 1.5–1
   - `content/parts/vision/litellm-gateway.mdx`: frontmatter plus a short *What it does*. `evals[]` holds aggregates from the note:
     - the first 31 chat runs cost $0.05 in total (`cost_usd`, n 31);
     - 40 classifier cases on `cheap` cost $0.0023 (`cost_usd`, n 40).
-  - `content/knowledge/vision/*.md`: about 14 entries, each a short rewritten paragraph.
+  - `content/knowledge/vision/litellm-gateway/NN-<id>.md`: 16 entries, each a short rewritten paragraph; the file names set the order on the page. Rejected entries name the decision they lost to in `lost_to` (option b), checked by the content rule `lost-to`.
     - Decisions:
       - aliases only;
       - prices pinned in config;

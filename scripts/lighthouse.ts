@@ -1,7 +1,8 @@
 // `pnpm lighthouse` (PLAN 1.3 done-when, gate in CI with 1.8): mobile Lighthouse on every
-// piece overview page in dist/. Each category must score at least 95.
+// piece overview page and every part page its map links to (PLAN 1.4). Each category must
+// score at least 95.
 //
-//   node scripts/lighthouse.ts [--min 95] [path ...]     default: every /<piece>/ page
+//   node scripts/lighthouse.ts [--min 95] [path ...]     default: those pages
 //
 // Lighthouse 13.6.0 is a pinned dev dependency; Chrome is Playwright's Chromium (preinstalled
 // in the cloud VM), or CHROME_PATH. `is-crawlable` is skipped while pages carry noindex
@@ -19,7 +20,7 @@ import { serveDist } from "./lib/serve.ts";
 const args = process.argv.slice(2);
 const mi = args.indexOf("--min");
 const MIN = mi >= 0 ? Number(args.splice(mi, 2)[1]) : 95;
-const paths = args.length ? args : loadPieces().map((p) => `/${p.id}/`);
+const paths = args.length ? args : loadPieces().flatMap((p) => [`/${p.id}/`, ...p.parts.flatMap((x) => (x.page ? [x.page] : []))]);
 const CATEGORIES = ["performance", "accessibility", "best-practices", "seo"];
 
 function chromePath(): string {

@@ -83,6 +83,20 @@ try {
       await ctx.close();
     }
 
+    // Parts with a page link to it, and the page is there (PLAN 1.4).
+    {
+      const ctx = await browser.newContext(desktop);
+      const page = await ctx.newPage();
+      await page.goto(url);
+      for (const p of piece.parts.filter((x) => x.page)) {
+        const href = await page.locator(sel(p.id)).getAttribute("href");
+        const listHref = await page.locator(`#part-${p.id} a.wire-name`).getAttribute("href");
+        const res = await fetch(new URL(p.page!, url));
+        check(href === p.page && listHref === p.page && res.ok, `${p.label}: map and list link to ${p.page}, which loads (${res.status})`);
+      }
+      await ctx.close();
+    }
+
     // Hover opens the card.
     {
       const ctx = await browser.newContext(desktop);
@@ -102,7 +116,8 @@ try {
       const page = await ctx.newPage();
       await page.goto(url);
       const before = page.url();
-      const p = piece.parts[0]!;
+      // The first part with a page, so "Open" leads to a real page when there is one.
+      const p = piece.parts.find((x) => x.page) ?? piece.parts[0]!;
       await page.locator(`${sel(p.id)} .box`).tap();
       await page.waitForTimeout(150);
       check(page.url() === before && (await page.locator("[data-card]").isVisible()), "on touch, the first tap opens the card and doesn't navigate");

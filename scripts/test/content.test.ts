@@ -239,3 +239,27 @@ test("a missing SVG file and a map link to a missing page fail", () => {
   assert.match(output, /svg\s+pieces\/demo\/piece\.yaml:\d+\s+map\.svg doesn't exist/);
   assert.match(output, /map\s+.*part "gateway" links to \/demo\/router\/, which has no page/);
 });
+
+// lost_to (item 1.4): rejected options render under the decision they lost to.
+test("a rejected entry naming its decision passes", () => {
+  const { status, output } = fixture((f) => {
+    f["content/knowledge/demo/no-sdk-keys.md"] = entry("no-sdk-keys", "rejected", "\nlost_to: why-gateway");
+  });
+  assert.equal(status, 0, output);
+});
+
+test("lost_to must name a decision on the same part, and only on rejected entries", () => {
+  const missing = fixture((f) => {
+    f["content/knowledge/demo/no-sdk-keys.md"] = entry("no-sdk-keys", "rejected", "\nlost_to: nothing-here");
+  });
+  assert.equal(missing.status, 1, missing.output);
+  assert.match(missing.output, /lost-to\s+content\/knowledge\/demo\/no-sdk-keys\.md:\d+\s+decision "nothing-here" doesn't exist/);
+  const notDecision = fixture((f) => {
+    f["content/knowledge/demo/no-sdk-keys.md"] = entry("no-sdk-keys", "rejected", "\nlost_to: budget-test");
+  });
+  assert.match(notDecision.output, /lost-to\s+.*"budget-test" is a testing entry, not a decision/);
+  const wrongKind = fixture((f) => {
+    f["content/knowledge/demo/budget-test.md"] = entry("budget-test", "testing", "\nlost_to: why-gateway");
+  });
+  assert.match(wrongKind.output, /lost-to\s+.*only rejected entries name a decision they lost to \(this one is testing\)/);
+});
