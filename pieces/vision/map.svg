@@ -31,7 +31,8 @@
     <circle cx="680" cy="48" r="4" />
     <text class="dim-t" x="692" y="52">SMART · CHEAP → MODEL PROVIDER</text>
     <circle cx="680" cy="80" r="4" />
-    <text class="dim-t" x="692" y="84">LOCAL → GPU PC ON THE LAN</text>
+    <text class="dim-t" x="692" y="84">LOCAL · EMBED → MODELS ON MY GPU PC</text>
+    <text class="dim-t" x="692" y="100">(EMBED FALLS BACK TO CPU)</text>
   </g>
 
   <g id="telegram-adapter" class="part">
