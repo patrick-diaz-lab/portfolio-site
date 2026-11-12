@@ -1,0 +1,21 @@
+---
+id: mcp-servers
+piece: vision
+title: MCP servers, read-only tools
+summary: Four servers of my own give the models read access to my docs, notes, files and homelab state, behind one gateway, with rights held in the credentials and test data in a scope of their own.
+status: built
+as_of: 2026-11-12
+source_commit: 8b2a08b580419fd5f06330fce3b7e25a982b0150
+sources:
+  - sources/vision/deep/mcp-servers.md
+  - sources/vision/notes.md
+evals: []
+related:
+  - knowledge-core
+  - litellm-gateway
+  - agent-core
+---
+
+The models reach my docs, notes, files and homelab state through MCP servers I wrote myself: knowledge for docs and notes, files for my PDFs, homelab for the status of machines and services, and one that can only add new notes. Together they offer fifteen read tools and one write tool.
+
+Each server sits behind the [gateway](/vision/litellm-gateway/), and each layer holds only the rights it needs. Search over docs and notes comes from the [knowledge core](/vision/knowledge-core/); which models may use tools at all is decided in [agent core](/vision/agent-core/).
