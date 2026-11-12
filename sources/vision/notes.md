@@ -1,10 +1,10 @@
 # What I decided and why
 
-Short notes on the main parts of my home intelligence center ("Vision"): the problem, what I chose, what I rejected, how I test it, and one thing I learned. Written up on 2026-11-04 from my architecture decision records, the planning docs for the open gaps, and the status log.
+Short notes on the main parts of my home intelligence center ("Vision"): the problem, what I chose, what I rejected, how I test it, and one thing I learned. Written up on 2026-11-04 from my architecture decision records, the planning docs for the open gaps, and the status log; updated on 2026-11-12.
 
 Each entry says whether the part is **built** or **decided, not built yet**. For parts that aren't built, "Tested" describes the planned test.
 
-Deep dives on the four MVP parts: [LiteLLM gateway and budgets](deep/litellm-gateway.md), [agent-core routing and tool use](deep/agent-core-routing.md), [eval harness](deep/eval-harness.md), [guardrails for the coding agent](deep/guardrails.md).
+Deep dives: [LiteLLM gateway and budgets](deep/litellm-gateway.md), [agent-core routing and tool use](deep/agent-core-routing.md), [knowledge core](deep/knowledge-core.md), [MCP servers](deep/mcp-servers.md), [Claude worker tier](deep/claude-worker.md), [Telegram adapter and signed sender identity](deep/telegram-adapter.md), [console](deep/console.md), [run records](deep/run-records.md), [eval harness](deep/eval-harness.md), [guardrails for the coding agent](deep/guardrails.md).
 
 ## LiteLLM gateway and budgets
 
@@ -26,6 +26,16 @@ Deep dives on the four MVP parts: [LiteLLM gateway and budgets](deep/litellm-gat
 - **Tested:** classifier accuracy 0.95 on dev (38/40) and 1.0 on my held-out set (27/27). Agent eval: right source found 1.0; planted injection words in 0 of 12 answers.
 - **Learned:** a fallback has to keep capability, not just save money. My first fallback went to `cheap`, which couldn't read the file the question was about.
 
+## Knowledge core
+
+**Built.**
+
+- **Problem:** the models should find answers in my project docs, my notes and my PDFs, without being able to change a note or see a private one.
+- **Decision:** an indexer splits documents by heading and stores vectors and keywords. Search fuses both rankings. One embedding model everywhere, with its exact version on every chunk. The project docs came first, because they hold nothing private. My vault syncs to the server in a mode where nothing goes back. Private notes are never shared with the server, and a note marked private, or with a header that can't be parsed, is stored as an ID and a hash only. A document I name by number or title is read, not searched around.
+- **Rejected:** summaries by the local model. A model call per changed note, for something the note's own header or first paragraph already gives.
+- **Tested:** docs hit@5 1.0 on dev after a ranking fix (0.933 before), 0.75 on my held-out set. Vault and files sets not lower. Named-document questions: right source 23 of 23.
+- **Learned:** "ADR 18" was never found, because my titles say "0018". The eval caught it before my phone test did.
+
 ## MCP servers
 
 **Built.**
@@ -35,6 +45,26 @@ Deep dives on the four MVP parts: [LiteLLM gateway and budgets](deep/litellm-gat
 - **Rejected:** full media app keys behind "GET-only" code. The key itself could still write.
 - **Tested:** planted titles, paths and fake keys in fixtures never reach tool output. A key limited to one tool gets the others refused.
 - **Learned:** least privilege belongs in the credential, not in the code that holds it.
+
+## Claude worker tier
+
+**Built.**
+
+- **Problem:** I wanted to use my Claude subscription for some answers, without breaking its terms or giving an agent CLI a large blast radius.
+- **Decision:** after reading the terms, the narrow reading: only messages I send with `/claude`, never scheduled, at most 30 calls a day, stop at the first warning. Complex messages go to `smart` by default. The official CLI runs in a fresh, empty workspace per call, on its own network, with a filtering proxy as the only way out: to the provider's API and the gateway's tool endpoint. Every call checks what the CLI actually loaded and discards the answer if anything is extra.
+- **Rejected:** the worker as the default for complex messages. It would spend the limit I share with my own coding sessions, outside every budget.
+- **Tested:** offline checks with the real CLI against fakes ($0): with the safety hooks removed, the call is refused. A benchmark of the same CLI recipe against Vision's own agent, both on the API: 92 of 92 each, $0.0235 vs $0.0131 per solved case.
+- **Learned:** the pinned CLI loaded two plugins despite the flags that should have kept them out, and 15 bundled skills once I switched skills on. Verify what a tool loaded, not what you asked for.
+
+## Telegram adapter and signed sender
+
+**Built.**
+
+- **Problem:** the chat channel is how I reach Vision from my phone. agent-core believed the sender a request named, so anything holding the service token could be me.
+- **Decision:** a thin adapter with no model, no database and a one-user allowlist. It refuses to run messages that piled up during an outage, and keeps tokens out of logs. It signs every message, commands included, with a key only it holds. agent-core verifies it and refuses anything unsigned before a run starts. Every accepted run gets an origin record, and the status command audits the last 7 days.
+- **Rejected:** treating unsigned requests as an untrusted sender in a separate conversation. That sender would still reach `smart` and its tools.
+- **Tested:** an unsigned probe got a refusal and a record without its text. My phone tests and the origin line passed.
+- **Learned:** a signature stops anyone who can't read the key. The coding agent can run Docker and could read it, so against it the guardrail and a hard rule still do the work.
 
 ## Eval harness and held-out sets
 
@@ -53,7 +83,7 @@ Deep dives on the four MVP parts: [LiteLLM gateway and budgets](deep/litellm-gat
 - **Problem:** Claude Code builds this system on its own. It follows the written rules most of the time, not always.
 - **Decision:** a hook checks every command before it runs. It denies reading secret files, irreversible deletes, pushes other than item branches, Proxmox calls and acting as my chat. It asks before `sudo`, production migrations and rebases. A pre-push hook and a secret scan add a second layer.
 - **Rejected:** GitHub branch protection as the backstop. GitHub doesn't enforce it on my plan, so protection stays local.
-- **Tested:** every rule has unit tests (106 at the start, 768 now), and a new deny must fail on the previous hook version.
+- **Tested:** every rule has unit tests (106 at the start, 1133 now), and a new deny must fail on the previous hook version.
 - **Learned:** Claude once tested a skill by sending messages as me through the container's token, and the records looked like mine. The hook now blocks that. The hook is still a seatbelt, not a wall: it can't see inside scripts.
 
 ## Deploy lane and merge flow
@@ -81,10 +111,20 @@ Deep dives on the four MVP parts: [LiteLLM gateway and budgets](deep/litellm-gat
 **Built.**
 
 - **Problem:** I need to know what each service did, what it cost and why it failed, without private content in the logs.
-- **Decision:** one shared library: each piece of work is a run with steps. Every model request is one step tagged with the run and step number, so my records join the gateway's spend log exactly, even inside tool loops. Refused runs are "cancelled", not failures. Records keep names, counts and costs, never queries or note text.
+- **Decision:** one shared library: each piece of work is a run with steps. Every model request is one step tagged with the run and step number, so my records join the gateway's spend log exactly, even inside tool loops. Refused runs are "cancelled", not failures. Records keep steps, tokens and costs per run; full traces (question, tool inputs and results, answer) are kept 30 days for review, then deleted, unless I flag a run.
 - **Rejected:** the gateway's spend log on its own. It can't see commands, tool calls, or which message caused a call.
 - **Tested:** database tests run against the real role grants on a test database (for example, a request's text can't be changed afterwards). After every phone test, Claude checks the run records (names and counts only).
 - **Learned:** a cancelled step could lose its row, because the cancellation hit the cleanup's own database write. Writes are now shielded.
+
+## Console
+
+**Built** (first version; notifications and the Telegram switch-off are next).
+
+- **Problem:** Telegram shows only answers. I wanted to see routing, model calls, tool calls and costs live, and to review past runs.
+- **Decision:** my own web app, reachable only inside my private network, with my identity taken from the network layer. It signs every request to agent-core. Sessions with their own budgets ($0.10–$2), a $2 daily cap and at most 3 runs at once. Answers stream in, with their sources under them. A live trace of every step, a run explorer, and flags as a review queue. Full traces are kept 30 days, flagged runs until handled. Untrusted content renders as plain text, links included.
+- **Rejected:** Langfuse (too heavy for my VM) and Open WebUI (it can't see agent-core's internal steps).
+- **Tested:** two parallel sessions, a budget stop at $0.10 and stop all, live from my phone. A marker in a step's input and output never reaches a live event. After the streaming change, 158 paid steps matched the gateway's spend log within $0.00001.
+- **Learned:** my first UI tests ran only on the demo build and never touched the live path. Tests must exercise the change; deliberate breaks now prove they do.
 
 ## Job contract
 
@@ -160,7 +200,7 @@ Deep dives on the four MVP parts: [LiteLLM gateway and budgets](deep/litellm-gat
 
 **Decided, not built yet.**
 
-- **Problem:** most of my manual steps were mechanical checks and phone tests. Identity tests had to be mine, because agent-core trusts the sender a request names.
+- **Problem:** most of my manual steps were mechanical checks and phone tests. Identity tests had to be mine: agent-core trusts only signed senders, but signing doesn't bind anyone who can run Docker, and the coding agent can.
 - **Decision:** a second signing identity, trusted only by a throwaway end-to-end test stack on the test database. Production refuses to start if it trusts the test key; the test stack refuses my real key or a production database. Claude can't read or run held-out sets, and never changes a baseline in the PR it measures. My smoke test counts only if a signed run hit the deployed version.
 - **Rejected:** a restricted test key that production accepts: a signed path into real data for a key Claude holds.
 - **Tested:** a hook-test suite for "Claude can't be my chat"; end-to-end runs with a $0.50 guard and code-checked asserts, no LLM judge.

@@ -29,7 +29,7 @@ The metrics are checked by code: classifier accuracy with a confusion matrix, ov
 
 ### 4. Its own key, budget and stop rules
 
-The harness runs on its own gateway key: $5 per 30 days and three aliases. It stops early when the run has spent $2, when the kill switch is on, when the funds are out, or after 5 failures in a row. It can't reach the subscription worker in three independent ways: no address or token for it, not on its network, and only gateway aliases accepted. Each eval run is one run record with its cost, and the record never holds case text.
+The harness runs on its own gateway keys: one for classifier evals ($1 per 30 days) and one for agent evals ($14 per 30 days). It stops early when the run has spent $2, when the kill switch is on, when the funds are out, or after 5 failures in a row. It can't reach the subscription worker in three independent ways: no address or token for it, not on its network, and only gateway aliases accepted. Each eval run is one run record with its cost, and the record never holds case text.
 
 **Rejected:** running evals on the chat key. Eval spend would then look like chat spend, and a bad loop could drain the chat budget.
 
@@ -43,7 +43,7 @@ Agent evals use a second server token that sees only repo docs, a seed vault wit
 |---|---|---|
 | Classifier, `local` | 0.95 (38/40) | 0.95 (19/20); v2: 1.0 (27/27) |
 | Classifier, `cheap` | 1.0 (40/40), $0.0023 | 1.0 (20/20); v2: 0.963 |
-| Docs retrieval hit@5 | 0.967 | 0.875 (16 questions by me) |
+| Docs retrieval hit@5 | 0.967; 1.0 after the ranking fix | 0.875 (16 questions by me); 0.75 on the grown corpus |
 | Vault retrieval hit@5, chunk search vs note search | — | 0.909 vs 0.591 |
 | Files retrieval hit@5 | 1.0 | 1.0 |
 
@@ -54,7 +54,7 @@ With and without:
 - **Reply language:** a "red" run on the old prompt scored 0.8; after the fix, 1.0.
 - **Homelab tools:** with tools, 1.0. Without them (a deliberate run), still 1.0 with 0 invented numbers: the model said it couldn't know instead of guessing.
 
-A full agent eval with injection repeats costs $0.59–$1.50. The whole first harness item cost $0.004.
+A full agent eval with injection repeats cost $0.59–$1.50 at first. With prompt caching, the cost per case fell from $0.040 to $0.014 at the same scores, and a full dev pass of 58 to 63 cases now costs $0.77–$1.03. The whole first harness item cost $0.004.
 
 ## What went wrong and how I fixed it
 
@@ -73,3 +73,7 @@ One homelab case had a list of phrases that count as a false all-clear. One of t
 ### Held-out that wasn't independent
 
 To save time, I let Claude draft my first held-out classifier set, with different topics and shapes from the dev set. I reviewed it and copied it in myself. That still made it less independent than it should be. For the retrieval sets I wrote the questions myself, from a list of file names and headings alone, never from the builder's cases.
+
+### A metric that couldn't see the problem
+
+My "right source" metric passed when the expected document came back from any tool. In a real run, the model had found the document I named, never read it, and answered from search snippets. The metric would have passed that. Source cases can now also name the tools that must be called, and the summary reports how often that held. On the new cases, the baseline showed a second problem: "ADR 18" was never found at all, because the titles say "0018". The fix and its numbers are on the [knowledge core page](knowledge-core.md#adr-18-was-never-found).
