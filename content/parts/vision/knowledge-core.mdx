@@ -1,0 +1,36 @@
+---
+id: knowledge-core
+piece: vision
+title: Knowledge core, index and retrieval
+summary: Makes my project docs, notes and PDFs searchable for the models, with hybrid search and one embedding model, while my notes stay read-only and private ones never leave my devices.
+status: built
+as_of: 2026-11-12
+source_commit: 8b2a08b580419fd5f06330fce3b7e25a982b0150
+sources:
+  - sources/vision/deep/knowledge-core.md
+  - sources/vision/notes.md
+evals:
+  - name: docs-hit-at-5-held-out
+    metric: hit_at_5
+    value: 0.75
+    n: 16
+    date: 2026-11-12
+  - name: named-document-right-source
+    metric: rate
+    value: 1.0
+    n: 23
+    date: 2026-11-12
+  - name: named-document-read-tool-used
+    metric: rate
+    value: 1.0
+    n: 5
+    date: 2026-11-12
+related:
+  - mcp-servers
+  - eval-harness
+  - agent-core
+---
+
+The models in Vision answer from my own material: the project's docs, my notes and my PDFs. The knowledge core is what makes that material searchable. An indexer splits each document by its headings, stores a vector and the keywords for every piece, and keeps the index current as documents change. Search runs both rankings and combines them.
+
+None of this can change a note. My notes reach the server in one direction only, private ones never reach it at all, and the models get to the index only through read tools on the [MCP servers](/vision/mcp-servers/). How well it finds things is measured in the [eval harness](/vision/eval-harness/).

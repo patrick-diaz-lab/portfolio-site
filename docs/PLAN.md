@@ -344,6 +344,41 @@ More part pages before launch (Patrick). Their notes are being written on the Vi
 - **Before 1.10:** the small post-sync PR below, so the existing pages match the corrected notes first.
 - **Cost:** build sessions on the subscription; no API spend.
 
+### Item 1.10 plan (Patrick's OK 2026-11-12)
+
+Knowledge core and MCP servers: two part pages, one PR, on the 1.4 template. Sources: `sources/vision/deep/knowledge-core.md`, `deep/mcp-servers.md` and their sections in `notes.md`, at `8b2a08b…`.
+
+- **Knowledge core** (`/vision/knowledge-core/`), 17 entries:
+
+  | Kind | Entries |
+  |---|---|
+  | Decisions (5) | prove the path on safe content first; hybrid search with one embedding model; read-only notes, private notes fail closed; no model in the indexer; read a named document instead of searching around it |
+  | Rejected (5) | one under each decision |
+  | Testing (3) | the retrieval sets; freshness and cost; named-document cases |
+  | Learning (4) | stopwords; "ADR 18"; a busy GPU; one open limit |
+
+  `evals[]`:
+  - docs hit@5 held-out 0.75 (16), current until the Vision-side index fix and the next sync (Patrick);
+  - named document, right source, 1.0 (23);
+  - named document, read tool used, 1.0 (5).
+- **MCP servers** (`/vision/mcp-servers/`), a normal page, 13 entries:
+
+  | Kind | Entries |
+  |---|---|
+  | Decisions (4) | own servers behind the gateway; least privilege in the credential; tool output is untrusted; an eval scope per server |
+  | Rejected (4) | one under each decision |
+  | Testing (2) | |
+  | Learning (3) | |
+
+  No `evals[]`: the notes give no case counts.
+- **Access control by D19's rule, on both pages:**
+  - The media machine is only "a home media server", with no app names (Patrick). Its keys stay there, and one read-only service answers.
+  - Container status is read through a filter that answers the list and nothing more.
+  - No virtualization product names.
+  - The agents' write folder is "their own inbox folder".
+- **Map:** both parts link to their pages; the German map marks them "(Englisch)".
+- **Done when:** as 1.4. `pnpm check`, axe, Lighthouse and `map-check` pass, then Patrick merges and the Cloudflare build's scan is clean.
+
 ### After the next sync of `sources/vision/` (one small PR)
 
 **Done 2026-11-12, after sync PR #25** (`Source-Tree:` trailer, authored by Patrick, only `sources/vision/`):

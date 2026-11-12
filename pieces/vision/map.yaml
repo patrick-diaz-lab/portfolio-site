@@ -39,11 +39,13 @@ parts:
   - id: mcp-servers
     label: MCP servers
     hover: My own read-only servers for docs, notes, files and homelab state, reached only through the gateway with per-key tool lists.
+    page: /vision/mcp-servers/
     status: built
     line: models-and-tools
   - id: knowledge-core
     label: Knowledge core
     hover: Search over my docs and notes behind the knowledge server. Its retrieval is measured as hit@5 in the eval harness.
+    page: /vision/knowledge-core/
     status: built
     line: models-and-tools
   - id: eval-harness
