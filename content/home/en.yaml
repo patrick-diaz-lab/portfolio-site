@@ -1,10 +1,10 @@
 # Homepage text, English (PLAN 1.9a, D18). Drafted by Claude, edited and approved by
 # Patrick in the PR. Employer only generically; no photo, no CV download, no personal email.
-title: Patrick Diaz — AI/LLM engineer
-description: "Patrick Diaz, AI/LLM engineer: self-hosted AI agent systems that are measured, budgeted and guarded."
+title: Patrick Diaz — AI agent systems
+description: Patrick Diaz builds self-hosted AI agent systems that are measured, budgeted and guarded.
 positioning: I build self-hosted AI agent systems that are measured, budgeted and guarded.
 background:
-  - I work in IT operations in the Swiss federal administration and study computer science at FFHS (BSc, expected 2027), with a focus on machine learning and data engineering.
+  - I work in IT operations in the Swiss federal administration and study computer science at FFHS (BSc, expected 2027), with a focus on machine learning and data engineering. I work in German, Spanish, English and French.
   - "My focus is AI agents: how they route work between models, use tools safely, and prove with numbers that a change helped. Vision, my own agent harness, is where I build and test that."
 featured:
   piece: vision
@@ -15,7 +15,7 @@ work:
     text: Each message goes to the cheapest model that can answer it; only the strong models get tools, and only to read.
     href: /vision/agent-core/
   - title: Evals with held-out sets
-    text: A number before and after every change, measured on cases the system has never seen.
+    text: A number before and after each change, checked on held-out cases the system was never tuned on.
     href: /vision/eval-harness/
   - title: LLM cost control
     text: One gateway for every model call, with its own key and budget for each flow.

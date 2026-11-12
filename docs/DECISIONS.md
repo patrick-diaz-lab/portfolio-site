@@ -197,7 +197,7 @@ Decided 2026-11-04 by Patrick (planning Q18).
 - **Decision:**
   - `patrickdiaz.dev`, bought at Cloudflare Registrar (`.dev` is supported; registry: Google Registry). It was unregistered in an RDAP lookup on 2026-11-04; the price is checked at purchase.
   - The public contact is an alias on this domain, forwarded to Patrick's inbox by Cloudflare Email Routing. It's the only email address the redaction scan allows.
-  - The site title and meta description say "AI/LLM engineer", to tell this site apart from other people with the same name.
+  - The site title and meta description say "AI/LLM engineer", to tell this site apart from other people with the same name. **Changed 2026-11-12 by Patrick (item 1.9a):** they now say "AI agent systems" ("KI-Agent-Systeme" in German), which serves the same purpose.
 - This domain's MX records belong only to Email Routing.
 - **No `.ch` for now** (Q18b, Patrick): revisit if the job search focuses on Switzerland. Cloudflare Registrar doesn't offer `.ch` (TLD policies page, 2026-11-04), so it would need a Swiss registrar, plus a free Cloudflare DNS zone with one redirect rule.
 - **Rejected:** `patrickdiazalvarez.dev` (long to type and say); `patrickdiaz.ch` as the main domain (says nothing about engineering).

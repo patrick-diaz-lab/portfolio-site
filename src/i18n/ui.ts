@@ -5,7 +5,7 @@ export type Locale = (typeof LOCALES)[number];
 
 const en = {
   "site.name": "Patrick Diaz",
-  "site.role": "AI/LLM engineer",
+  "site.role": "AI agent systems",
   "lang.switch": "Language",
   "lang.en": "English",
   "lang.de": "Deutsch",
@@ -31,7 +31,7 @@ export type UiKey = keyof typeof en;
 
 const de: Record<UiKey, string> = {
   "site.name": "Patrick Diaz",
-  "site.role": "AI/LLM Engineer",
+  "site.role": "KI-Agent-Systeme",
   "lang.switch": "Sprache",
   "lang.en": "English",
   "lang.de": "Deutsch",
