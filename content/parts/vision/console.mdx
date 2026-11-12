@@ -1,0 +1,25 @@
+---
+id: console
+piece: vision
+title: Console, live traces and review
+summary: My own web app for Vision. Chat sessions with streamed answers, a live trace of every model and tool call, a run explorer and a review queue, reachable only inside my private network.
+status: built
+as_of: 2026-11-12
+source_commit: 8b2a08b580419fd5f06330fce3b7e25a982b0150
+sources:
+  - sources/vision/deep/console.md
+  - sources/vision/notes.md
+evals:
+  - name: paid-steps-matching-spend-log
+    metric: rate
+    value: 1.0
+    n: 158
+    date: 2026-11-12
+related:
+  - agent-core
+layers_only: true
+---
+
+My chat app only ever showed me answers. The console shows what happened on the way: which model a message went to, every model call and tool call with what it saw and returned, what it cost, and how long each step took. It has chat sessions with streamed answers and their sources, a live trace, an explorer for past runs, and flags that turn runs into a review queue.
+
+The first version is built. Notifications and switching off the old chat channel are next. This page names the access layers and why each exists; how they work stays private.

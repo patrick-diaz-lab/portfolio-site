@@ -379,7 +379,7 @@ Knowledge core and MCP servers: two part pages, one PR, on the 1.4 template. Sou
 - **Map:** both parts link to their pages; the German map marks them "(Englisch)".
 - **Done when:** as 1.4. `pnpm check`, axe, Lighthouse and `map-check` pass, then Patrick merges and the Cloudflare build's scan is clean.
 
-### Item 1.11 plan (draft 2026-11-12, waiting for Patrick's OK)
+### Item 1.11 plan (Patrick's OK 2026-11-12; console hover without the network product, both languages)
 
 The console page, `layers_only`, on the 1.4 template. Sources: `sources/vision/deep/console.md` and its section in `notes.md`, at `8b2a08b…`. The reattach fix being built on the Vision side isn't in the notes and stays out (Patrick).
 
