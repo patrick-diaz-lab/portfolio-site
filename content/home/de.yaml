@@ -16,7 +16,7 @@ work:
     text: Jede Nachricht geht an das günstigste Modell, das sie beantworten kann; Werkzeuge bekommen nur die starken Modelle, und nur zum Lesen.
     href: /vision/agent-core/
   - title: Evals mit Held-out-Sets
-    text: Eine Zahl vor und nach jeder Änderung, geprüft an Held-out-Fällen, auf die das System nie abgestimmt wurde.
+    text: Eine Zahl vor und nach jeder Änderung, geprüft an zurückgehaltenen Testfällen, auf die das System nie abgestimmt wurde.
     href: /vision/eval-harness/
   - title: LLM-Kostenkontrolle
     text: Ein Gateway für jeden Modellaufruf, mit eigenem Schlüssel und Budget für jeden Ablauf.
