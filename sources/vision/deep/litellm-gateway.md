@@ -22,7 +22,7 @@ The long-term rule: for each kind of task, an alias maps to the **cheapest candi
 
 Each flow (the chat agent, the eval harness, the indexer, later the research flow) gets its own virtual key with a 30-day budget and only the aliases it needs. A global cap sits above them.
 
-My plan includes $100 of API credits per billing cycle, with no rollover and auto-reload off. LiteLLM resets a 30-day budget on the 1st of each month, but my billing cycle starts on a different day, so a single billing cycle can overlap two LiteLLM months. In the worst case LiteLLM allows twice the cap within one cycle. I set the global cap at $45: worst case $90, with $10 of margin. On 2026-11-06 I added a spend limit of $30 a month on the provider's side as the hard backstop, and lowered the global cap to $24 and the sum of the key budgets to $22.
+My plan includes $100 of API credits per billing cycle, with no rollover and auto-reload off. LiteLLM resets a 30-day budget on the 1st of each month, but my billing cycle starts on a different day, so a single billing cycle can overlap two LiteLLM months. In the worst case LiteLLM allows twice the cap within one cycle. I set the global cap at $45: worst case $90, with $10 of margin. On 2026-11-05 I set a spend limit of $30 a month on the provider's side as the hard backstop; on 2026-11-06 I lowered the global cap to $24 and the sum of the key budgets to $22.
 
 **Rejected:** a cap of about $90 to match the credits. That works only if the two windows line up, which they don't.
 
@@ -34,7 +34,7 @@ Two failures look alike to a user but aren't: the provider credits are used up, 
 
 ### 5. One documented exception: my subscription, for my own messages
 
-A Claude Code worker runs on my Claude subscription, not on the API. After checking the terms, I limited it to requests I send myself with an explicit command. It never runs unattended, has a daily cap of 30 calls, starts each run in a clean workspace, and sits on a network that can reach only the provider's API. It is the one exception to "all LLM traffic through the gateway".
+A Claude Code worker runs on my Claude subscription, not on the API. After checking the terms, I limited it to requests I send myself with an explicit command. It never runs unattended, has a daily cap of 30 calls, starts each run in a clean workspace, and is kept off the gateway's network; a filtering proxy lets it reach only the provider's API and the gateway's tool endpoint. It is the one exception to "all LLM traffic through the gateway".
 
 **Rejected:** sending every complex message to the subscription by default, which was my first design. Once I had prepaid API credits, the default moved to `smart` through the gateway, which has budgets, chat history and evals. Routine traffic also stopped eating the subscription limit I share with my own coding sessions.
 
@@ -43,12 +43,16 @@ A Claude Code worker runs on my Claude subscription, not on the API. After check
 | What | Value |
 |---|---|
 | First 31 real chat runs | $0.05 in total |
-| Global cap / sum of per-key budgets | $24 / $22 (since 2026-11-06; was $45 / $43) |
+| Global cap / sum of per-key budgets / provider spend limit | $24 / $22 / $30 a month (cap and keys since 2026-11-06, was $45 / $54; limit set 2026-11-05) |
 | Chat agent key | $5 per 30 days (since 2026-11-06; was $30) |
-| Eval harness key | $1 per 30 days (since 2026-11-06; was $5), plus a $2 guard per run |
+| Classifier eval key | $1 per 30 days (since 2026-11-06; was $5), plus a $2 guard per run |
+| Agent eval key | $14 per 30 days (since 2026-11-06; was $15), plus a $2 guard per run |
+| Agent eval cost per case, before → after prompt caching | $0.04039 → $0.01392 (−65 %), same quality |
 | 40 classifier cases on `cheap` | $0.0023 |
 | A complex question with 6 tool calls on `smart` | $0.107 |
 | A homelab status question | $0.018 |
+
+Prompt caching marks the stable start of each `smart` and `cheap` request (instructions and tool definitions) and its growing end, so each call of a tool loop reads the previous call's prompt from the provider's cache. Cache reads and writes are recorded per step, and every cached step's cost matched tokens times my pinned cache prices.
 
 I have no with-and-without measurement for the gateway itself; its value is control, not speed. The with-and-without numbers for routing are on the [agent-core page](agent-core-routing.md).
 
