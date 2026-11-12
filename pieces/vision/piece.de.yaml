@@ -11,4 +11,4 @@ summary: >-
 chips:
   - Klassifikator-Genauigkeit, Held-out
   - Injection-Wort wiederholt
-  - Doku-Retrieval hit@5, Held-out
+  - Eval-Kosten pro Fall, Prompt-Caching

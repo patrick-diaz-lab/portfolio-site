@@ -42,14 +42,19 @@ export const evalSchema = z.strictObject({
 
 /** A metric chip on a piece's overview page (item 1.3 follow-up): one aggregate number,
  *  sourced from sources/vision/, with the date it holds for. No case text (D19). */
-export const chipSchema = z.strictObject({
-  label: text(40),
-  metric: z.enum(METRICS),
-  value: z.number().finite(),
-  n: z.number().int().positive(),
-  sources: z.array(sourcePath).min(1),
-  as_of: isoDate,
-});
+export const chipSchema = z
+  .strictObject({
+    label: text(40),
+    metric: z.enum(METRICS),
+    value: z.number().finite(),
+    /** Case count. Required for a count; optional where the notes give none (a per-case cost). */
+    n: z.number().int().positive().optional(),
+    /** The value before a change: the chip then shows the change in percent (Patrick, 2026-11-12). */
+    baseline: z.number().finite().positive().optional(),
+    sources: z.array(sourcePath).min(1),
+    as_of: isoDate,
+  })
+  .refine((c) => c.metric !== "count" || c.n !== undefined, { message: "a count chip needs n", path: ["n"] });
 
 export const pieceSchema = z.strictObject({
   id: slug,
