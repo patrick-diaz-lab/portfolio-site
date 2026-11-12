@@ -37,7 +37,7 @@ Portfolio site for Patrick's work as an AI/LLM engineer. The first piece is **Vi
 | 1.7 | Detail page: Guardrails for the coding agent (layers and reasons, no rules or patterns) | Same as 1.4; Patrick's checklist for this page signed off in the PR |
 | 1.8 | Quality gates in `pnpm check` and CI: axe on every page, Lighthouse budget, no-JS test, reduced-motion test, Playwright screenshots | All gates run in the Cloudflare build or the session and pass; a deliberately broken focus style fails |
 | 1.9 | Launch: homepage in English and German (positioning, background, Vision as featured card with metric chips, what I work on, contact), the `/de/` structure with the Vision overview and map in German, Privacy page (no cookies yet), domain live, contact alias. Plan below | `https://patrickdiaz.dev` and `/de/` serve the MVP; `hello@` forwards; no third-party requests on any page; every gate passes on both languages |
-| 1.10 | Detail pages: knowledge core and MCP servers (RAG, retrieval evals, read-only tools). Two part pages, one PR | Same as 1.4; built after the next sync is merged |
+| 1.10 | Detail pages: knowledge core and MCP servers (RAG, retrieval evals, read-only tools). Two part pages, one PR | Same as 1.4; access-control entries by D19's rule; built after the next sync is merged |
 | 1.11 | Detail page: console | Same as 1.4; layers only (D19); built after the sync |
 | 1.12 | Detail page: run records | Same as 1.4; built after the sync |
 | 1.13 | Detail page: Claude worker tier | Same as 1.4; layers only (D19); built after the sync |
@@ -320,7 +320,7 @@ Patrick's decisions of 2026-11-12, folded into 1.9 rather than a parallel item. 
   - After 1.9b: the domain serves the MVP, `hello@` forwards, and nothing requests another host.
 - **Cost:** build sessions on the subscription; no API spend.
 
-### Items 1.10–1.14 plan (draft 2026-11-12, waiting for Patrick's OK)
+### Items 1.10–1.14 plan (Patrick's OK 2026-11-12, MCP servers as a normal page)
 
 More part pages before launch (Patrick). Their notes are being written on the Vision side and arrive with the next sync. **Nothing here is built before that sync PR is merged.** Each item then gets its own short plan, built from the notes as they actually arrive, and Patrick's OK.
 
@@ -336,7 +336,7 @@ More part pages before launch (Patrick). Their notes are being written on the Vi
   - The knowledge core page covers RAG and the retrieval evals: hit@5, chunk vs note search, held-out totals only.
   - The MCP servers page covers the read-only tools and the per-key tool lists.
   - The ADR-number lesson from the post-sync list goes here if the notes have it.
-  - The MCP servers page is `layers_only`: access control is a security layer (D19).
+  - The MCP servers page is a normal page, not `layers_only` (Patrick): tool names are part of the retrieval story, and the check would block them. Its access-control entries still follow D19's layers-and-reasons rule, enforced by review instead of the check.
 - **1.11, console:** `layers_only`. How it's reached is named only as a layer.
 - **1.12, run records:** what is recorded and what never is, retention, and the join with the gateway's log. The note "run + step id join the spend log" on the map gets checked against the new notes.
 - **1.13, Claude worker tier:** `layers_only`. The corrected network wording comes from the new notes. The held-back points on the gateway, agent core and eval harness pages are written to match this page.
