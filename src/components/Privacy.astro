@@ -1,0 +1,60 @@
+---
+// Privacy page (PLAN 1.9a), English at /privacy/ and German at /de/privacy/. States only what
+// is true today: static pages, no cookies, no storage in the browser, no analytics, no
+// requests to other hosts, Worker logs off (D7). The chat's sections come with item 3.6.
+import Base from "../layouts/Base.astro";
+import type { Locale } from "../i18n/ui.ts";
+import { SITE } from "../site.ts";
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+
+const text = {
+  en: {
+    title: "Privacy",
+    meta: "What this site does and doesn't do with your data.",
+    asOf: "As of 2026-11-12",
+    sections: [
+      ["What this site doesn't do", "It sets no cookies, stores nothing in your browser, runs no analytics and loads nothing from other hosts. The fonts are served from this site itself."],
+      ["Hosting", "The pages are static files served by Cloudflare. To deliver a page, Cloudflare processes your IP address and the request, under its own privacy policy. Request logging is switched off for this site, so I don't receive or keep request logs."],
+      ["Email", "If you write to me, I use your address and message only to reply, and nothing else."],
+      ["Later", "A chat about my projects may come later. Before it does, this page will say what it sends, to whom, and what is kept."],
+    ],
+  },
+  de: {
+    title: "Datenschutz",
+    meta: "Was diese Website mit Ihren Daten tut und was nicht.",
+    asOf: "Stand 2026-11-12",
+    sections: [
+      ["Was diese Website nicht tut", "Sie setzt keine Cookies, speichert nichts in Ihrem Browser, nutzt keine Analyse-Werkzeuge und lädt nichts von anderen Servern. Die Schriften kommen von dieser Website selbst."],
+      ["Hosting", "Die Seiten sind statische Dateien, die Cloudflare ausliefert. Dafür verarbeitet Cloudflare Ihre IP-Adresse und die Anfrage, nach seiner eigenen Datenschutzerklärung. Das Protokollieren von Anfragen ist für diese Website ausgeschaltet; ich erhalte und speichere keine Zugriffsprotokolle."],
+      ["E-Mail", "Wenn Sie mir schreiben, nutze ich Ihre Adresse und Nachricht nur, um zu antworten, und für nichts anderes."],
+      ["Später", "Später kommt vielleicht ein Chat zu meinen Projekten. Bevor es so weit ist, steht hier, was er sendet, an wen und was gespeichert wird."],
+    ],
+  },
+}[locale];
+---
+<Base title={`${text.title} — Patrick Diaz`} description={text.meta} noindex lang={locale} path="/privacy/">
+  <main class="page privacy">
+    <header class="privacy-head">
+      <h1>{text.title}</h1>
+      <p class="label">{text.asOf}</p>
+    </header>
+    {text.sections.map(([h, p]) => (
+      <section>
+        <h2>{h}</h2>
+        <p>{p}</p>
+      </section>
+    ))}
+    <p><a href={`mailto:${SITE.email}`}>{SITE.email}</a></p>
+  </main>
+</Base>
+
+<style>
+  .privacy { max-width: 48rem; gap: var(--space-8); }
+  .privacy-head { display: grid; gap: var(--space-3); }
+  .privacy section { display: grid; gap: var(--space-3); }
+  .privacy h2 { font-size: var(--step-2); }
+</style>

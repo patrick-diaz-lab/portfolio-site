@@ -6,11 +6,13 @@
 //   - the signal dot runs on hover, and stands still under prefers-reduced-motion
 //   - on a phone the list (the vertical wire) is shown
 // Uses the pinned Playwright's Chromium (scripts/lib/browser.ts); a gate in CI since PLAN 1.8.
+import { LOCALES, localePath } from "../src/i18n/ui.ts";
 import { loadPieces } from "../src/lib/pieces.ts";
 import { devices, launch, type Page } from "./lib/browser.ts";
 import { serveDist } from "./lib/serve.ts";
 
-const pieces = loadPieces();
+// Every piece map in every language it has (PLAN 1.9a).
+const pieces = LOCALES.flatMap((locale) => loadPieces(locale).map((piece) => ({ locale, piece })));
 const { origin, server } = await serveDist();
 const browser = await launch();
 const desktop = { viewport: { width: 1280, height: 900 } };
@@ -24,10 +26,10 @@ const sel = (id: string) => `a.part[id="${id}"]`;
 const dotAnimation = (p: Page, id: string) => p.locator(`${sel(id)} .signal-dot`).evaluate((el) => getComputedStyle(el).animationName);
 
 try {
-  for (const piece of pieces) {
-    const url = `${origin}/${piece.id}/`;
+  for (const { locale, piece } of pieces) {
+    const url = origin + localePath(locale, `/${piece.id}/`);
     const ids = piece.parts.map((p) => p.id);
-    process.stdout.write(`── /${piece.id}/ (${ids.length} parts)\n`);
+    process.stdout.write(`── ${localePath(locale, `/${piece.id}/`)} (${ids.length} parts)\n`);
 
     // Links, names, tab order, focus card, Escape, Enter.
     {

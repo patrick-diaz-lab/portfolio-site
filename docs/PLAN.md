@@ -36,7 +36,7 @@ Portfolio site for Patrick's work as an AI/LLM engineer. The first piece is **Vi
 | 1.6 | Detail page: Eval harness (aggregates, with/without pairs only where measured) | Same as 1.4; every number traces to an IC doc on `master` |
 | 1.7 | Detail page: Guardrails for the coding agent (layers and reasons, no rules or patterns) | Same as 1.4; Patrick's checklist for this page signed off in the PR |
 | 1.8 | Quality gates in `pnpm check` and CI: axe on every page, Lighthouse budget, no-JS test, reduced-motion test, Playwright screenshots | All gates run in the Cloudflare build or the session and pass; a deliberately broken focus style fails |
-| 1.9 | Launch: About page (bio by Patrick, education, links, D18), Privacy page (no cookies yet), domain live, contact alias | `https://patrickdiaz.dev` serves the MVP; `hello@` forwards; no third-party requests on any page |
+| 1.9 | Launch: homepage in English and German (positioning, background, Vision as featured card with metric chips, what I work on, contact), the `/de/` structure with the Vision overview and map in German, Privacy page (no cookies yet), domain live, contact alias. Plan below | `https://patrickdiaz.dev` and `/de/` serve the MVP; `hello@` forwards; no third-party requests on any page; every gate passes on both languages |
 
 ### Item 1.3 plan (Patrick's decisions 2026-11-11)
 
@@ -274,6 +274,44 @@ Turn the browser checks from items 1.1 and 1.3 into gates that run on every PR, 
   - The self-test shows a broken focus style failing.
   - Patrick has made `gates` a required check.
 - **Cost:** CI minutes on a public repo (free); no API spend.
+
+### Item 1.9 plan (Patrick's OK 2026-11-12; 1.9b waits until the domain is ready)
+
+Patrick's decisions of 2026-11-12, folded into 1.9 rather than a parallel item. Two PRs: **1.9a**, the homepage and the German structure; **1.9b**, the launch switch.
+
+- **Homepage** (`/` and `/de/`), top to bottom:
+  1. **Positioning:** one line.
+  2. **Background:** 2–3 sentences covering IT operations in the Swiss federal administration (generic: no office or unit), the BSc Computer Science (FFHS), expected 2027, and the focus on AI and agents.
+  3. **Vision as the featured card:** title, tagline, the three metric chips, and links to the map.
+  4. **What I work on:** 3–4 short, scannable lines, each pointing to its Vision page: agent routing and tool use, evals with held-out sets, LLM cost control through one gateway, guardrails for coding agents.
+  5. **Contact:** `hello@patrickdiaz.dev` (D14), GitHub and LinkedIn, and "CV on request" next to the contact link. No CV download, no photo, no personal email anywhere.
+
+  The homepage replaces the separate About page: education, links and background live there. Country only, as in D18.
+- **Languages:** English at `/`, German at `/de/` (Astro i18n routing, no prefix for English).
+  - `<html lang>` per page, `hreflang` alternates, and a language switch that links each page to its counterpart.
+  - Interface text lives in one typed dictionary per language. A missing key is a type error.
+  - Translatable piece text sits in overlay files next to the English ones: `piece.de.yaml` (title, tagline, summary, chip labels) and `map.de.yaml` (label and hover per part id, plus the schematic's notes). The numbers stay in one place.
+  - `pnpm check` gets a rule `i18n`: an overlay has exactly the base file's part ids and chip count, and every text label in the schematic has a translation.
+  - The schematic's visible text (box labels, notes, terminals) comes from the data files per language, so one SVG serves both.
+- **At launch in German:** the homepage, the Vision overview with map and list, and the Privacy page.
+  - Part pages stay English for now. The German map and list link to them, marked "(English)" with `hreflang="en"`.
+  - Each part page gets its German version later, one PR each, reviewed by Patrick.
+- **German texts are written, not machine-pasted.** They go through the same checks as English: the scan with the deny-list, the verbatim check, axe, and the gates. The gates find the `/de/` pages on their own; `map-check` also runs on the German map.
+- **Privacy page** (EN/DE): no cookies, no tracking, no third-party requests; logs off; the contact address. The chat sections come in Phase 3 (item 3.6).
+- **1.9b, the launch switch:** custom domain on the Worker, `hello@` forwarding live, `noindex` off, `is-crawlable` back in Lighthouse, and a sitemap with both languages. Patrick's steps are in STEPS D.
+- **D18 update** (with 1.9a):
+  - No photo; the portrait option is dropped.
+  - The employer only as "Swiss federal administration", never an office.
+  - Contact: `hello@`, GitHub, LinkedIn; CV on request.
+  - Languages: English and German.
+- **Done when:**
+  - Both languages serve the homepage and the Vision overview.
+  - `pnpm check` passes, including `i18n`.
+  - Every gate passes on all pages in both languages.
+  - The scan with the deny-list is clean; it decides whether the background wording passes.
+  - Patrick approves the English and German texts in the PR.
+  - After 1.9b: the domain serves the MVP, `hello@` forwards, and nothing requests another host.
+- **Cost:** build sessions on the subscription; no API spend.
 
 ### After the next sync of `sources/vision/` (one small PR)
 

@@ -1,0 +1,29 @@
+# Homepage text, German (PLAN 1.9a, D18). Written, not machine-translated, in Swiss
+# Standard German (ss, no ß); edited and approved by Patrick in the PR. The work links point
+# to the English part pages until their German versions exist.
+title: Patrick Diaz — KI-Agent-Systeme
+description: Patrick Diaz baut selbst gehostete KI-Agent-Systeme, die gemessen, budgetiert und abgesichert sind.
+positioning: Ich baue selbst gehostete KI-Agent-Systeme, die gemessen, budgetiert und abgesichert sind.
+background:
+  - Ich arbeite im IT-Betrieb der Schweizerischen Bundesverwaltung und studiere Informatik an der FFHS (BSc, voraussichtlich 2027), mit Schwerpunkt Machine Learning und Data Engineering. Ich arbeite auf Deutsch, Spanisch, Englisch und Französisch.
+  - "Mein Fokus sind KI-Agenten: wie sie Arbeit zwischen Modellen verteilen, Werkzeuge sicher nutzen und mit Zahlen belegen, dass eine Änderung geholfen hat. Vision, mein eigener Agent-Harness, ist der Ort, an dem ich das baue und teste."
+featured:
+  piece: vision
+  cta: Zur Vision-Übersicht
+work_heading: Woran ich arbeite
+work:
+  - title: Agent-Routing und Werkzeuge
+    text: Jede Nachricht geht an das günstigste Modell, das sie beantworten kann; Werkzeuge bekommen nur die starken Modelle, und nur zum Lesen.
+    href: /vision/agent-core/
+  - title: Evals mit Held-out-Sets
+    text: Eine Zahl vor und nach jeder Änderung, geprüft an zurückgehaltenen Testfällen, auf die das System nie abgestimmt wurde.
+    href: /vision/eval-harness/
+  - title: LLM-Kostenkontrolle
+    text: Ein Gateway für jeden Modellaufruf, mit eigenem Schlüssel und Budget für jeden Ablauf.
+    href: /vision/litellm-gateway/
+  - title: Guardrails für Coding-Agenten
+    text: Mehrere Prüfschichten, damit ein KI-Agent ein System bauen kann, während jeder Merge bei mir bleibt.
+    href: /vision/guardrails/
+contact_heading: Kontakt
+contact_text: Am schnellsten erreichen Sie mich per E-Mail. Ausserdem bin ich auf GitHub und LinkedIn.
+cv: Lebenslauf auf Anfrage

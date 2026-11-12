@@ -1,0 +1,14 @@
+# German text of the Vision piece (PLAN 1.9a). Only text: numbers, ids and dates stay in
+# piece.yaml. Written in Swiss Standard German (ss, no ß); reviewed by Patrick in the PR.
+title: Vision
+tagline: Ein selbst gehosteter Agent-Harness für mein Home-Intelligence-Center.
+summary: >-
+  Vorne ein Chat, dahinter ein Supervisor, der jede Nachricht an das günstigste Modell
+  schickt, das sie beantworten kann. Werkzeuge nur zum Lesen, ein Gateway für alle
+  Schlüssel und Budgets, Evals vor und nach jeder Änderung. Claude Code baut es, innerhalb
+  von Guardrails, die ich geschrieben habe.
+# Chip labels, in the order of the chips in piece.yaml.
+chips:
+  - Klassifikator-Genauigkeit, Held-out
+  - Injection-Wort wiederholt
+  - Doku-Retrieval hit@5, Held-out

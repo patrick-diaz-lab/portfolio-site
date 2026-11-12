@@ -1,0 +1,31 @@
+---
+// Metric chips (aggregates only, D19), per language. Used on the piece overview and on the
+// homepage's featured card (PLAN 1.9a).
+import { t, type Locale } from "../i18n/ui.ts";
+import { chipNote, chipValue } from "../lib/chips.ts";
+
+interface Props {
+  chips: { label: string; metric: string; value: number; n: number; as_of: string }[];
+  locale: Locale;
+}
+const { chips, locale } = Astro.props;
+---
+{chips.length > 0 && (
+  <ul class="chips" aria-label={t(locale, "piece.measured")}>
+    {chips.map((c) => (
+      <li class="chip">
+        <span class="chip-value">{chipValue(c, locale)}</span>
+        <span class="chip-label">{c.label}</span>
+        <span class="label">{chipNote(c, locale)}</span>
+      </li>
+    ))}
+  </ul>
+)}
+
+<style>
+  .chips { list-style: none; margin: var(--space-2) 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-3); }
+  .chip { display: grid; gap: var(--space-1); min-width: 13rem; padding: var(--space-3) var(--space-4); background: var(--color-panel-raised); border: var(--line-thin) solid var(--color-silk-dim); border-left: 3px solid var(--color-amber); border-radius: var(--radius); }
+  .chip-value { font: 400 var(--step-2) / 1 var(--font-mono); color: var(--color-silk); }
+  .chip-label { font-size: var(--step--1); line-height: 1.35; }
+  @media (max-width: 47.99rem) { .chip { flex: 1 1 100%; } }
+</style>

@@ -1,0 +1,36 @@
+---
+// Piece overview (PLAN 1.3, D19), in English at /<piece>/ and in German at /de/<piece>/
+// (PLAN 1.9a). Not indexed until launch (PLAN 1.9b).
+import Base from "../layouts/Base.astro";
+import Chips from "./Chips.astro";
+import Map from "./Map.astro";
+import { localePath, t, type Locale } from "../i18n/ui.ts";
+import type { Piece } from "../lib/pieces.ts";
+
+interface Props {
+  piece: Piece;
+  locale: Locale;
+}
+const { piece, locale } = Astro.props;
+const n = String(piece.order).padStart(2, "0");
+const both = piece.locales.includes("de");
+---
+<Base title={`${piece.title} — Patrick Diaz`} description={piece.tagline} noindex lang={locale} path={both ? `/${piece.id}/` : undefined}>
+  <main class="page">
+    <header class="piece-head">
+      <p class="label"><a href={localePath(locale, "/")}>Patrick Diaz</a> · {t(locale, "piece.label")} {n}</p>
+      <h1>{piece.title}</h1>
+      <p class="piece-tagline">{piece.tagline}</p>
+      <p>{piece.summary}</p>
+      <p class="label">{t(locale, "piece.asOf")} {piece.as_of}</p>
+      <Chips chips={piece.chips} locale={locale} />
+    </header>
+    <Map svg={piece.svg} parts={piece.parts} locale={locale} svgText={piece.svgText} />
+  </main>
+</Base>
+
+<style>
+  .piece-head { display: grid; gap: var(--space-4); }
+  .piece-head a { color: inherit; }
+  .piece-tagline { font-size: var(--step-1); line-height: 1.4; }
+</style>

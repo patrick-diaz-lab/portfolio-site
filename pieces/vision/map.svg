@@ -3,25 +3,26 @@
        Each part is a <g id class="part"> with no nested <g>; its id equals its map.yaml id,
        and the page turns it into a link. A part holds its own wire (the signal dot runs
        along it), a focus ring, its box and its label. No <title>: it would show as a
-       tooltip; the name is the aria-label. -->
+       tooltip; the name is the aria-label. Box labels come from map.yaml; every other text
+       has a data-t key that map.de.yaml translates (PLAN 1.9a). -->
 
   <!-- Frames and sheet marks -->
   <g class="frame" aria-hidden="true">
     <path d="M20 20 H1060 V320 H530 V440 H20 Z" />
-    <text class="frame-t" x="36" y="44">RUNTIME</text>
+    <text class="frame-t" data-t="frame-runtime" x="36" y="44">RUNTIME</text>
     <rect x="540" y="330" width="520" height="110" />
-    <text class="frame-t" x="556" y="352">BUILD SIDE</text>
+    <text class="frame-t" data-t="frame-build" x="556" y="352">BUILD SIDE</text>
     <path class="dim" d="M40 92 V100 M260 92 V100 M40 96 H260" />
-    <text class="dim-t" x="150" y="86" text-anchor="middle">SURFACES</text>
-    <text class="dim-t" x="1044" y="430" text-anchor="end">SHEET 01 · VISION</text>
+    <text class="dim-t" data-t="dim-surfaces" x="150" y="86" text-anchor="middle">SURFACES</text>
+    <text class="dim-t" data-t="sheet" x="1044" y="430" text-anchor="end">SHEET 01 · VISION</text>
   </g>
 
   <!-- Side notes: hand-lettered, amber, dashed lead lines -->
   <g class="notes">
-    <text class="note" x="300" y="62">commands: no model</text>
-    <text class="note" x="300" y="84">simple → cheap · complex → smart</text>
+    <text class="note" data-t="note-commands" x="300" y="62">commands: no model</text>
+    <text class="note" data-t="note-routing" x="300" y="84">simple → cheap · complex → smart</text>
     <path class="note-line" d="M410 92 V110" />
-    <text class="note" x="44" y="326">run + step id join the spend log</text>
+    <text class="note" data-t="note-spend-log" x="44" y="326">run + step id join the spend log</text>
     <path class="note-line" d="M150 332 V350" />
   </g>
 
@@ -29,10 +30,10 @@
   <g class="terminal" aria-hidden="true">
     <path class="wire-static" d="M640 80 H676" />
     <circle cx="680" cy="48" r="4" />
-    <text class="dim-t" x="692" y="52">SMART · CHEAP → MODEL PROVIDER</text>
+    <text class="dim-t" data-t="term-provider" x="692" y="52">SMART · CHEAP → MODEL PROVIDER</text>
     <circle cx="680" cy="80" r="4" />
-    <text class="dim-t" x="692" y="84">LOCAL · EMBED → MODELS ON MY GPU PC</text>
-    <text class="dim-t" x="692" y="100">(EMBED FALLS BACK TO CPU)</text>
+    <text class="dim-t" data-t="term-local" x="692" y="84">LOCAL · EMBED → MODELS ON MY GPU PC</text>
+    <text class="dim-t" data-t="term-local-fallback" x="692" y="100">(EMBED FALLS BACK TO CPU)</text>
   </g>
 
   <g id="telegram-adapter" class="part">
@@ -118,7 +119,7 @@
   <!-- What the guardrails wrap: not a part of the runtime -->
   <g class="terminal" aria-hidden="true">
     <circle cx="824" cy="394" r="4" />
-    <text class="dim-t" x="836" y="390">CLAUDE CODE SESSIONS</text>
-    <text class="dim-t" x="836" y="408">THAT BUILD VISION</text>
+    <text class="dim-t" data-t="term-sessions" x="836" y="390">CLAUDE CODE SESSIONS</text>
+    <text class="dim-t" data-t="term-sessions-2" x="836" y="408">THAT BUILD VISION</text>
   </g>
 </svg>

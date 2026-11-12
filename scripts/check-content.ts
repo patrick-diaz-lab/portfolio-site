@@ -19,6 +19,9 @@
 //                  non-rejected entry has lost_to, or two entries share an id (item 1.4)
 //   layers-only    a part with layers_only: true (or one of its entries) holds code, a path, a
 //                  command-line flag or a file name (item 1.7)
+//   i18n           a German piece overlay or homepage doesn't match its English base: part
+//                  ids, chip count, schematic texts, label length, line names, work links
+//                  (PLAN 1.9a)
 //   map            map.yaml points at a page that doesn't exist, or repeats a part id
 //   svg            a built map.yaml part has no <g id class="part"> in the piece's SVG, the
 //                  SVG has a part map.yaml doesn't list or that isn't built (only built
@@ -28,8 +31,12 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { basename, join, relative, resolve } from "node:path";
 import { parse } from "yaml";
 import type { z } from "astro/zod";
-import { REQUIRED_KINDS, knowledgeSchema, mapSchema, partSchema, pieceSchema } from "../src/content/schemas.ts";
-import { svgNestedParts, svgPartIds } from "../src/lib/map-svg.ts";
+import { REQUIRED_KINDS, homeSchema, knowledgeSchema, mapOverlaySchema, mapSchema, partSchema, pieceOverlaySchema, pieceSchema } from "../src/content/schemas.ts";
+import { LOCALES, ui } from "../src/i18n/ui.ts";
+import { svgNestedParts, svgPartIds, svgTextKeys, svgUntranslatable } from "../src/lib/map-svg.ts";
+
+/** A box label longer than this doesn't fit the schematic's box (PLAN 1.9a). */
+const LABEL_MAX = 18;
 
 type Problem = { rule: string; file: string; line: number; msg: string };
 
@@ -127,8 +134,83 @@ export function layersOnlyHits(text: string): { line: number; msg: string }[] {
   return hits;
 }
 
+// German overlays of a piece (rule i18n, PLAN 1.9a): both files or neither; each matches
+// the English base exactly (part ids, chip count, every keyed schematic text); no schematic
+// text without a key; box labels fit; every map line has a name in every language.
+function checkGerman(
+  dir: string,
+  piece: { chips: unknown[] },
+  parts: { id: string; status: string; line?: string }[],
+  svg: string,
+  P: Problem[],
+  root = ROOT_FOR_CHECK,
+): void {
+  const pf = join(root, "pieces", dir, "piece.de.yaml");
+  const mf = join(root, "pieces", dir, "map.de.yaml");
+  const rel = (f: string) => relative(root, f).split("\\").join("/");
+  for (const line of new Set(parts.map((p) => p.line ?? "parts"))) {
+    for (const l of LOCALES) {
+      if (!(`line.${line}` in ui[l])) P.push({ rule: "i18n", file: `pieces/${dir}/map.yaml`, line: 1, msg: `line "${line}" has no name in src/i18n/ui.ts (${l})` });
+    }
+  }
+  if (!existsSync(pf) && !existsSync(mf)) return;
+  if (!existsSync(pf) || !existsSync(mf)) {
+    P.push({ rule: "i18n", file: rel(existsSync(pf) ? pf : mf), line: 1, msg: "a German piece needs both piece.de.yaml and map.de.yaml" });
+    return;
+  }
+  const pdoc = readYaml(pf);
+  const po = validate(pieceOverlaySchema, pdoc, rel(pf), P);
+  if (po && po.chips.length !== piece.chips.length) P.push({ rule: "i18n", file: rel(pf), line: lineOf(pdoc, ["chips"]), msg: `${po.chips.length} chip label(s) for ${piece.chips.length} chip(s) in piece.yaml` });
+  const mdoc = readYaml(mf);
+  const mo = validate(mapOverlaySchema, mdoc, rel(mf), P);
+  if (!mo) return;
+  const ids = parts.map((p) => p.id);
+  for (const id of ids) if (!mo.parts[id]) P.push({ rule: "i18n", file: rel(mf), line: lineOf(mdoc, ["parts"]), msg: `part "${id}" has no German label and hover` });
+  for (const id of Object.keys(mo.parts)) {
+    if (!ids.includes(id)) P.push({ rule: "i18n", file: rel(mf), line: lineOf(mdoc, ["parts", id]), msg: `part "${id}" isn't in map.yaml` });
+    else if (parts.find((p) => p.id === id)!.status === "built" && mo.parts[id]!.label.length > LABEL_MAX) P.push({ rule: "i18n", file: rel(mf), line: lineOf(mdoc, ["parts", id]), msg: `label "${mo.parts[id]!.label}" is longer than ${LABEL_MAX} characters and won't fit its box` });
+  }
+  const keys = svgTextKeys(svg);
+  for (const k of keys) if (mo.svg_text[k] === undefined) P.push({ rule: "i18n", file: rel(mf), line: lineOf(mdoc, ["svg_text"]), msg: `schematic text "${k}" has no German text` });
+  for (const k of Object.keys(mo.svg_text)) if (!keys.includes(k)) P.push({ rule: "i18n", file: rel(mf), line: lineOf(mdoc, ["svg_text", k]), msg: `"${k}" isn't a data-t key in the schematic` });
+  for (const txt of svgUntranslatable(svg)) P.push({ rule: "i18n", file: `pieces/${dir}/map.svg`, line: 1, msg: `schematic text "${txt}" has no data-t key, so it can't be translated` });
+}
+
+// The homepage in every language (rule i18n, PLAN 1.9a): valid, featuring a real piece, and
+// with the same work links in the same order in every language.
+function checkHome(root: string, pieceIds: string[], parts: Map<string, unknown>, P: Problem[]): void {
+  const dir = join(root, "content", "home");
+  if (!existsSync(dir)) return;
+  const hrefs = new Map<string, string[]>();
+  for (const l of LOCALES) {
+    const f = join(dir, `${l}.yaml`);
+    const file = relative(root, f).split("\\").join("/");
+    if (!existsSync(f)) {
+      P.push({ rule: "i18n", file: "content/home", line: 1, msg: `the homepage has no ${l}.yaml` });
+      continue;
+    }
+    const doc = readYaml(f);
+    const h = validate(homeSchema, doc, file, P);
+    if (!h) continue;
+    if (!pieceIds.includes(h.featured.piece)) P.push({ rule: "i18n", file, line: lineOf(doc, ["featured", "piece"]), msg: `featured piece "${h.featured.piece}" doesn't exist` });
+    for (const w of h.work) {
+      const [, piece, part] = w.href.split("/");
+      const ok = part ? parts.has(`${piece}/${part}`) : pieceIds.includes(piece ?? "");
+      if (!ok) P.push({ rule: "i18n", file, line: lineOf(doc, ["work"]), msg: `work link ${w.href} has no page` });
+    }
+    hrefs.set(l, h.work.map((w) => w.href));
+  }
+  const [first, ...rest] = [...hrefs.entries()];
+  for (const [l, list] of rest) {
+    if (first && list.join(" ") !== first[1].join(" ")) P.push({ rule: "i18n", file: `content/home/${l}.yaml`, line: 1, msg: `the work links differ from ${first[0]}.yaml (same pages, same order)` });
+  }
+}
+
+let ROOT_FOR_CHECK = ".";
+
 export function checkContent(root: string): { problems: Problem[]; counts: { pieces: number; parts: number; entries: number } } {
   const P: Problem[] = [];
+  ROOT_FOR_CHECK = root;
   const rel = (f: string) => relative(root, f).split("\\").join("/");
 
   // Pieces and maps.
@@ -182,6 +264,10 @@ export function checkContent(root: string): { problems: Problem[]; counts: { pie
             for (const id of svgNestedParts(svg)) {
               P.push({ rule: "svg", file: rel(sf), line: svgLine(id), msg: `part "${id}" holds a nested <g>; parts must be flat` });
             }
+            for (const p of map.parts.filter((x) => x.status === "built" && x.label.length > LABEL_MAX)) {
+              P.push({ rule: "svg", file: rel(mf), line: lineOfId(p.id), msg: `label "${p.label}" is longer than ${LABEL_MAX} characters and won't fit its box` });
+            }
+            checkGerman(dir, piece, map.parts, svg, P);
           }
         }
       }
@@ -271,6 +357,7 @@ export function checkContent(root: string): { problems: Problem[]; counts: { pie
     }
   }
 
+  checkHome(root, pieceDirs, parts, P);
   return { problems: P, counts: { pieces: pieceDirs.length, parts: parts.size, entries: entries.length } };
 }
 

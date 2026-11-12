@@ -1,6 +1,7 @@
-// `pnpm lighthouse` (PLAN 1.3, a CI gate since 1.8): mobile Lighthouse on every piece
-// overview page and every part page its map links to. Each category must score at least 95,
-// and each page must stay inside the budget below (from Lighthouse's own request list).
+// `pnpm lighthouse` (PLAN 1.3, a CI gate since 1.8): mobile Lighthouse on every page in
+// dist/, both languages, except the internal style sheet (PLAN 1.9a). Each category must
+// score at least 95, and each page must stay inside the budget below (from Lighthouse's own
+// request list).
 //
 //   node scripts/lighthouse.ts [--min 95] [path ...]     default: those pages
 //
@@ -8,19 +9,28 @@
 // Chromium (scripts/lib/browser.ts), never a system Chrome. `is-crawlable` is skipped while
 // pages carry noindex until launch (PLAN 1.9). The Node API sends nothing anywhere.
 import { spawn } from "node:child_process";
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, readdirSync, rmSync, statSync } from "node:fs";
 import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import lighthouse from "lighthouse";
-import { loadPieces } from "../src/lib/pieces.ts";
 import { chromiumPath } from "./lib/browser.ts";
-import { serveDist } from "./lib/serve.ts";
+import { DIST, serveDist } from "./lib/serve.ts";
 
 const args = process.argv.slice(2);
 const mi = args.indexOf("--min");
 const MIN = mi >= 0 ? Number(args.splice(mi, 2)[1]) : 95;
-const paths = args.length ? args : loadPieces().flatMap((p) => [`/${p.id}/`, ...p.parts.flatMap((x) => (x.page ? [x.page] : []))]);
+// Default: every page in dist/ in every language, except the internal style sheet (PLAN 1.9a).
+function distPages(dir = DIST, base = ""): string[] {
+  const out: string[] = [];
+  for (const n of readdirSync(dir)) {
+    const f = join(dir, n);
+    if (statSync(f).isDirectory()) out.push(...distPages(f, `${base}${n}/`));
+    else if (n === "index.html") out.push(`/${base}`);
+  }
+  return out.sort();
+}
+const paths = args.length ? args : distPages().filter((p) => p !== "/styleguide/");
 const CATEGORIES = ["performance", "accessibility", "best-practices", "seo"];
 
 // Size budget per page (PLAN 1.8), on transferred bytes as Lighthouse measured them.
