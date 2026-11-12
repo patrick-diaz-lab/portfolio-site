@@ -275,7 +275,7 @@ Turn the browser checks from items 1.1 and 1.3 into gates that run on every PR, 
   - Patrick has made `gates` a required check.
 - **Cost:** CI minutes on a public repo (free); no API spend.
 
-### Item 1.9 plan (draft 2026-11-12, waiting for Patrick's OK)
+### Item 1.9 plan (Patrick's OK 2026-11-12; 1.9b waits until the domain is ready)
 
 Patrick's decisions of 2026-11-12, folded into 1.9 rather than a parallel item. Two PRs: **1.9a**, the homepage and the German structure; **1.9b**, the launch switch.
 

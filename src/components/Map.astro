@@ -2,16 +2,20 @@
 // The piece map (PLAN 1.3, D7, D13): the hand-drawn schematic with every part as a named
 // link, a hover/focus card, and the list of all parts under it. The list works without JS
 // and is the phone layout: a vertical wire with the modules along it.
-import { linkParts, partHref, type MapPart } from "../lib/map-svg.ts";
+// Per language (PLAN 1.9a): labels, hover texts and the schematic's texts come from the
+// piece's data in that language; links to part pages that exist only in English are marked.
+import { lineName, t, type Locale } from "../i18n/ui.ts";
+import { linkParts, partHref, type MapPart, type SvgText } from "../lib/map-svg.ts";
 
 interface Props {
   svg: string;
   parts: MapPart[];
+  locale?: Locale;
+  svgText?: SvgText;
 }
-const { svg, parts } = Astro.props;
-const drawing = linkParts(svg, parts);
-
-const lineName = (l: string) => (l.charAt(0).toUpperCase() + l.slice(1)).replace(/-/g, " ");
+const { svg, parts, locale = "en", svgText = {} } = Astro.props;
+const drawing = linkParts(svg, parts, svgText);
+const pageLang = svgText.pageLang;
 const groups: { line: string; parts: MapPart[] }[] = [];
 for (const p of parts) {
   const line = p.line ?? "parts";
@@ -21,27 +25,28 @@ for (const p of parts) {
 }
 ---
 <section class="map" aria-labelledby="h-map" data-map>
-  <h2 id="h-map" class="label">Schematic</h2>
+  <h2 id="h-map" class="label">{t(locale, "map.schematic")}</h2>
   <div class="map-frame">
     <Fragment set:html={drawing} />
     <div class="map-card" data-card hidden aria-hidden="true">
       <p class="map-card-title" data-card-title></p>
       <p class="map-card-text" data-card-text></p>
-      <a class="map-card-open" data-card-open href="#h-parts" tabindex="-1">Open</a>
+      <a class="map-card-open" data-card-open href="#h-parts" tabindex="-1">{t(locale, "map.open")}</a>
     </div>
   </div>
 </section>
 
 <section class="parts" aria-labelledby="h-parts">
-  <h2 id="h-parts">All parts</h2>
+  <h2 id="h-parts">{t(locale, "map.allParts")}</h2>
   <ol class="wire-list">
     {groups.map((g) => (
       <li class="wire-group">
-        <p class="label wire-line">{lineName(g.line)}</p>
+        <p class="label wire-line">{lineName(locale, g.line)}</p>
         <ol>
           {g.parts.map((p) => (
             <li class="module wire-item" id={`part-${p.id}`}>
-              <a class="wire-name" href={partHref(p)}>{p.label}</a>
+              <a class="wire-name" href={partHref(p)} hreflang={p.page && pageLang ? pageLang : undefined}>{p.label}</a>
+              {p.page && pageLang && <span class="label">{t(locale, "map.englishPage")}</span>}
               <p id={`desc-${p.id}`}>{p.hover}</p>
             </li>
           ))}

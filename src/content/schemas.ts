@@ -80,6 +80,39 @@ export const mapSchema = z.strictObject({
     .min(1),
 });
 
+// German overlays (PLAN 1.9a): only the translatable text of a piece, next to the English
+// files. Numbers, ids, pages and status stay in the base files. `pnpm check` (rule i18n)
+// holds an overlay to the base: same part ids, same chip count, every schematic text.
+export const pieceOverlaySchema = z.strictObject({
+  title: text(80),
+  tagline: text(120),
+  summary: text(300),
+  chips: z.array(text(40)).max(4).default([]),
+});
+
+export const mapOverlaySchema = z.strictObject({
+  aria_label: text(120),
+  parts: z.record(z.string().regex(SLUG), z.strictObject({ label: text(40), hover: text(140) })),
+  svg_text: z.record(z.string().regex(SLUG), text(80)).default({}),
+});
+
+/** The homepage text per language (content/home/<locale>.yaml, PLAN 1.9a). Patrick edits it. */
+export const homeSchema = z.strictObject({
+  title: text(80),
+  description: text(160),
+  positioning: text(140),
+  background: z.array(text(400)).min(1).max(3),
+  featured: z.strictObject({ piece: slug, cta: text(40) }),
+  work_heading: text(40),
+  work: z
+    .array(z.strictObject({ title: text(60), text: text(160), href: z.string().regex(/^\/[a-z0-9/-]*$/, "must be a site path") }))
+    .min(3)
+    .max(4),
+  contact_heading: text(40),
+  contact_text: text(200),
+  cv: text(80),
+});
+
 export const partSchema = z.strictObject({
   id: slug,
   piece: slug,

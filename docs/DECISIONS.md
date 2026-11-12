@@ -263,7 +263,12 @@ Decided 2026-11-04 by Patrick (planning Q22).
   - Education: "BSc Computer Science (FFHS), focus on machine learning and data engineering, expected 2027".
   - Links: GitHub profile, LinkedIn, and `hello@patrickdiaz.dev` (D14).
 - **Not published:** employer names (they're on the deny-list, D9), a CV PDF (metadata, hard to scan; sent on request), phone, address, city or region.
-- **Later option:** a portrait, with metadata stripped by the build.
+- **Updated 2026-11-12 by Patrick (item 1.9a):**
+  - **Homepage instead of an About page:** one-line positioning, 2–3 sentences of background, Vision as the featured card with its metric chips, "what I work on", and contact. Claude drafts the text in both languages; Patrick edits and approves it in the PR.
+  - **Employer:** only as "Swiss federal administration" ("Schweizerische Bundesverwaltung"), never an office or unit.
+  - **Contact:** `hello@patrickdiaz.dev`, GitHub (`patrick-diaz-dev`) and LinkedIn. No personal email anywhere. "CV on request" links to the contact address, with no download.
+  - **No photo:** the portrait option is dropped.
+  - **Languages:** English and German, the German under `/de/`. At launch the homepage, the Vision overview and map, and the Privacy page exist in both. Part pages get German later, each reviewed by Patrick. German texts are written, not machine-pasted, and go through the same scans.
 - **Merge-review checklist:** photos show no labels, readable device IDs or views out of the window. The deny-list must not contain the generic words of the bio ("public sector").
 
 ## D19 — MVP scope, piece template and phase order

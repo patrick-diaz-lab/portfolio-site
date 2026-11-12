@@ -1,0 +1,12 @@
+---
+// Piece overview, German (PLAN 1.9a): one page per piece with piece.de.yaml and map.de.yaml.
+import PieceOverview from "../../../components/PieceOverview.astro";
+import { loadPieces } from "../../../lib/pieces.ts";
+
+export function getStaticPaths() {
+  return loadPieces("de").map((piece) => ({ params: { piece: piece.id }, props: { piece } }));
+}
+
+const { piece } = Astro.props;
+---
+<PieceOverview piece={piece} locale="de" />

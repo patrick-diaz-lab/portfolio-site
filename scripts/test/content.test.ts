@@ -285,3 +285,92 @@ test("without layers_only the same text passes", () => {
   assert.equal(status, 0, output);
 });
 
+
+// i18n (PLAN 1.9a): German overlays and the homepage match their English base.
+const PIECE_DE = `title: Demo
+tagline: Ein Teil nur für Tests.
+summary: Ein Teil nur für Tests.
+`;
+const MAP_DE = `aria_label: Demo-Schema
+parts:
+  gateway:
+    label: Gateway
+    hover: Das Gateway.
+  router:
+    label: Router
+    hover: Gebaut, noch ohne Seite.
+  sandbox:
+    label: Sandbox
+    hover: Nicht gebaut.
+`;
+
+test("German overlays that match the base pass", () => {
+  const { status, output } = fixture((f) => {
+    withPiece(f);
+    f["pieces/demo/piece.de.yaml"] = PIECE_DE;
+    f["pieces/demo/map.de.yaml"] = MAP_DE;
+  });
+  assert.equal(status, 0, output);
+});
+
+test("a lone overlay, a missing part, an unknown key and an untranslatable text fail", () => {
+  const lone = fixture((f) => {
+    withPiece(f);
+    f["pieces/demo/piece.de.yaml"] = PIECE_DE;
+  });
+  assert.match(lone.output, /i18n\s+pieces\/demo\/piece\.de\.yaml:1\s+a German piece needs both/);
+  const { status, output } = fixture((f) => {
+    withPiece(f);
+    f["pieces/demo/map.svg"] = SVG.replace("</svg>", `  <text class="note" data-t="note-a">hi</text>\n  <text class="note">loose</text>\n</svg>`);
+    f["pieces/demo/piece.de.yaml"] = PIECE_DE;
+    f["pieces/demo/map.de.yaml"] = MAP_DE.replace(/  router:\n.*\n.*\n/, "") + "svg_text:\n  note-b: falsch\n";
+  });
+  assert.equal(status, 1, output);
+  assert.match(output, /i18n\s+.*part "router" has no German label and hover/);
+  assert.match(output, /i18n\s+.*schematic text "note-a" has no German text/);
+  assert.match(output, /i18n\s+.*"note-b" isn't a data-t key in the schematic/);
+  assert.match(output, /i18n\s+pieces\/demo\/map\.svg:1\s+schematic text "loose" has no data-t key/);
+});
+
+test("a label too long for its box fails", () => {
+  const { status, output } = fixture((f) => {
+    withPiece(f);
+    f["pieces/demo/map.yaml"] = MAP.replace("label: Router", "label: A router with a long name");
+  });
+  assert.equal(status, 1, output);
+  assert.match(output, /svg\s+pieces\/demo\/map\.yaml:\d+\s+label "A router with a long name" is longer than 18 characters/);
+});
+
+const HOME = (hrefs: string[]) => `title: Demo
+description: A demo homepage.
+positioning: A demo line.
+background:
+  - One sentence.
+featured:
+  piece: demo
+  cta: Open
+work_heading: Work
+work:
+${hrefs.map((h) => `  - title: Item\n    text: Text.\n    href: ${h}`).join("\n")}
+contact_heading: Contact
+contact_text: Write to me.
+cv: CV on request
+`;
+
+test("homepages with the same work links pass; different links or a missing page fail", () => {
+  const good = ["/demo/gateway/", "/demo/", "/demo/gateway/"];
+  const ok = fixture((f) => {
+    withPiece(f);
+    f["content/home/en.yaml"] = HOME(good);
+    f["content/home/de.yaml"] = HOME(good);
+  });
+  assert.equal(ok.status, 0, ok.output);
+  const bad = fixture((f) => {
+    withPiece(f);
+    f["content/home/en.yaml"] = HOME(good);
+    f["content/home/de.yaml"] = HOME(["/demo/", "/demo/gateway/", "/demo/nowhere/"]);
+  });
+  assert.equal(bad.status, 1, bad.output);
+  assert.match(bad.output, /i18n\s+content\/home\/de\.yaml:\d+\s+work link \/demo\/nowhere\/ has no page/);
+  assert.match(bad.output, /i18n\s+content\/home\/de\.yaml:1\s+the work links differ from en\.yaml/);
+});

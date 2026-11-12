@@ -13,16 +13,25 @@ import fontPanel from "@fontsource/barlow-condensed/files/barlow-condensed-latin
 import fontMono from "@fontsource/jetbrains-mono/files/jetbrains-mono-latin-400-normal.woff2?url";
 import "../styles/tokens.css";
 import "../styles/base.css";
+import { localePath, t, type Locale } from "../i18n/ui.ts";
+import { SITE } from "../site.ts";
 
 interface Props {
   title: string;
   description?: string;
   noindex?: boolean;
+  /** The page's language (PLAN 1.9a). */
+  lang?: Locale;
+  /** The page's path without the /de prefix, when it exists in both languages: drives the
+   *  language switch and the hreflang alternates. Pages in one language only leave it out. */
+  path?: string;
 }
-const { title, description, noindex = false } = Astro.props;
+const { title, description, noindex = false, lang = "en", path } = Astro.props;
+const other: Locale = lang === "en" ? "de" : "en";
+const home = localePath(lang, "/");
 ---
 <!doctype html>
-<html lang="en">
+<html lang={lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -34,8 +43,23 @@ const { title, description, noindex = false } = Astro.props;
     {description && <meta name="description" content={description} />}
     {noindex && <meta name="robots" content="noindex" />}
     <title>{title}</title>
+    {path && (["en", "de"] as const).map((l) => <link rel="alternate" hreflang={l} href={SITE.origin + localePath(l, path)} />)}
+    {path && <link rel="alternate" hreflang="x-default" href={SITE.origin + path} />}
   </head>
   <body>
+    <header class="site-bar">
+      <a class="site-name" href={home}>{t(lang, "site.name")}</a>
+      {path && (
+        <nav aria-label={t(lang, "lang.switch")} class="lang-switch">
+          <span aria-current="true" lang={lang}>{t(lang, `lang.${lang}`)}</span>
+          <a href={localePath(other, path)} hreflang={other} lang={other}>{t(other, `lang.${other}`)}</a>
+        </nav>
+      )}
+    </header>
     <slot />
+    <footer class="site-foot">
+      <a href={localePath(lang, "/privacy/")}>{t(lang, "footer.privacy")}</a>
+      <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
+    </footer>
   </body>
 </html>

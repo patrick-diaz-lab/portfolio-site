@@ -1,0 +1,48 @@
+# German text of the Vision map (PLAN 1.9a): label and hover per part id of map.yaml, the
+# schematic's name, and every keyed text in map.svg (data-t). Box labels at most 18
+# characters, so they fit the schematic. Part pages are English for now.
+aria_label: "Vision-Schema: wie die Teile verbunden sind"
+parts:
+  telegram-adapter:
+    label: Telegram-Adapter
+    hover: "Der Chat, über den ich mit Vision spreche. Jede Nachricht geht an Agent-Core; Kontext sind nur die letzten 10 Züge aus 6 Stunden."
+  console:
+    label: Konsole
+    hover: "Private Web-Konsole für Chat und Run-Traces: jeder Schritt, jeder Tool-Aufruf und die Kosten eines Runs. Nur über Tailscale erreichbar."
+  agent-core:
+    label: Agent-Core
+    hover: "Der Supervisor hinter dem Chat. Befehle laufen ohne Modell; ein lokaler Klassifikator schickt den Rest an ein günstiges oder starkes Modell."
+  claude-worker:
+    label: Claude-Worker
+    hover: "Ein Claude-Code-Worker auf meinem Abo, nur für meine eigenen Nachrichten. Ein filternder Proxy lässt nur Provider-API und Gateway-Tools zu."
+  run-records:
+    label: Laufprotokolle
+    hover: "Jede Arbeit ist ein Run mit Schritten, Tokens und Kosten. Volle Traces bleiben 30 Tage zur Prüfung, dann gelöscht, ausser ich markiere sie."
+  litellm-gateway:
+    label: LiteLLM-Gateway
+    hover: "Ein Gateway für jeden Modellaufruf: Aliase statt Modellnamen, pro Ablauf ein Schlüssel und 30-Tage-Budget. Prompt-Caching sparte 65 %."
+  mcp-servers:
+    label: MCP-Server
+    hover: "Eigene Server, nur lesend, für Doku, Notizen, Dateien und Homelab-Status, erreichbar nur übers Gateway, mit Werkzeuglisten pro Schlüssel."
+  knowledge-core:
+    label: Wissenskern
+    hover: "Suche über meine Doku und Notizen hinter dem Knowledge-Server. Die Trefferqualität misst das Eval-Harness als hit@5."
+  eval-harness:
+    label: Eval-Harness
+    hover: "Prüft den Produktionscode an Dev- und Held-out-Sets, mit eigenem Schlüssel und Budget. Die Metriken prüft Code, kein LLM als Richter."
+  guardrails:
+    label: Guardrails
+    hover: "Hooks, die jeden Befehl prüfen, den Claude Code beim Bau von Vision ausführt, dazu ein Pre-Push-Hook und ein Secret-Scan."
+svg_text:
+  frame-runtime: LAUFZEIT
+  frame-build: BAUSEITE
+  dim-surfaces: EINGÄNGE
+  sheet: BLATT 01 · VISION
+  note-commands: "Befehle: kein Modell"
+  note-routing: einfach → cheap · komplex → smart
+  note-spend-log: Run-/Step-ID ↔ Kostenlog
+  term-provider: SMART · CHEAP → MODELLANBIETER
+  term-local: LOCAL · EMBED → MODELLE AUF MEINEM GPU-PC
+  term-local-fallback: (EMBED WEICHT AUF CPU AUS)
+  term-sessions: CLAUDE-CODE-SITZUNGEN
+  term-sessions-2: DIE VISION BAUEN

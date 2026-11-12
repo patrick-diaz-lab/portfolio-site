@@ -78,6 +78,15 @@ A starter whose cited entry changed after the starter's `as_of` gives a warning.
 
 **Status:** `status` stays in the data model and the content check, but **only `built` parts render** on the map and in its list, with no status labels (Patrick, 2026-11-11). Planned parts appear only as Phase 5 design notes, labelled "designed, not built" (D19).
 
+**Languages (PLAN 1.9a):**
+- English at `/`, German at `/de/`, from the same components.
+- Interface text is in `src/i18n/ui.ts`; a missing German key is a type error.
+- A piece's German text is in `piece.de.yaml` and `map.de.yaml`, next to the English files; numbers, ids, pages and status stay in the English files.
+- One schematic serves both languages: box labels come from the map data, and every other text has a `data-t` key.
+- The homepage text is in `content/home/<locale>.yaml`.
+- `pnpm check` (rule `i18n`) holds every German file to its English base.
+- Pages that exist in both languages carry `hreflang` alternates and a language switch. Links from German pages to English-only part pages are marked.
+
 ## 4. Content and redaction pipeline
 
 1. **Source import (Vision side):** Vision's export script opens a `vision-sync/<date>` PR that updates `sources/vision/` (authored by `patrick-diaz-dev`, `Source-Tree:` trailer); Patrick merges it (D21). Sessions never edit `sources/vision/`. Run records, traces, the vault and Vision's database are never sources (D2).

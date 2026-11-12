@@ -79,3 +79,24 @@ code { font-size: 0.9em; background: var(--color-panel-raised); padding: 0.1em 0
   .schematic:has(.part:focus-visible) > .signal-dot,
   .schematic .part:is(:hover, :focus-visible, .is-open) .signal-dot { animation: none; offset-distance: 50%; }
 }
+
+/* Site bar and footer (PLAN 1.9a): name, language switch, privacy and contact. */
+.site-bar, .site-foot {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: var(--space-4) max(var(--space-4), env(safe-area-inset-right, 0px)) 0 max(var(--space-4), env(safe-area-inset-left, 0px));
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-6);
+  align-items: center;
+  justify-content: space-between;
+  font: 400 var(--step--1) var(--font-mono);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+.site-bar a, .site-foot a { color: var(--color-silk-dim); text-decoration: none; padding-block: var(--space-2); }
+.site-bar a:hover, .site-foot a:hover { color: var(--color-amber); text-decoration: underline; }
+.site-name { color: var(--color-silk) !important; }
+.lang-switch { display: flex; gap: var(--space-4); align-items: center; }
+.lang-switch [aria-current] { color: var(--color-silk); border-bottom: var(--focus-width) solid var(--color-amber); padding-block: var(--space-1); }
+.site-foot { padding-block: 0 var(--space-12); justify-content: flex-start; text-transform: none; }
