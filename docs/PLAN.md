@@ -37,6 +37,13 @@ Portfolio site for Patrick's work as an AI/LLM engineer. The first piece is **Vi
 | 1.7 | Detail page: Guardrails for the coding agent (layers and reasons, no rules or patterns) | Same as 1.4; Patrick's checklist for this page signed off in the PR |
 | 1.8 | Quality gates in `pnpm check` and CI: axe on every page, Lighthouse budget, no-JS test, reduced-motion test, Playwright screenshots | All gates run in the Cloudflare build or the session and pass; a deliberately broken focus style fails |
 | 1.9 | Launch: homepage in English and German (positioning, background, Vision as featured card with metric chips, what I work on, contact), the `/de/` structure with the Vision overview and map in German, Privacy page (no cookies yet), domain live, contact alias. Plan below | `https://patrickdiaz.dev` and `/de/` serve the MVP; `hello@` forwards; no third-party requests on any page; every gate passes on both languages |
+| 1.10 | Detail pages: knowledge core and MCP servers (RAG, retrieval evals, read-only tools). Two part pages, one PR | Same as 1.4; access-control entries by D19's rule; built after the next sync is merged |
+| 1.11 | Detail page: console | Same as 1.4; layers only (D19); built after the sync |
+| 1.12 | Detail page: run records | Same as 1.4; built after the sync |
+| 1.13 | Detail page: Claude worker tier | Same as 1.4; layers only (D19); built after the sync |
+| 1.14 | Detail page: Telegram adapter | Same as 1.4; layers only (D19); built after the sync |
+
+**Order (Patrick, 2026-11-12):** 1.9a, then the post-sync PR, then 1.10–1.14, then 1.9b (domain and launch switch). Nothing in 1.10–1.14 is built before the sync PR with their notes is merged.
 
 ### Item 1.3 plan (Patrick's decisions 2026-11-11)
 
@@ -275,7 +282,7 @@ Turn the browser checks from items 1.1 and 1.3 into gates that run on every PR, 
   - Patrick has made `gates` a required check.
 - **Cost:** CI minutes on a public repo (free); no API spend.
 
-### Item 1.9 plan (Patrick's OK 2026-11-12; 1.9b waits until the domain is ready)
+### Item 1.9 plan (Patrick's OK 2026-11-12; 1.9b waits for the domain and for items 1.10–1.14)
 
 Patrick's decisions of 2026-11-12, folded into 1.9 rather than a parallel item. Two PRs: **1.9a**, the homepage and the German structure; **1.9b**, the launch switch.
 
@@ -313,7 +320,41 @@ Patrick's decisions of 2026-11-12, folded into 1.9 rather than a parallel item. 
   - After 1.9b: the domain serves the MVP, `hello@` forwards, and nothing requests another host.
 - **Cost:** build sessions on the subscription; no API spend.
 
+### Items 1.10–1.14 plan (Patrick's OK 2026-11-12, MCP servers as a normal page)
+
+More part pages before launch (Patrick). Their notes are being written on the Vision side and arrive with the next sync. **Nothing here is built before that sync PR is merged.** Each item then gets its own short plan, built from the notes as they actually arrive, and Patrick's OK.
+
+- **Common to all:**
+  - The 1.4 template, with no code change expected.
+  - Entries rewritten from `sources/vision/`, never pasted.
+  - At least one decision, rejected, testing and learning entry per built page; rejected options under their decision.
+  - `evals[]` only for numbers with a case count.
+  - The map links each part to its page.
+  - The gates pass, and Patrick merges.
+  - English first; each page's German version comes later, reviewed by Patrick (D18). The German map keeps marking these links "(Englisch)".
+- **1.10, knowledge core and MCP servers:** two part pages in one PR, because they share the retrieval story.
+  - The knowledge core page covers RAG and the retrieval evals: hit@5, chunk vs note search, held-out totals only.
+  - The MCP servers page covers the read-only tools and the per-key tool lists.
+  - The ADR-number lesson from the post-sync list goes here if the notes have it.
+  - The MCP servers page is a normal page, not `layers_only` (Patrick): tool names are part of the retrieval story, and the check would block them. Its access-control entries still follow D19's layers-and-reasons rule, enforced by review instead of the check.
+- **1.11, console:** `layers_only`. How it's reached is named only as a layer.
+- **1.12, run records:** what is recorded and what never is, retention, and the join with the gateway's log. The note "run + step id join the spend log" on the map gets checked against the new notes.
+- **1.13, Claude worker tier:** `layers_only`. The corrected network wording comes from the new notes. The held-back points on the gateway, agent core and eval harness pages are written to match this page.
+- **1.14, Telegram adapter:** `layers_only`, because sender identity is a security layer. The signed sender identity is told at layer level, once the notes say it's built.
+- **Before 1.10:** the small post-sync PR below, so the existing pages match the corrected notes first.
+- **Cost:** build sessions on the subscription; no API spend.
+
 ### After the next sync of `sources/vision/` (one small PR)
+
+**Done 2026-11-12, after sync PR #25** (`Source-Tree:` trailer, authored by Patrick, only `sources/vision/`):
+- Gateway: the worker's network (a filtering proxy as its only way out), prompt caching (a new decision, and −65 % per eval case in the cost entry), and the provider limit dated 2026-11-05.
+- Agent core: the rejected "gateway on the worker's network".
+- Eval harness: the worker can't be reached; two eval keys, without amounts; the new costs; held-out docs hit@5 now 0.75 on the grown corpus (16 questions), next to 0.875 at the first baseline; the lesson "a metric that couldn't see the problem".
+- Guardrails: the signed sender; 1133 hook tests and 28 pre-push tests; the lesson "a history rewrite that never stopped", at layer level, without the plan exception.
+- Map texts for run records and the Claude worker tier match the corrected notes, so no change was needed.
+- The ADR-number lesson moves to the knowledge core page (1.10), where the notes put it.
+
+The original list, kept for the record:
 
 - Gateway page: the worker's network in the subscription exception, and the 65 % prompt-caching cut (held back in 1.4).
 - Agent core page: the rejected option "the gateway on the worker's network" (held back in 1.5).

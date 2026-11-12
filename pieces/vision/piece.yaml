@@ -7,14 +7,14 @@ summary: >-
   handle it, read-only tools, one gateway for every key and budget, and evals before and
   after each change. Claude Code builds it, under guardrails I wrote.
 status: built
-as_of: 2026-11-10
-source_commit: bb4fb3747aa6d7a80666b2d19dd718d1e4bedd98
+as_of: 2026-11-12
+source_commit: 8b2a08b580419fd5f06330fce3b7e25a982b0150
 order: 1
 map_svg: map.svg
 chat_enabled: false
 # Metric chips: aggregate numbers only, each from sources/vision/ (D19). as_of is the date
-# the notes were written up (notes.md). The prompt-caching cost cut isn't in sources/vision/
-# yet, so it has no chip.
+# the numbers were written up in the notes. The prompt-caching chip shows the change per
+# agent eval case (Patrick, 2026-11-12); the eval-harness page keeps both retrieval values.
 chips:
   - label: Classifier accuracy, held-out
     metric: accuracy
@@ -32,11 +32,11 @@ chips:
       - sources/vision/notes.md
       - sources/vision/deep/eval-harness.md
     as_of: 2026-11-04
-  - label: Docs retrieval hit@5, held-out
-    metric: hit_at_5
-    value: 0.875
-    n: 16
+  - label: Eval cost per case, prompt caching
+    metric: cost_usd
+    value: 0.014
+    baseline: 0.040
     sources:
-      - sources/vision/notes.md
       - sources/vision/deep/eval-harness.md
-    as_of: 2026-11-04
+      - sources/vision/deep/litellm-gateway.md
+    as_of: 2026-11-12

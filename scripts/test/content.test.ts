@@ -374,3 +374,18 @@ test("homepages with the same work links pass; different links or a missing page
   assert.match(bad.output, /i18n\s+content\/home\/de\.yaml:\d+\s+work link \/demo\/nowhere\/ has no page/);
   assert.match(bad.output, /i18n\s+content\/home\/de\.yaml:1\s+the work links differ from en\.yaml/);
 });
+
+test("a count chip needs n; a chip with a baseline needs none", () => {
+  const chip = (body: string) => `chips:\n  - label: A chip\n${body}    sources:\n      - sources/vision/notes.md\n    as_of: 2026-11-12\n`;
+  const count = fixture((f) => {
+    withPiece(f);
+    f["pieces/demo/piece.yaml"] = PIECE + chip("    metric: count\n    value: 0\n");
+  });
+  assert.equal(count.status, 1, count.output);
+  assert.match(count.output, /schema\s+pieces\/demo\/piece\.yaml:\d+\s+chips\.0\.n: a count chip needs n/);
+  const change = fixture((f) => {
+    withPiece(f);
+    f["pieces/demo/piece.yaml"] = PIECE + chip("    metric: cost_usd\n    value: 0.014\n    baseline: 0.040\n");
+  });
+  assert.equal(change.status, 0, change.output);
+});
