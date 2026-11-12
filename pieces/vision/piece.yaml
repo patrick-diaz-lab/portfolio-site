@@ -7,8 +7,8 @@ summary: >-
   handle it, read-only tools, one gateway for every key and budget, and evals before and
   after each change. Claude Code builds it, under guardrails I wrote.
 status: built
-as_of: 2026-11-10
-source_commit: bb4fb3747aa6d7a80666b2d19dd718d1e4bedd98
+as_of: 2026-11-12
+source_commit: 8b2a08b580419fd5f06330fce3b7e25a982b0150
 order: 1
 map_svg: map.svg
 chat_enabled: false

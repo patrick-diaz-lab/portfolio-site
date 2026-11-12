@@ -346,6 +346,16 @@ More part pages before launch (Patrick). Their notes are being written on the Vi
 
 ### After the next sync of `sources/vision/` (one small PR)
 
+**Done 2026-11-12, after sync PR #25** (`Source-Tree:` trailer, authored by Patrick, only `sources/vision/`):
+- Gateway: the worker's network (a filtering proxy as its only way out), prompt caching (a new decision, and −65 % per eval case in the cost entry), and the provider limit dated 2026-11-05.
+- Agent core: the rejected "gateway on the worker's network".
+- Eval harness: the worker can't be reached; two eval keys, without amounts; the new costs; held-out docs hit@5 now 0.75 on the grown corpus (16 questions), next to 0.875 at the first baseline; the lesson "a metric that couldn't see the problem".
+- Guardrails: the signed sender; 1133 hook tests and 28 pre-push tests; the lesson "a history rewrite that never stopped", at layer level, without the plan exception.
+- Map texts for run records and the Claude worker tier match the corrected notes, so no change was needed.
+- The ADR-number lesson moves to the knowledge core page (1.10), where the notes put it.
+
+The original list, kept for the record:
+
 - Gateway page: the worker's network in the subscription exception, and the 65 % prompt-caching cut (held back in 1.4).
 - Agent core page: the rejected option "the gateway on the worker's network" (held back in 1.5).
 - Map texts: check run records and the Claude worker tier against the corrected notes.

@@ -4,8 +4,8 @@ piece: vision
 title: Eval harness and held-out sets
 summary: A small harness that measures the code Vision really runs, before and after every prompt, model or tool change, on held-out sets that only I can write and only totals leave.
 status: built
-as_of: 2026-11-10
-source_commit: bb4fb3747aa6d7a80666b2d19dd718d1e4bedd98
+as_of: 2026-11-12
+source_commit: 8b2a08b580419fd5f06330fce3b7e25a982b0150
 sources:
   - sources/vision/deep/eval-harness.md
   - sources/vision/notes.md
@@ -15,6 +15,11 @@ evals:
     value: 0.875
     n: 16
     date: 2026-11-04
+  - name: docs-retrieval-hit-at-5-held-out-now
+    metric: hit_at_5
+    value: 0.75
+    n: 16
+    date: 2026-11-12
 related:
   - agent-core
   - litellm-gateway
