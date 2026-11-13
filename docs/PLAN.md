@@ -410,14 +410,8 @@ The Telegram adapter page, `layers_only`, in layout 3. The signed sender identit
   | Rejected (1) | unsigned requests as an untrusted sender in a separate conversation |
   | Testing (2) | the probe after the cutover and the phone tests; the origin audit and its records |
   | Learning (1) | Claude spoke as me, told from the identity side, with its fix (the signed sender), in case form |
-- **Layer-level wording (D19):**
-  - The signing decision names the layers: signing with a key only the adapter holds; verifying against what agent core knows itself; refusing before any run; trust kept in reviewed config, with overlapping keys for rotation; an append-only origin record and its audit.
-  - The note's list of refused cases becomes "anything that isn't a fresh, verified message from me".
-  - How the key is stored and protected isn't described.
-  - The refusal records are "capped, so a flood can't fill them", without the number.
-  - The token-in-logs point keeps only its result: the bot token never appears in a log.
-- **The note's open limit:** what signing can't stop, and why, is an open gap. Per D19 it appears only as one sentence in the signing decision: "Signing is one layer: the guardrail and a hard rule stay in place, and a further separation is an open item." There's no separate lesson about it.
-- **No readouts:** the note's only numbers here are the reply-language score, which is agent core's and already on its page, and the stale-message threshold, which isn't a measurement. The template shows no readouts when there are none (1.15).
+- **Wording:** layers and reasons only (D19). The signing decision names its layers: signing with a key only the adapter holds; verifying against what agent core knows itself; refusing anything that isn't a fresh, verified message from me before any run; trust kept in reviewed config, with overlapping keys for rotation; an append-only origin record and its audit. The bot token never appears in a log.
+- **No readouts:** there are no measured values for this part with a case count; the template then shows none (1.15).
 - **Figure:**
   - phone → my private chat → the adapter, which drops everyone else and holds back stale messages → signs → agent core, which verifies and refuses anything else before a run;
   - every accepted run gets its origin record.
