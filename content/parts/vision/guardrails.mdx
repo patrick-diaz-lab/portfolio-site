@@ -15,6 +15,14 @@ evals:
     value: 1.0
     n: 28
     date: 2026-11-12
+readouts:
+  - eval: pre-push-hook-tests-passing
+    label: Push-time check, tests passing
+figures:
+  - svg: guardrails-1.svg
+    svg_narrow: guardrails-1-narrow.svg
+    alt: "A Claude Code session works in its own working copy and branch. Before every command a check answers deny, ask or allow. When work is pushed, a second check and a secret scan look again. I review the pull request, and only I merge. Anything live goes through one deploy lane, one session at a time."
+    caption: "Where the checks sit. Each session works in its own copy and branch, a check answers deny, ask or allow before every command, a second check and a secret scan look at every push, and only I merge. Anything live goes through one deploy lane. Layers and reasons only; the rules stay private."
 related:
   - eval-harness
 layers_only: true

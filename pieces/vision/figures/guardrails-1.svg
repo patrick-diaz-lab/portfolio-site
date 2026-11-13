@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 50 724 214" class="schematic figure-svg">
+  <!-- FIG. 10.1, where the checks sit (layout 3, Patrick 2026-11-13). Layers and reasons
+       only (D19): no rules, lists or mechanics. Classes from src/styles/schematic.css. -->
+  <rect class="box" x="0" y="60" width="156" height="84" />
+  <text class="lbl fig-mid" x="78" y="90">SESSION</text>
+  <text class="fig-sub fig-mid" x="78" y="112">OWN WORKING COPY</text>
+  <text class="fig-sub fig-mid" x="78" y="128">OWN BRANCH</text>
+  <path class="wire-static" d="M156 102 H179" />
+  <polygon class="fig-head" points="187,102 179,98 179,106" />
+
+  <rect class="box" x="188" y="60" width="156" height="84" />
+  <text class="lbl fig-mid" x="266" y="90">CHECK</text>
+  <text class="fig-sub fig-mid" x="266" y="112">BEFORE EVERY COMMAND</text>
+  <text class="fig-sub fig-mid" x="266" y="128">DENY · ASK · ALLOW</text>
+  <path class="wire-static" d="M344 102 H367" />
+  <polygon class="fig-head" points="375,102 367,98 367,106" />
+
+  <rect class="box" x="376" y="60" width="156" height="84" />
+  <text class="lbl fig-mid" x="454" y="90">PUSH</text>
+  <text class="fig-sub fig-mid" x="454" y="112">SECOND CHECK</text>
+  <text class="fig-sub fig-mid" x="454" y="128">SECRET SCAN</text>
+  <path class="wire-static" d="M532 102 H555" />
+  <polygon class="fig-head" points="563,102 555,98 555,106" />
+
+  <rect class="box" x="564" y="60" width="156" height="84" />
+  <text class="lbl fig-mid" x="642" y="90">MERGE</text>
+  <text class="fig-sub fig-mid" x="642" y="112">I REVIEW</text>
+  <text class="fig-sub fig-mid" x="642" y="128">ONLY I MERGE</text>
+
+  <path class="note-line" d="M266 144 V158" />
+  <text class="note" x="206" y="178">denied: what can't be undone</text>
+  <text class="note" x="206" y="198">asked: what I should see</text>
+
+  <path class="wire-static" d="M78 144 V199" />
+  <polygon class="fig-head" points="78,207 74,199 82,199" />
+  <text class="dim-t" x="90" y="178">anything live</text>
+  <rect class="box" x="0" y="208" width="156" height="52" />
+  <text class="lbl fig-mid" x="78" y="232">DEPLOY LANE</text>
+  <text class="fig-sub fig-mid" x="78" y="250">ONE AT A TIME</text>
+</svg>

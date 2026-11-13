@@ -13,4 +13,14 @@ source_commit: 8b2a08b580419fd5f06330fce3b7e25a982b0150
 
 ### The first phone test after the trace work failed
 
-My first message after trace storage went live failed. The GPU PC had cold-loaded the classifier, two search lookups waited behind it, and two timeouts on the way were both 60 seconds. The timeout landed in a cleanup step after the strong model had already answered, and it failed the whole run. The trace work wasn't the cause, but the search for it found a real bug of its own: a cancelled step could lose its trace record. Agent core now waits longer than the gateway, a failed cleanup after an answer fails only that step, and trace writes are shielded from cancellation.
+#### What happened
+
+My first message after trace storage went live failed. The GPU PC had cold-loaded the classifier, two search lookups waited behind it, and two timeouts on the way were both 60 seconds. The timeout landed in a cleanup step after the strong model had already answered, and it failed the whole run.
+
+#### What I changed
+
+Agent core now waits longer than the gateway, a failed cleanup after an answer fails only that step, and trace writes are shielded from cancellation.
+
+#### Result
+
+The trace work wasn't the cause, but the search for it found and closed a real bug of its own: a cancelled step could lose its trace record.
