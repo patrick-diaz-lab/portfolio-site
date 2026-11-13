@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 364 452" class="schematic figure-svg">
+  <!-- FIG. Telegram adapter, narrow version for phones (layout 3, layers only). Same content
+       as the wide one, stacked. -->
+  <rect class="box" x="90" y="10" width="180" height="56" />
+  <text class="lbl fig-mid" x="180" y="34">MY PRIVATE CHAT</text>
+  <text class="fig-sub fig-mid" x="180" y="54">TELEGRAM</text>
+  <path class="wire-static" d="M180 66 V91" />
+  <polygon class="fig-head" points="180,99 176,91 184,91" />
+  <rect class="box" x="80" y="100" width="200" height="76" />
+  <text class="lbl fig-mid" x="180" y="128">ADAPTER</text>
+  <text class="fig-sub fig-mid" x="180" y="148">ONE USER · ONE CHAT</text>
+  <text class="fig-sub fig-mid" x="180" y="164">SIGNS EVERY MESSAGE</text>
+
+  <path class="wire-static" d="M80 138 H40 V211" />
+  <polygon class="fig-head" points="40,219 36,211 44,211" />
+  <rect class="box" x="0" y="220" width="120" height="56" />
+  <text class="lbl fig-mid" x="60" y="244">DROPPED</text>
+  <text class="fig-sub fig-mid" x="60" y="263">OTHERS, STALE</text>
+
+  <path class="wire-static" d="M240 176 V231" />
+  <polygon class="fig-head" points="240,239 236,231 244,231" />
+  <text class="note" x="250" y="212">signed</text>
+  <rect class="box" x="140" y="240" width="220" height="76" />
+  <text class="lbl fig-mid" x="250" y="268">AGENT CORE</text>
+  <text class="fig-sub fig-mid" x="250" y="288">VERIFIES, REFUSES</text>
+  <text class="fig-sub fig-mid" x="250" y="304">THE REST BEFORE A RUN</text>
+  <path class="wire-static" d="M250 316 V371" />
+  <polygon class="fig-head" points="250,379 246,371 254,371" />
+  <rect class="box" x="140" y="380" width="220" height="56" />
+  <text class="lbl fig-mid" x="250" y="404">RUN</text>
+  <text class="fig-sub fig-mid" x="250" y="423">WITH ITS ORIGIN RECORD</text>
+</svg>

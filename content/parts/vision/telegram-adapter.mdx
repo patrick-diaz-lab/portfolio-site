@@ -1,0 +1,27 @@
+---
+id: telegram-adapter
+piece: vision
+title: Telegram adapter and signed sender
+summary: A thin adapter between my phone and Vision. It lets through only my own messages from my private chat, signs every one of them, and agent core trusts nothing that isn't signed.
+status: built
+as_of: 2026-11-12
+source_commit: 8b2a08b580419fd5f06330fce3b7e25a982b0150
+sources:
+  - sources/vision/deep/telegram-adapter.md
+  - sources/vision/notes.md
+evals: []
+figures:
+  - svg: telegram-adapter-1.svg
+    svg_narrow: telegram-adapter-1-narrow.svg
+    alt: "A message from my phone goes through my private chat to the adapter. The adapter drops messages from anyone else and stale ones, and signs every message it passes on. Agent core verifies the signature and refuses anything else before a run starts. Every accepted message becomes a run with its origin record."
+    caption: "Only my own messages from my private chat get through, each one signed by the adapter. Agent core verifies before any run starts, and every accepted run keeps a record of where it came from."
+related:
+  - agent-core
+  - console
+  - guardrails
+layers_only: true
+---
+
+Telegram was the first way to talk to Vision and is still the one on my phone. The adapter between the two is deliberately thin: it passes my messages to [agent core](/vision/agent-core/) and the answers back, with no model, no database and no records of its own.
+
+It is also where Vision learns who is talking to it. Every message the adapter passes on is signed, and agent core accepts nothing else. This page names those layers and why each exists; the details stay private.
