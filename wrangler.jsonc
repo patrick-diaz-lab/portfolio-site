@@ -8,7 +8,9 @@
     "directory": "./dist",
     "not_found_handling": "404-page"
   },
-  // Served on workers.dev until the domain is attached in item 1.9.
+  // The custom domain patrickdiaz.dev is attached in the dashboard (PLAN 1.9b, STEPS D):
+  // routes stay out of this file, so a deploy never needs the right to create domains.
+  // workers.dev stays on as a fallback until the domain has served for a while.
   "workers_dev": true,
   // No preview URLs for uploaded versions (D3: no public previews).
   "preview_urls": false,

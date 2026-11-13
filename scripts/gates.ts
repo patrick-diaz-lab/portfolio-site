@@ -4,6 +4,7 @@
 //   map-check      every piece map: names, Tab, cards, touch, links, no browser outline
 //   page-check     every page: visible focus, no-JS, reduced motion
 //   self-test      a broken focus style must fail page-check's focus gate
+//   link-check     every link on every page resolves; external hosts and email allowed
 //   lighthouse     mobile, every category ≥ 95, size budget
 import { spawnSync } from "node:child_process";
 import { join, resolve } from "node:path";
@@ -15,6 +16,7 @@ const steps: [string, string[]][] = [
   ["map-check", [join(ROOT, "scripts", "map-check.ts")]],
   ["page-check", [join(ROOT, "scripts", "page-check.ts")]],
   ["self-test", [join(ROOT, "scripts", "page-check.ts"), "--self-test"]],
+  ["link-check", [join(ROOT, "scripts", "link-check.ts")]],
   ["lighthouse", [join(ROOT, "scripts", "lighthouse.ts")]],
 ];
 

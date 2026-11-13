@@ -18,6 +18,7 @@
     "map-check": "node scripts/map-check.ts",
     "page-check": "node scripts/page-check.ts",
     "gates": "node scripts/gates.ts",
+    "link-check": "node scripts/link-check.ts",
     "lighthouse": "node scripts/lighthouse.ts"
   },
   "devDependencies": {
