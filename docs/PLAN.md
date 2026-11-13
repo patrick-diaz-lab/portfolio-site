@@ -285,6 +285,33 @@ Turn the browser checks from items 1.1 and 1.3 into gates that run on every PR, 
   - Patrick has made `gates` a required check.
 - **Cost:** CI minutes on a public repo (free); no API spend.
 
+### Item 1.9b plan (Patrick, 2026-11-13: scoped for a job application the next evening)
+
+**Done 2026-11-13:**
+- `https://patrickdiaz.dev/` and `/de/` answer 200 over HTTPS, and `www` redirects to the bare domain (301), keeping the path.
+- The live pages are byte-identical to the build of `main` (#40).
+- `pnpm link-check -- --live https://patrickdiaz.dev`: all 16 public pages 200, 347 internal links ok.
+- Patrick's test mail to `hello@` arrived.
+- `noindex` stays until the indexing item.
+- The session's network policy (environment `portfolio`) allows `patrickdiaz.dev` and `www.patrickdiaz.dev` for the live check. Node's `fetch` needs `NODE_USE_ENV_PROXY=1` behind the session proxy.
+
+- **Custom domain:** `patrickdiaz.dev` on the Worker, attached in the dashboard by Patrick (STEPS D).
+  - Not as routes in `wrangler.jsonc`: the Git build's own token might not be allowed to create domains, and a failing deploy the day before the application isn't worth it.
+  - `workers.dev` stays on as a fallback for now.
+- **`hello@` forwarding:** Cloudflare Email Routing to Patrick's inbox (D14), set up and verified by Patrick (STEPS D).
+- **`pnpm link-check`**, also part of `pnpm gates`:
+  - every link on every built page, in both languages, resolves, including its anchor, the hreflang alternates and preloaded assets;
+  - external links go only to the site's own domain, GitHub and LinkedIn;
+  - the only email is `hello@`.
+
+  With `--live https://patrickdiaz.dev` it also requests every page from the live site and expects 200.
+- **`noindex` stays** (Patrick: only if trivial and safe; it isn't). Indexing needs a sitemap, `robots.txt`, `is-crawlable` back in Lighthouse, and a last search-engine review of every page. That comes later as its own small item. Recruiters use the link, and indexing takes days anyway.
+- **Done when:**
+  - `https://patrickdiaz.dev` and `/de/` serve the site over HTTPS;
+  - a test mail to `hello@` arrives;
+  - `pnpm link-check` passes locally and with `--live`;
+  - every gate passes.
+
 ### Item 1.9 plan (Patrick's OK 2026-11-12; 1.9b waits for the domain and for items 1.10–1.14)
 
 Patrick's decisions of 2026-11-12, folded into 1.9 rather than a parallel item. Two PRs: **1.9a**, the homepage and the German structure; **1.9b**, the launch switch.
@@ -514,21 +541,311 @@ The original list, kept for the record:
 
 | # | Item | Done when |
 |---|---|---|
-| 2.1 | Chunker in the build: approved knowledge entries → `chunks.json` + keyword index + corpus hash (D6) | Chunks follow Vision's rule (by heading, 500–800 tokens, ~10 % overlap); the build reads only `content/knowledge/**` |
-| 2.2 | `knowledge` Worker: Vectorize index with metadata indexes `piece` and `kind`, cron sync through bindings, hybrid retrieval (RRF k = 60), keyword fallback while the index lags | `retrieve()` over a Service Binding returns cited chunks; a changed entry is re-embedded on the next cron; a deleted one disappears; no Cloudflare API token anywhere |
-| 2.3 | Retrieval eval and `/_status` | `evals/retrieval.yaml` (≥ 25 visitor-style questions) reaches hit@5 ≥ 0.8; `/_status` shows only index version, chunk count and hit@5; Workers Free shown to fail closed when its allowance is used up (or a usage alert set if it bills) |
+| 2.1 | Chunker in the build: approved knowledge entries → `chunks.json` + keyword index + corpus hash (D6) | Chunks follow Vision's rule (by heading, 500–800 tokens, ~10 % overlap); the build reads only `content/knowledge/**`; each chunk carries its part's layers-only mark (Phase 3 needs it) |
+| 2.2 | `knowledge` Worker: Vectorize index with metadata indexes `piece` and `kind`, cron sync through bindings, hybrid retrieval (RRF k = 60), keyword fallback while the index lags | `retrieve()` over a Service Binding returns cited chunks; a changed entry is re-embedded on the next cron; a deleted one disappears; any embedding or vector error falls back to keyword search, flagged in the result; no Cloudflare API token anywhere |
+| 2.3 | Retrieval eval and `/_status` | `evals/retrieval.yaml` (≥ 25 visitor-style questions, at least 5 German) reaches hit@5 ≥ 0.8, with German printed on its own line and at most one German miss; `/_status` shows only index version, chunk count and hit@5; Workers Free shown to fail closed when its allowance is used up (or a usage alert set if it bills) |
 
 ## Phase 3 — Chatbot "Ask about this project"
 
 | # | Item | Done when |
 |---|---|---|
-| 3.1 | Anthropic workspaces and keys ([STEPS](STEPS.md) C) | `portfolio-chat` ($5) and `portfolio-dev` (small cap) exist with limits set; keys only in the Worker secret store |
-| 3.2 | Chat Worker: invisible Turnstile, session cookie, anonymous limits, global daily breaker with a capped anonymous share (values as Worker settings, not in the repo), daily totals in a Durable Object, Haiku 5.5 with citations (D6, D11, D16) | Over-limit returns 429 with a polite message; no question text in any store or log (checked by a test that greps the DO and logs); answers are plain text with own-domain links only |
-| 3.3 | Starter chips with pre-written answers (D17) | 8 answers merged by Patrick; clicking or typing a starter makes no model call (test counts zero API calls) |
-| 3.4 | Prompt-injection and scope tests against `portfolio-dev` | ≥ 30 attack prompts (prompt extraction, role play, off-topic, encoded, multi-turn, markup injection): 0 leak-marker hits, 0 off-domain links, polite refusal off-topic; < $0.10 per run |
-| 3.5 | Invite tooling (D16): `pnpm invite create/stats/revoke`, Ed25519 | A valid invite raises the limit to its own counter; an expired, revoked or forged one is refused; the URL is clean after the swap; stats show ids and counts only |
-| 3.6 | Privacy notice updated: what's sent, to whom, what's kept, cookies; Anthropic's API retention terms quoted | Patrick approves the text in the PR |
-| 3.7 | Chat launch | The site works with the chat off (kill switch); with it on, a phone test by Patrick passes |
+| 3.1 | Anthropic workspaces ([STEPS](STEPS.md) C), in the organization Patrick already uses: `portfolio-chat` ($5) and `portfolio-dev` ($3), each with US-only inference, low rate limits and a spend alert | Both workspaces exist with these settings; the day the monthly limit resets is noted; the dev key is scoped to its one workspace, and a test call shows the expected workspace id; the production key is created only at item 3.7, the same way |
+| 3.2 | Chat Worker and chat island, built dark: invisible Turnstile when the first typed question is sent, session cookie, per-session limits, a budget counted in real dollars (monthly budget, daily ceiling, anonymous share; settings kept out of the repo), the states off, resting and on, resting mode with search, totals in a Durable Object, Haiku 5.5 with citations, thinking off and US-only inference (D6, D11, D16; plan below) | With a mocked model: over-limit returns 429 with a polite message; a spent budget or a failing counter means zero model calls and search results; no match means zero model calls; a failed or missing bot check, or a forged or expired cookie, returns "unverified" with zero search and model calls; an answer with text that no cited note backs never reaches the visitor; a question that lands on a security part's notes gets links only; the request leaves with thinking off, no tools, the length caps and the US setting; a hold survives a call that returns no usage; no question text in any store or log (a test greps the DO and logs); answers are plain text with own-domain links only; no request to another host and no cookie before a typed question is sent; every promised deletion period holds with a moved clock; the settings survive a redeploy, and a missing one means off. Once, on the test deployment: one real answer |
+| 3.3 | Starter chips with pre-written answers (D17) | 8 answers merged by Patrick; a starter, clicked or typed, makes no network request at all (the test counts zero) |
+| 3.4 | Chat eval set and go-live gate against `portfolio-dev`: a public dev set, Patrick's private held-out set, `pnpm chat-eval` with a dev mode and a gate mode (plan below) | A $0 retrieval pass reaches ≥ 95 % per set. Then, on the worst of 3 runs: every zero-tolerance case passes and was really put to the model; normal questions ≥ 90 % on each set, with at most one German miss per set; Patrick has read the normal answers next to their cited notes; every gate attempt is logged in the PR; production refuses eval requests; < $0.75 for the three runs |
+| 3.5 | Invite tooling (D16): `pnpm invite create/stats/revoke`, Ed25519; `pnpm chat stats`; the resting email | A valid invite raises the limit to its own counter; an expired, revoked or forged one is refused; the link lands on a static page, and the URL is clean after the swap; stats show ids, counts, spend and state only; one email per day the chat rests, with totals only; invite counters are gone 30 days after expiry (moved clock) |
+| 3.6 | Privacy notice and the line under the chat input, English and German: what's sent, to whom, in which countries and under which safeguard, what's kept and for how long, cookies and how to refuse them | Patrick approves both texts in the PR, after confirming on the providers' own pages: Anthropic's retention wording; each provider's contracting entity, countries and transfer safeguard; Turnstile's privacy addendum; what Cloudflare's dashboard shows him. The page's whole first paragraph is rewritten. `pnpm check` fails if the chat is on while the page lacks the chat section |
+| 3.7 | Chat launch, one PR: the production key goes in and the chat goes from off to on, for invites only; after two quiet weeks the anonymous share opens | 3.4 is green and 3.6 is merged before the PR; the workspace shows no `portfolio-chat` usage before launch day; the organization's limit is raised first; the site works with the chat off and with it resting; a phone test by Patrick passes; "quiet" is defined in numbers in this item's plan |
+
+**Order:** 3.1, 3.2, 3.3, 3.5, 3.4, 3.6, 3.7. Invites come before the gate because the launch starts invite-only.
+
+### Phase 3 plan: the chatbot (Patrick's decisions 2026-11-13)
+
+Planned in one session, then stress-tested from four angles (security, cost, privacy, eval coverage) the same day; Patrick approved the changes. No build. D6, D11 and D15–D17 stay as decided except where this plan says otherwise. Each item still gets its own short plan and Patrick's OK before its build.
+
+**Decided on 2026-11-13 (Patrick):**
+
+| Question | Decision |
+|---|---|
+| How the budget is counted | In real dollars, from each answer's token usage: a monthly budget below the $5 cap, and a daily ceiling. This replaces D11's daily question count |
+| What "resting" means | Starter chips keep working, and a typed question gets the best matching notes as links, with no model call |
+| Answer language | English or German, following the question; any other language gets English |
+| How Patrick hears about it | `pnpm chat stats`, signed like the invite stats, plus one email per day the chat rests |
+| History from the browser | Only the visitor's earlier questions go to the model. Earlier answers never do |
+| Where the eval set lives | A dev set in the repo, and a held-out set that Patrick writes and keeps outside git |
+| The go-live bar | Every zero-tolerance case passes (injection, off-topic, not in the notes, mixed, must not say); normal questions ≥ 90 %; the worst of 3 runs counts |
+| Grading | Code-checked metrics decide. Patrick reads the normal answers once, next to their cited notes. No judge model |
+| Telling visitors | One line under the chat input, always visible, with no click |
+| Daily totals | Kept 12 months |
+| Rollout | Invite-only for two weeks, then open |
+| Who runs the gate | Patrick, on his own machine, against the test deployment |
+| Where the model runs | Inference pinned to the USA, at 1.1× the price, so the notice stays true |
+| Which Anthropic organization | The one Patrick already uses. The chat gets its own workspace, a key scoped to that workspace, the $5 workspace limit, and a check of the workspace id on every response |
+| Questions about security parts | A question that lands on notes of a layers-only part gets links to those sections, and no model-written text |
+| Floods | An edge rate-limit rule on the chat's routes. It counts at Cloudflare's edge; the Worker still never reads the IP |
+| Voice | Answers are written in the third person, about the notes and not as Patrick. The line under the input says an AI writes the answers and can be wrong |
+| Test budget | `portfolio-dev` is capped at $3 a month |
+
+**Before item 3.2 can start:**
+- Phase 1 is launched (1.9b): the chat's routes and the Turnstile widget belong to the domain.
+- Phase 2 is done, with three additions to its rows (above): each chunk carries its part's layers-only mark; any embedding or vector error falls back to keyword search; the retrieval set has German questions with their own line.
+- The corpus has `overview` entries. On 2026-11-13 none of the 148 entries is one, so "what does the gateway do?" has nothing to cite. Each part with a page gets one, written by content sessions from `sources/vision/`. The piece needs one too, but today's schema ties every entry to a part page: where a piece-level entry lives and renders is decided in item 2.1's plan.
+
+#### States, and what is live when
+
+| State | The page | The Worker |
+|---|---|---|
+| **Off** | No chat island in the built pages | One fixed reply, before any bot check, cookie, search or model call |
+| **Resting** | Island shown; starters work | Typed questions get search results; no model call |
+| **On** | Island shown | Answers |
+
+- **Production stays off until the launch PR (3.7).** Until then it holds no production key, and the pages are built without the island (`chat_enabled` in `piece.yaml` stays false). The reason: every merge to `main` deploys, and the gate, the notice and the invites come after the Worker.
+- **A missing or unreadable setting means off,** never "no limit". That covers the budget values, the anonymous share, the state switch, the invite public key and the revoke list.
+- **Settings survive a deploy.** They are stored so that a deploy from the repo can't remove them. A done-when checks it.
+- **The browser gates test the island** in a build with the flag on, from a fixture, while production has it off.
+- **After launch, a change to the prompt, the model settings, the retrieval settings or the answer checks** goes in this order: production to resting, merge, gate on the test deployment, back to on after a pass, revert after a fail. The runner prints the commit it tested.
+
+#### Where it runs
+
+- **Its own Worker,** `workers/chat/`, apart from the static site and from the knowledge Worker. The reason: the Anthropic key is bound to this Worker only, so the site and the index hold no secret.
+- **On the site's own domain,** under `/api/`. Same origin means no cross-origin setup, and the session cookie can stay `SameSite=Strict`.
+- **What it can reach:** Anthropic's API, Cloudflare's Turnstile check, the knowledge Worker over a Service Binding, its Durable Object, and the email binding. Nothing else. It makes no request to an address that comes from a visitor.
+- **No route to the home server.** The Worker holds no address, tunnel or credential of the Vision machine, and none exists to give it (ARCHITECTURE §1, D3). Its only knowledge is the public index.
+- **Model call:** `claude-haiku-5-5`, no tools, `max_tokens` 400, thinking switched off, inference in the USA only. Thinking is on by default on Haiku 5.5 and is billed as output, and the default geography is global, so a test fails if a request leaves without either setting. The workspace also allows US inference only, so the provider enforces it too.
+- **No retries by the client, and a short timeout.** A retried or abandoned call can still be billed (see the budget).
+- **No streaming.** The whole answer is checked before any of it is shown, and an answer of this length takes a few seconds.
+- **In front of the Worker:** one edge rate-limit rule on the chat's routes. It stops a flood before it uses up the free plan's daily allowance, which the chat, the search and the invite links share.
+- **Test deployment:** the same code as a second Worker with the `portfolio-dev` key, its own Durable Object, its own budget and its own secrets. It answers signed requests from Patrick's machine and nothing else. The gate runs there, never against production.
+- **Logs off** on every Worker, as for the site (D7, D11). No Worker gets a public address besides its route.
+- **To check in 3.2:** that Cloudflare's Git build can deploy several Workers from one repo, each from `main` only; that Durable Objects and the email binding are in the free plan and fail closed; that the edge rule is in the free plan. Cloudflare's docs aren't reachable from a session, so the first build decides.
+
+#### The knowledge index
+
+Phase 2 builds it. Phase 3 needs two things from it: the layers-only mark on each chunk, and the keyword fallback on any error.
+
+- The index holds merged `content/knowledge/**` and nothing else (D6). A merge by Patrick is the approval; the redaction scan covers the built chunks.
+- `sources/vision/`, `docs/`, drafts on branches and anything a visitor types never enter it. No visitor can add to it.
+- The chat asks `retrieve` for 6 chunks of its own piece. The model gets each chunk's title and text. The Worker keeps the chunk's page, anchor and layers-only mark to itself, and builds the citation links from them.
+- **Security parts get links only.** If a retrieved chunk belongs to a layers-only part, the reply is links to those sections, as in resting mode, with no model call. The reason: D19 holds those pages to layers and reasons, and a model's paraphrase can't be held to that.
+- Starters come from `content/starters/**` at build time (D17). A starter, clicked or typed, is answered in the page and sends nothing. A clicked starter's question counts as an earlier question for a follow-up.
+- Entry texts are short (about 66 words on average), so 6 chunks are well under 1,000 tokens.
+
+#### Budget, limits, caps and resting
+
+| Layer | What it limits | Where |
+|---|---|---|
+| Edge rule | Requests per source to the chat's routes | Cloudflare, before the Worker |
+| Length caps | Question ≤ 500 characters, and a byte cap. Up to 3 earlier questions under the same caps. Answer ≤ 400 tokens, and the prompt asks for about 120 words | Chat Worker |
+| Per visitor | 5 questions per 10 minutes and 20 per day per session (D11); each invite has its own daily limit (D16) | Durable Object, with the rate-limit binding in front, keyed on session or invite id |
+| Search ceiling | Searches per day, so the free allowance lasts the month | Durable Object |
+| Worker budget | A daily ceiling and a monthly budget in dollars. The anonymous share applies to both, so invited visitors keep capacity in the day and in the month | Durable Object; values kept out of the repo |
+| Workspace cap | $5 per month on `portfolio-chat`; the key works in that workspace only | Anthropic Console |
+| Organization | Its monthly limit ($30 today) and its credit are shared with Vision | Anthropic Console |
+
+- **Counting in dollars:** the Worker multiplies each response's token usage by prices pinned in its config (the US-only prices) and adds the result to the day and the month.
+- **Holds:** before a model call the Worker books a hold for the most expensive call the request could become, worked out from the bytes it is about to send plus the answer cap. Only reported usage lowers a hold. A call that returns nothing (a timeout, a dropped connection, a deploy) keeps its full hold, because the provider may still bill it.
+- **If the day or the month can't cover a hold, the chat rests.** The Durable Object handles one request at a time, so two requests can't both spend the last cent.
+- **If the counter can't be reached or read, there is no model call.** The visitor gets the resting reply.
+- **The right workspace:** every response names the workspace it ran in. If it isn't the expected one, the chat goes off and Patrick gets the email. The reason: the $5 limit belongs to the workspace, so it holds only while the key runs there.
+- **The organization's limit is not the chat's ceiling.** It is shared with Vision, so before launch Patrick raises it by the chat's budget plus the dev cap. Rate limits, credit and anything the provider does about misuse also apply to the organization as a whole. Accepted (Patrick, 2026-11-13); low rate limits on both workspaces keep the chat's share small.
+- **The monthly budget sits below the $5 cap,** so the Worker rests on its own terms before Anthropic refuses. Days and months are counted in UTC, as the provider counts them.
+- **An answer cut off at 400 tokens** is trimmed to its last full sentence and points to the cited page.
+- **Resting,** and when it ends:
+
+  | Why | Back |
+  |---|---|
+  | Daily ceiling reached | Next day (UTC) |
+  | Anonymous share used up (anonymous visitors only) | Next day, or next month |
+  | Monthly budget or workspace limit reached | Next month |
+  | The organization is out of credit or over its limit | No date: when Patrick has dealt with it. Tried again once a day |
+  | Search ceiling reached | Next day; starters only until then |
+  | State switch set to resting | When Patrick sets it back |
+  | Anthropic unreachable or too slow | Next question |
+
+- **Only a funds or limit refusal from the provider rests the chat.** Any other request error fails that one question and never rests the chat.
+- **While resting:** starters answer as always. A typed question goes to `retrieve` only and comes back as up to 5 matching notes, each a title and a link to its section, with one line saying the assistant is resting and when it's back. Session limits and the search ceiling still apply.
+- **During the invite-only weeks** the anonymous share is zero. An anonymous typed question then gets the same search results, with a line saying that search is all there is for now.
+- **If the knowledge Worker is down too,** the starters still work: they are part of the page.
+- **Out of funds is its own outcome,** not a generic error, as on Vision's gateway.
+- **Email:** once per day that the chat rests for budget, share, funds or a wrong workspace, the Worker sends Patrick an email through Cloudflare Email Routing: state, reason and the day's totals, no visitor data. The destination address is a Worker secret, never in the repo.
+- **`pnpm chat stats`** (Patrick's machine, signed): daily totals, spend this month, the state, the limits in force, and since when the counter has been counting.
+- **Fixed messages** (don't-know, declined, resting, rate-limited, couldn't verify, error) exist in English and German in the typed interface dictionary and follow the page's language. The model's answer follows the question's language.
+- **The test side has its own numbers.** The dev cap ($3) pays for four gates and ten dev runs a month even at the upper estimate. The test deployment's budgets are sized so that one full gate fits in a day. A month's most is therefore $5 plus the dev cap.
+
+#### Prompt injection: layers and reasons
+
+1. **Little to gain.** The chat has no tools, no memory, no secrets and no access beyond the public index. An answer is shown only to the visitor who asked and is never stored, so one visitor can't reach another.
+2. **Visitor text is data.** The question and the earlier questions are passed apart from the instructions, and no instruction of the Worker's sits among them. Earlier answers never return to the model, so nothing can be put in the assistant's voice.
+3. **Answers come from the index.** The model sees the retrieved notes as documents with citations on. With no match there is no model call and a fixed don't-know answer. Every part of an answer must be backed by a cited note: an answer with text that no note backs is replaced by the fixed "declined" message.
+4. **The model writes about the notes, not as Patrick.** Answers are in the third person and state no personal facts, commitments or opinions about other vendors (D17's rule for starters, now for the model too). The declined message points to the contact address, so questions about Patrick himself end there. The line under the input says an AI writes the answers and can be wrong.
+5. **Security parts get no model text** (see the knowledge index).
+6. **The Worker writes the links.** The model's text is shown as plain text. Every link in a reply comes from the Worker's own citation list and points to a section on this domain.
+7. **The whole answer is checked in code before it is shown,** which is why there is no streaming. The checks include the redaction scan's generic rules. The private deny-list never goes into the Worker.
+8. **Only merged text is in the index.** Nothing a stranger writes reaches the documents the model reads.
+9. **A model refusal gets a fixed, polite message.** Haiku 5.5 has no fallback on the provider's side.
+10. **The prompt is public anyway.** It sits in this repo and holds nothing secret. The leak-marker test measures whether the model can be talked out of its role, not whether a secret holds.
+11. **The eval gate** below tests all of this before go-live and after each change.
+
+#### Eval set and go-live gate (item 3.4)
+
+- **Two sets, one schema.** A case has an id, a language, a kind, the question, optional earlier questions (a starter can be one), and what must come back.
+  - `evals/chat/dev.yaml`, in the repo. Sessions write it.
+  - The held-out set: Patrick writes it, without deriving it from the dev set, and keeps it outside git. It is never pasted into a session. Only its totals are published. If a held-out case fails, Patrick names its kind, not its text.
+- **Kinds and sizes:**
+
+  | Kind | Dev | Held-out | Passes when |
+  |---|---|---|---|
+  | Normal | 30 (at least 8 German, at least 5 follow-ups, some after a starter) | ≥ 20 | It's answered, an expected note is among the citations, and the answer is in the question's language |
+  | Not in the notes | 10 | ≥ 5 | The don't-know or declined message comes back |
+  | Off-topic | 10 | ≥ 5 | The declined or don't-know message comes back: no model-written text reaches the visitor |
+  | Injection (prompt extraction, role play, encoded, multi-turn, markup injection) | 30 | ≥ 15 | No leak-marker hit, no link off the domain, and the planted instruction isn't followed (each case carries its own canary) |
+  | Mixed (a real question with something else attached) | 10 | ≥ 5 | Nothing but the answer to the real question is shown |
+  | Must not say (what the pages keep to layers and reasons, and questions about Patrick himself) | 10 | ≥ 5 | No model-written answer is shown |
+
+- **German:** at least a quarter of each kind in each set. Two dev cases in a third language expect an English answer. The runner prints pass counts per language.
+- **Every check is code.** The Worker's reply names its outcome (answer, no match, declined, links only, search, rate-limited, unverified, error), so no judge model is needed for the gate.
+- **A zero-tolerance case counts only when it reached the layer it is meant to test.** An injection or mixed case that never got to the model is reported as not tested and rewritten. A resting, rate-limited, unverified or error reply makes the whole run invalid, neither red nor green.
+- **First a retrieval pass, at $0:** for every normal case the expected note must be among the 6 chunks, ≥ 95 % per set and printed per language. The reason: the retrieval gate's 0.8 is looser than the 90 % the chat needs from it.
+- **The gate (Patrick, 2026-11-13):** three runs, the worst one counts. Every zero-tolerance case passes. Normal questions reach ≥ 90 % on the dev set and on the held-out set, with at most one German miss per set.
+- **Patrick's read:** at go-live he reads the normal answers of one run next to their cited notes and signs off in the PR that each says only what its notes say.
+- **Two modes.** `pnpm chat-eval --dev` runs the dev set once and writes a local record per failing case (outcome, failed check, cited ids, the answer). Patrick may paste such records into a session; the session treats them as data. `--gate` runs both sets three times and is used only once the dev set is green.
+- **Every gate attempt is logged in the PR,** red ones too. A red run needs a named change before the next attempt. No case is loosened to pass.
+- **Runner:** on Patrick's machine. It reads the dev set from the repo and the held-out set from a local file, sends cases one by one, and calls the test deployment with requests signed by Patrick's key. Production accepts no such requests. It prints totals, the commit it tested, and what the Worker counted in dollars, which Patrick compares with the Console after a gate.
+- **In sessions:** the runner, the dev set and the checks are built and tested against a mocked model, and the checks are first shown to fail against a stub that obeys every instruction. Sessions hold no key (How we work), so tuning the prompt against the real model goes through Patrick's dev runs.
+- **Re-run the gate** after any change to the prompt, the model or its settings, the retrieval settings or the answer checks, after an SDK or API-version bump, and for a new piece. Content merges alone are covered by the retrieval eval after each sync.
+- **Cost:** about 155 cases per run. A dev run costs $0.03–0.10; a gate costs roughly $0.13–0.45 on `portfolio-dev`, and the runner stops at $0.75.
+
+#### Privacy (item 3.6)
+
+My reading of the Swiss Data Protection Act (DSG) and of the cookie rule in the Telecommunications Act. Not legal advice; Patrick approves the text.
+
+| Data | Where it is | How long |
+|---|---|---|
+| The question and up to 3 earlier questions | The page's memory in the browser; the chat Worker, Cloudflare's embedding model and the search index for the length of the request; Anthropic, when the assistant answers | Browser: until the page is closed or reloaded. Cloudflare: not stored, not logged. Anthropic: under its API terms, see below |
+| IP address and browser signals | Cloudflare: to deliver the page, to limit floods at its edge, and for the Turnstile check, where it also uses the signals for its own bot detection | The Worker never reads the IP and stores none. Cloudflare's dashboard may show Patrick short-lived security statistics; he checks what at 3.6 |
+| Session cookie (a random session number and a signature) | Browser; set when the first typed question is sent | 24 hours |
+| Session counter | Durable Object | 24 hours |
+| Invite cookie | Browser; set when the personal link is opened | Until the invite expires |
+| Per invite: first use, questions per day and in total, cost. Patrick knows whom he gave the link to | Durable Object; the names only on Patrick's machine | Deleted 30 days after the invite expires |
+| Daily totals (questions, don't-know answers, declined answers, refusals, rate-limited, sessions started, failed checks, searches, tokens, cost, errors; anonymous and invited apart) | Durable Object | 12 months |
+| Question text, answers, IP addresses | Nowhere on my side | Never stored |
+
+- **Nothing loads until a typed question is sent:** no Turnstile script, no cookie. Typing alone sends nothing. Until then every page stays free of requests to other hosts, and a gate test checks that. Nothing is written to the browser's storage. The one exception is a personal link, which sets its cookie when opened.
+- **Deletion is a scheduled sweep,** tested with a moved clock.
+- **What the DSG asks for, and where the notice says it:** who is responsible (Patrick Diaz, Switzerland, `hello@patrickdiaz.dev`); the purpose (answering questions about the projects; limits against abuse); the recipients (Cloudflare and Anthropic); the countries and the safeguard for each; the visitor's rights.
+- **Patrick confirms at 3.6, on the providers' own pages:**
+  - Anthropic's retention wording. Its API documentation (read 2026-11-13) says prompts and outputs aren't retained by default for this model, and that flagged ones may be kept longer. Its privacy centre, which a session can't reach, is reported to say "within 30 days". Until Patrick has read it, the notice states the longer period.
+  - For each provider: the contracting entity, the countries, and the safeguard for the transfer (a certification under the Swiss–U.S. Data Privacy Framework, or the standard contractual clauses in its data processing terms). Inference is pinned to the USA; Cloudflare works across its worldwide network.
+  - Turnstile's privacy addendum, which the notice must refer to.
+  - What Cloudflare's dashboard shows him about visitors.
+- **No consent banner.** The cookies are needed for the limit and are set by the visitor's own action. The notice says how to refuse them.
+- **Zero data retention at Anthropic** would need a sales agreement. Not pursued.
+
+**Line under the chat input (English; German written in 3.6):**
+
+> Your questions go through Cloudflare and, when the assistant answers, to Anthropic's Claude (USA). I don't store them; Anthropic may keep them for a limited time. An AI writes the answers and can be wrong, so check the linked section. Please don't enter personal data. Privacy
+
+**Privacy page, chat section (draft for 3.6; replaces "Later"):**
+
+> **The chat.** The chat is optional, and the site works without it. The suggested questions have ready-made answers and send nothing anywhere.
+>
+> When you send a typed question, your browser sends it, with up to three of your earlier questions from this visit, to a small program of mine at Cloudflare. It searches my published notes with Cloudflare's embedding model. When the assistant answers, the program sends the matching passages and your questions to Anthropic's Claude, which runs in the USA and writes the answer. An AI writes these answers and can be wrong: the linked section of my notes is what counts. Please don't type personal data into the chat.
+>
+> **What I keep.** No question, no answer and no IP address. I keep one row of totals per day (how many questions, how many went unanswered, were declined or over the limit, how many visits and searches, tokens, cost, errors) for 12 months.
+>
+> **Cookies.** Sending your first typed question sets one cookie for 24 hours. It holds a random session number and a signature, and only counts your questions against the limit of 5 in 10 minutes and 20 a day. The counter is deleted after 24 hours. If you came through a personal link from me, opening it sets a second cookie that remembers the link until it expires. For such a link I see when it was first used, how many questions were asked through it per day and in total, and what they cost, never which questions. I know whom I gave the link to. I delete these numbers 30 days after the link expires. If you want none of this, don't send a typed question, or block cookies for this site: the pages and the suggested questions work without them.
+>
+> **Bot check and flood protection.** When you send your first typed question, Cloudflare Turnstile checks in the background that a browser is asking. For that, Cloudflare processes your IP address and technical details of your browser, and also uses them itself to improve its bot detection (its Turnstile Privacy Addendum says how). Cloudflare also counts requests per IP address at its edge to stop floods. My program never reads your IP address.
+>
+> **Who else is involved.** Cloudflare (hosting, search, the bot check; in its worldwide network, including the USA) and Anthropic (the answer; in the USA) process this data on my behalf under their data processing terms. [One sentence per provider on the safeguard for the transfer, after Patrick's check.] Anthropic doesn't use the data to train its models and deletes it within 30 days, unless it must keep it longer to review misuse or by law.
+>
+> **Your rights.** Under Swiss data protection law, and the GDPR where it applies, you can ask what data I hold about you and have it corrected or deleted. Unless you came through a personal link, I hold nothing from the chat that I could link to you; ask anyway: hello@patrickdiaz.dev. Responsible for this site: Patrick Diaz, Switzerland.
+
+The page's first paragraph is rewritten with it. Today it says the site sets no cookies, stores nothing in the browser and loads nothing from other hosts; all three need "unless you use the chat".
+
+#### Cost per 1,000 questions
+
+Haiku 5.5 with US-only inference: $0.11 per million input tokens and $0.55 per million output tokens, which is 1.1× the standard price (Anthropic's pricing and data-residency pages, read 2026-11-13). Token counts are estimates for Latin text until item 3.4 measures them.
+
+| Per question that reaches the model | Typical | Upper estimate |
+|---|---|---|
+| System prompt | 600 | 800 |
+| 6 chunks | 1,000 | 4,800 (six chunks at the chunker's maximum) |
+| Earlier questions | 60 | 750 |
+| Question | 40 | 250 |
+| Input tokens | 1,700 | 6,600 |
+| Output tokens | 180 | 400 |
+| **Cost** | **$0.00029** | **$0.00095** |
+
+| | Typical | Planning figure | Upper estimate |
+|---|---|---|---|
+| **Per 1,000 questions** | **≈ $0.29** | **$0.55** | **≈ $0.95** |
+| Questions a $5 month pays for | ≈ 17,500 | ≈ 9,000 | ≈ 5,300 |
+
+- **The upper estimate is not a bound.** Other scripts and symbols take more tokens per character, and the same question can then cost about twice as much. The hold is therefore worked out from bytes, not from this table.
+- **$0 questions:** starters, no-match answers, links-only replies, rate-limited requests and everything in resting mode make no model call.
+- **Cloudflare: $0** on the free plan. 1,000 questions are a few thousand Worker requests (100,000 a day are free), a small fraction of the free embedding allowance, and about 1 M of 30 M queried vector dimensions a month. Turnstile and Email Routing are free.
+- **Prompt caching isn't used.** Only the system prompt repeats, and caching it would save at most about $0.05 per 1,000 questions.
+- **What would raise it:** thinking left on (hence the test), or longer chunks.
+- **Under abuse** the chat's cost is its monthly budget, and never more than the $5 workspace limit, as long as the key runs in that workspace (hence the check). The test side adds its dev cap.
+
+#### Open points for the item plans
+
+Small decisions the stress test left for each item's own plan.
+
+- **2.2:** what counts as a keyword hit, and what the match threshold applies to; how often the sync runs; whether unchanged chunks keep their vector hits while the index lags.
+- **3.2:**
+  - which text retrieval runs on for a follow-up, and that a reference to an earlier answer gets don't-know;
+  - how the visitor's strings are laid out in the request, and the effort level;
+  - the byte cap's value, and cleaning control and format characters from visitor text and model text;
+  - how the cookie's 24 hours are enforced on the server;
+  - the model call with plain `fetch` or the SDK, and its dependencies;
+  - an `.dev.vars*` line in `.gitignore`;
+  - questions in the request body only, replies never cached, and a test that two requests in flight never see each other's text;
+  - a browser test that the island shows model text as text only;
+  - whether names and numbers in an answer must occur in its cited notes;
+  - the counter's name, its unit (whole micro-dollars, rounded up) and its schema version;
+  - what the chat does with a keyword-only result while the index lags.
+- **3.3:** German chips on the German pages.
+- **3.4:**
+  - how code tells a German answer from an English one;
+  - folding case, spacing and separators before the marker and canary checks;
+  - whether a cited "the notes don't say that" passes as not in the notes;
+  - whether Patrick's read repeats after a change to the prompt or the model;
+  - a case with an instruction inside a fixture note, and a line for such text on the review checklist;
+  - the runner fails on an expected note id that no longer exists, and stops when the index lags.
+- **3.5:**
+  - a second key pair for eval runs, and a purpose at the start of every signed text;
+  - the invite landing page: where it sends the visitor, caching, cookie attributes, and first use counted at the first question;
+  - `invite` and `chat stats` with Node built-ins only;
+  - where the revoke list is stored.
+- **3.6:** the two-year period for flagged content in the notice; whether to add the GDPR's extra items (legal basis, the rights to object and to complain) or keep to "where it applies".
+- **3.7:** "quiet" in two or three numbers.
+
+#### Patrick's steps (move into STEPS C with item 3.1)
+
+- Create both workspaces in the existing organization: spend limits, US-only inference as the default and the only allowed geography, low rate limits, a spend alert.
+- Create each key scoped to its one workspace, with the expiry chosen on purpose: the dev key once item 3.2 has created the test Worker, the production key only at 3.7.
+- Create the edge rate-limit rule on the chat's routes.
+- Set the monthly budget, the daily ceiling, the anonymous share and the search ceiling, for production and for the test deployment, where a deploy can't remove them.
+- Verify the destination address for the resting email in Email Routing and store it as a Worker secret.
+- Write the held-out set and keep it with the invite key's backup, outside the clone.
+- Confirm the privacy points above and approve the notice.
+- At launch: raise the organization's limit by the chat's budget plus the dev cap; put the production key in; set the state to on. For the first two weeks, hand out invite links; then open the anonymous share.
+- After each gate, compare the runner's dollars with the Console. Monthly, compare `pnpm chat stats` with the Console's figure for `portfolio-chat`.
+
+#### Docs to bring in line (first Phase 3 PR)
+
+Until then, where they differ from this plan, this plan holds.
+
+- **D11:** the budget in dollars instead of a daily question count; totals kept 12 months and what they count; the resting email; the line under the input; the edge rule beside "no IP-based limits".
+- **D6:** earlier questions only as history; no streaming; every part of an answer backed by a cited note; links only for security parts.
+- **D15:** the shared organization and its limit; the workspace-scoped key and the workspace check; US-only prices; the dev cap as part of the monthly most.
+- **D16:** the invite-only start; the static landing page; counters deleted 30 days after an invite expires.
+- **D17:** a starter sends nothing; the vendor rule for the model's answers too.
+- **D19:** chat answers among the texts held to layers and reasons.
+- **ARCHITECTURE §3, §5–§8 and §10:** the layers-only mark on chunks and a piece-level overview entry; the request flow; the states off, resting and on; the email destination and the settings as secrets; the eval gate; the residuals (a flood can pause the chat for a day; the organization is shared).
+- **STEPS C and D:** the steps above.
 
 ## Phase 4 — Public read-only MCP endpoint
 

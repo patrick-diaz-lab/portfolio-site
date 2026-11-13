@@ -14,4 +14,4 @@ source_commit: bb4fb3747aa6d7a80666b2d19dd718d1e4bedd98
 
 ### Each session in its own working copy, one lane for anything live
 
-Every session works in its own working copy, on its own branch. Only one place, the deploy lane, holds secrets and may build and restart services, and only one session at a time can hold it.
+Every session works in its own working copy, on its own branch. Only one place, the deploy lane, may build and restart services, and only one session at a time can hold it.

@@ -13,7 +13,7 @@ export function chipValue(c: Chip, locale: Locale): string {
     const pct = Math.round(((c.value - c.baseline) / c.baseline) * 100);
     return `${pct < 0 ? "−" : "+"}${Math.abs(pct)} %`;
   }
-  if (c.metric === "count") return `${c.value} / ${c.n}`;
+  if (c.metric === "count") return `${c.value} ${locale === "de" ? "von" : "of"} ${c.n}`;
   if (c.metric === "cost_usd") return "$" + String(c.value);
   if (c.metric === "seconds") return `${c.value} s`;
   return c.value.toLocaleString(locale === "de" ? "de-CH" : "en", { minimumFractionDigits: 1, maximumFractionDigits: 3 });

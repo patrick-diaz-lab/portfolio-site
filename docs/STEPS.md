@@ -70,7 +70,23 @@ The repo is public in `patrick-diaz-lab` on GitHub Free (D20). Settings come **b
 
 ## D. Launch and running
 
-21. **Email Routing:** `hello@patrickdiaz.dev` → your inbox (D14).
+21. **Launch clicks, item 1.9b** (Cloudflare dashboard, `dash.cloudflare.com`; menu names as of 2026-11, they may have moved slightly):
+    1. **Custom domain on the Worker.**
+        1. **Workers & Pages** → **portfolio-site** → **Settings** → **Domains & Routes** → **Add** → **Custom domain**.
+        2. Enter `patrickdiaz.dev` → **Add domain**. Cloudflare creates the DNS record and the certificate itself; that takes a few minutes.
+        3. Check: `https://patrickdiaz.dev/` and `https://patrickdiaz.dev/de/` show the site, with a padlock.
+    2. **`www` to the bare domain** (optional, 2 minutes).
+        1. **patrickdiaz.dev** → **DNS** → **Records** → **Add record**: Type `AAAA`, Name `www`, IPv6 address `100::`, Proxy status **Proxied** → **Save**.
+        2. **Rules** → **Redirect Rules** → **Create rule** → template **Redirect from WWW to root** → **Deploy**.
+        3. Check: `https://www.patrickdiaz.dev/` lands on `https://patrickdiaz.dev/`.
+    3. **Email Routing for `hello@`** (D14).
+        1. **patrickdiaz.dev** → **Email** → **Email Routing** → **Get started** (or **Enable Email Routing**).
+        2. Custom address: `hello`, action **Send to an email**, destination: your inbox → **Create and continue**.
+        3. Open the verification mail Cloudflare sends to your inbox and click **Verify email address**.
+        4. Back in the dashboard: **Add records and enable**. That adds the MX and SPF records. If it lists other MX records first, delete them; this domain's MX belong only to Email Routing (D14).
+        5. Test: from another address, write to `hello@patrickdiaz.dev`; it should arrive in your inbox within a minute (check spam once).
+    4. **Before replying to a recruiter:** Email Routing only receives. A reply from your inbox goes out from your personal address, not from `hello@`. If that matters for the application, reply from the address you're happy to share; sending as `hello@` needs a separate sending service (a later step, not part of 1.9b).
+    5. **Tell the session "domain live".** It then runs `pnpm link-check -- --live https://patrickdiaz.dev`, or you run it yourself from a local clone.
 22. **Write your bio** (3–4 sentences; generic background, no employer name) for the About page (D18).
 23. **Bring the visual inspiration** (palette, lettering, texture) before item 1.1 (D13).
 24. **Review and merge every content PR** with the checklist in [ARCHITECTURE](ARCHITECTURE.md#4-content-and-redaction-pipeline). Your merge is the approval.

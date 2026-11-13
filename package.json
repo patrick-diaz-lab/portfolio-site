@@ -19,6 +19,7 @@
     "page-check": "node scripts/page-check.ts",
     "gates": "node scripts/gates.ts",
     "published-check": "node scripts/published-check.ts",
+    "link-check": "node scripts/link-check.ts",
     "lighthouse": "node scripts/lighthouse.ts"
   },
   "devDependencies": {
