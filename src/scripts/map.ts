@@ -1,81 +1,91 @@
-// Hover/focus cards for the piece map (PLAN 1.3, D7). Progressive enhancement only: every
-// part is already a link and its text is in the list under the map, so the map works
-// without this script. On touch screens the first tap on a part opens its card; the card's
-// "Open" button (or a second tap) follows the link.
+// The piece map's panel (PLAN 1.3, D7; layout A, Patrick 2026-11-13). Progressive
+// enhancement only: every part is already a link and its text is in the list under the map,
+// so the map works without this script. With it, a panel next to the drawing shows one part
+// at a time, and on wide screens the list becomes a compact index of names.
+//   Mouse: hovering a part, on the map or in the index, shows it; a click follows its page.
+//   Keyboard: focus shows it; Enter follows its page.
+//   Touch: the first tap shows it; a second tap, or "Read the page", follows the page.
+// A part without a page has nowhere to go, so activating it only shows it in the panel.
 
 export function initMap(root: HTMLElement): void {
   const frame = root.querySelector<HTMLElement>(".map-frame");
   const card = root.querySelector<HTMLElement>("[data-card]");
   if (!frame || !card) return;
+  const meta = card.querySelector<HTMLElement>("[data-card-meta]")!;
   const title = card.querySelector<HTMLElement>("[data-card-title]")!;
   const text = card.querySelector<HTMLElement>("[data-card-text]")!;
   const open = card.querySelector<HTMLAnchorElement>("[data-card-open]")!;
+  const english = card.querySelector<HTMLElement>("[data-card-english]");
   const parts = [...frame.querySelectorAll<SVGAElement>("a.part")];
+  if (parts.length === 0) return;
 
+  const item = (a: SVGAElement) => root.querySelector<HTMLElement>(`#part-${CSS.escape(a.id)}`);
+  const hasPage = (a: SVGAElement) => !(a.getAttribute("href") ?? "#").startsWith("#");
+  // The panel and the index only act while the drawing is shown (not on phones).
+  const wide = () => frame.offsetParent !== null;
+
+  let current = parts[0]!;
   let pointer = "mouse";
-  let current: SVGAElement | null = null;
-  let tapped: SVGAElement | null = null;
-  let timer = 0;
-
-  const place = (a: SVGAElement) => {
-    const f = frame.getBoundingClientRect();
-    const r = a.querySelector(".box")?.getBoundingClientRect() ?? a.getBoundingClientRect();
-    const w = card.offsetWidth;
-    const h = card.offsetHeight;
-    const left = Math.max(0, Math.min(r.left - f.left, f.width - w));
-    const below = r.bottom - f.top + 8;
-    const top = below + h <= f.height || r.top - f.top < h + 8 ? below : r.top - f.top - h - 8;
-    card.style.left = `${left}px`;
-    card.style.top = `${top}px`;
-  };
+  let tapped: Element | null = null;
 
   const show = (a: SVGAElement) => {
-    window.clearTimeout(timer);
-    if (current && current !== a) current.classList.remove("is-open");
+    current.classList.remove("is-selected");
+    item(current)?.classList.remove("is-selected");
     current = a;
+    a.classList.add("is-selected");
+    const li = item(a);
+    li?.classList.add("is-selected");
+    const line = li?.closest(".wire-group")?.querySelector(".wire-line")?.textContent?.trim();
+    const n = (i: number) => String(i).padStart(2, "0");
+    meta.textContent = `${line ? `${line} · ` : ""}${n(parts.indexOf(a) + 1)} / ${n(parts.length)}`;
     title.textContent = a.dataset.label ?? "";
     text.textContent = a.dataset.hover ?? "";
-    open.href = a.getAttribute("href") ?? "#h-parts";
-    card.hidden = false;
-    a.classList.add("is-open");
-    place(a);
+    const page = hasPage(a);
+    open.hidden = !page;
+    if (page) open.href = a.getAttribute("href")!;
+    const lang = a.getAttribute("hreflang");
+    if (lang) open.setAttribute("hreflang", lang);
+    else open.removeAttribute("hreflang");
+    if (english) english.hidden = !(page && lang);
   };
-
-  const hide = () => {
-    window.clearTimeout(timer);
-    card.hidden = true;
-    current?.classList.remove("is-open");
-    current = null;
-    tapped = null;
-  };
-  const hideSoon = () => {
-    window.clearTimeout(timer);
-    timer = window.setTimeout(hide, 180);
-  };
+  const step = (d: number) => show(parts[(parts.indexOf(current) + d + parts.length) % parts.length]!);
 
   document.addEventListener("pointerdown", (e) => {
     pointer = e.pointerType;
-    const t = e.target as Node;
-    if (pointer !== "mouse" && current && !card.contains(t) && !current.contains(t)) hide();
+    if (pointer !== "mouse" && tapped && !tapped.contains(e.target as Node)) tapped = null;
   }, true);
 
   for (const a of parts) {
     a.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") show(a); });
-    a.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") hideSoon(); });
     a.addEventListener("focus", () => { if (a.matches(":focus-visible")) show(a); });
-    a.addEventListener("blur", () => { if (!tapped) hideSoon(); });
     a.addEventListener("click", (e) => {
-      // Keyboard activation (detail 0) and mouse clicks follow the link at once.
-      if (e.detail === 0 || pointer === "mouse") return;
-      if (tapped !== a) {
+      const page = hasPage(a);
+      // Keyboard activation (detail 0) and mouse clicks follow a page at once.
+      if (e.detail === 0 || pointer === "mouse") {
+        if (!page) { e.preventDefault(); show(a); }
+        return;
+      }
+      if (tapped !== a || !page) {
         e.preventDefault();
         show(a);
         tapped = a;
       }
     });
+
+    // The same part in the index under the map.
+    const name = item(a)?.querySelector<HTMLAnchorElement>("a.wire-name");
+    if (!name) continue;
+    name.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse" && wide()) show(a); });
+    name.addEventListener("focus", () => { if (wide() && name.matches(":focus-visible")) show(a); });
+    name.addEventListener("click", (e) => {
+      if (wide() && !hasPage(a)) { e.preventDefault(); show(a); }
+    });
   }
-  card.addEventListener("pointerenter", () => window.clearTimeout(timer));
-  card.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") hideSoon(); });
-  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && current) hide(); });
-  window.addEventListener("resize", () => { if (current) place(current); });
+
+  card.querySelector("[data-card-prev]")?.addEventListener("click", () => step(-1));
+  card.querySelector("[data-card-next]")?.addEventListener("click", () => step(1));
+
+  card.hidden = false;
+  root.classList.add("is-enhanced");
+  show(current);
 }

@@ -64,18 +64,19 @@ code { font-size: 0.9em; background: var(--color-panel-raised); padding: 0.1em 0
   gap: var(--space-12);
 }
 
-/* Signal dot: runs along a wire while its module is hovered or focused (D13). A dot inside a
+/* Signal dot: runs along a wire while its module is hovered or focused (D13), never on its
+   own: a part selected in the map's panel doesn't start it. A dot inside a
    part runs on that part's own wire (the maps, PLAN 1.3); a dot loose in the drawing runs
    whenever any part is active (the style sheet). */
 .signal-dot { fill: var(--color-amber); opacity: 0; offset-distance: 0%; pointer-events: none; }
 .schematic:has(.part:hover) > .signal-dot,
 .schematic:has(.part:focus-visible) > .signal-dot,
-.schematic .part:is(:hover, :focus-visible, .is-open) .signal-dot { opacity: 1; animation: signal-run 1.6s linear infinite; }
+.schematic .part:is(:hover, :focus-visible) .signal-dot { opacity: 1; animation: signal-run 1.6s linear infinite; }
 @keyframes signal-run { to { offset-distance: 100%; } }
 @media (prefers-reduced-motion: reduce) {
   .schematic:has(.part:hover) > .signal-dot,
   .schematic:has(.part:focus-visible) > .signal-dot,
-  .schematic .part:is(:hover, :focus-visible, .is-open) .signal-dot { animation: none; offset-distance: 50%; }
+  .schematic .part:is(:hover, :focus-visible) .signal-dot { animation: none; offset-distance: 50%; }
 }
 
 /* Site bar and footer (PLAN 1.9a): name, language switch, privacy and contact. */

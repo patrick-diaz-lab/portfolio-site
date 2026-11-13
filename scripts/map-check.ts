@@ -1,8 +1,12 @@
 // `pnpm map-check` (PLAN 1.3 done-when): browser tests for every piece map in dist/.
-//   - every map.yaml part is a link with a name, reachable with Tab, and Enter follows it
-//   - hover and keyboard focus open the card; Escape closes it
-//   - on a touch screen the first tap opens the card without navigating; "Open" navigates
-//   - with JS off, every part is still a link and the list holds every part
+//   - every map.yaml part is a link with a name, reachable with Tab; Enter follows a part's
+//     page, and on a part without a page only shows it in the panel
+//   - the panel (layout A, 2026-11-13) shows a part on load, on hover (map and index) and on
+//     keyboard focus; Previous and Next step through the parts
+//   - on a touch screen the first tap shows the part without navigating; "Read the page"
+//     navigates
+//   - on a wide screen with JS the list is an index of names; with JS off, every part is
+//     still a link, the list holds every part with its text, and no empty panel shows
 //   - the signal dot runs on hover, and stands still under prefers-reduced-motion
 //   - on a phone the list (the vertical wire) is shown
 // Uses the pinned Playwright's Chromium (scripts/lib/browser.ts); a gate in CI since PLAN 1.8.
@@ -61,21 +65,43 @@ try {
       }
       check(reached.size === ids.length, `every part is reachable with Tab (${reached.size}/${ids.length})`);
 
-      // Fresh load, then Tab to the first part, so :focus-visible applies as for a keyboard user.
+      // Fresh loads, then Tab to a part, so :focus-visible applies as for a keyboard user.
+      const tabTo = async (id: string) => {
+        let guard = 0;
+        while ((await page.evaluate(() => document.activeElement?.id ?? "")) !== id && guard++ < 80) await page.keyboard.press("Tab");
+      };
+      const title = () => page.locator("[data-card-title]").textContent();
+      const label = (id: string) => piece.parts.find((p) => p.id === id)!.label;
       await page.goto(url);
-      const first = ids[0]!;
-      let guard = 0;
-      while ((await page.evaluate(() => document.activeElement?.id ?? "")) !== first && guard++ < 80) await page.keyboard.press("Tab");
-      const card = page.locator("[data-card]");
-      const title = await page.locator("[data-card-title]").textContent();
-      check((await card.isVisible()) && title === piece.parts[0]!.label, "keyboard focus opens the part's card");
-      check((await dotAnimation(page, first)) === "signal-run", "the signal dot runs while a part has focus");
-      await page.keyboard.press("Escape");
-      check(!(await card.isVisible()), "Escape closes the card");
-      const before = page.url();
-      await page.keyboard.press("Enter");
-      await page.waitForTimeout(150);
-      check(page.url() !== before, "Enter on a focused part follows its link");
+      check((await page.locator("[data-card]").isVisible()) && (await title()) === piece.parts[0]!.label, "the panel shows the first part on load");
+      check((await dotAnimation(page, ids[0]!)) === "none", "the signal dot doesn't run on load");
+      const second = ids[Math.min(1, ids.length - 1)]!;
+      await tabTo(second);
+      check((await title()) === label(second), "keyboard focus shows the part in the panel");
+      check((await dotAnimation(page, second)) === "signal-run", "the signal dot runs while a part has focus");
+      const at = ids.indexOf(second);
+      await page.locator("[data-card-next]").click();
+      check((await title()) === label(ids[(at + 1) % ids.length]!), "Next shows the following part");
+      await page.locator("[data-card-prev]").click();
+      check((await title()) === label(second), "Previous goes back");
+
+      const plain = piece.parts.find((p) => !p.page);
+      if (plain) {
+        await page.goto(url);
+        await tabTo(plain.id);
+        const before = page.url();
+        await page.keyboard.press("Enter");
+        await page.waitForTimeout(150);
+        check(page.url() === before && (await title()) === plain.label, "Enter on a part without a page shows it and stays");
+      }
+      const linked = piece.parts.find((p) => p.page);
+      if (linked) {
+        await page.goto(url);
+        await tabTo(linked.id);
+        await page.keyboard.press("Enter");
+        await page.waitForURL((u) => u.pathname === linked.page, { timeout: 3000 }).catch(() => {});
+        check(new URL(page.url()).pathname === linked.page, `Enter on a part with a page follows it (${linked.page})`);
+      }
       await ctx.close();
     }
 
@@ -108,20 +134,28 @@ try {
       await ctx.close();
     }
 
-    // Hover opens the card.
+    // Hover shows the part in the panel, from the map and from the index.
     {
       const ctx = await browser.newContext(desktop);
       const page = await ctx.newPage();
       await page.goto(url);
+      const title = () => page.locator("[data-card-title]").textContent();
       const id = ids[Math.min(2, ids.length - 1)]!;
       await page.locator(`${sel(id)} .box`).hover();
       await page.waitForTimeout(50);
-      check((await page.locator("[data-card]").isVisible()) && (await page.locator("[data-card-title]").textContent()) === piece.parts.find((p) => p.id === id)!.label, "hover opens the part's card");
+      check((await page.locator("[data-card]").isVisible()) && (await title()) === piece.parts.find((p) => p.id === id)!.label, "hover on the map shows the part in the panel");
       check((await dotAnimation(page, id)) === "signal-run", "the signal dot runs on hover");
+      const last = piece.parts.at(-1)!;
+      await page.locator(`#part-${last.id} a.wire-name`).hover();
+      await page.waitForTimeout(50);
+      check((await title()) === last.label, "hover in the index shows the part in the panel");
+      const names = await page.locator(".wire-item a.wire-name:visible").count();
+      const texts = await page.locator(".wire-item p:visible").count();
+      check(names === ids.length && texts === 0, `wide screen with JS: the list is an index of names (${names} names, ${texts} texts shown)`);
       await ctx.close();
     }
 
-    // Touch: first tap opens the card, "Open" navigates.
+    // Touch: the first tap shows the part, "Read the page" navigates.
     {
       const ctx = await browser.newContext({ viewport: { width: 1024, height: 768 }, hasTouch: true, isMobile: false });
       const page = await ctx.newPage();
@@ -131,13 +165,13 @@ try {
       const p = piece.parts.find((x) => x.page) ?? piece.parts[0]!;
       await page.locator(`${sel(p.id)} .box`).tap();
       await page.waitForTimeout(150);
-      check(page.url() === before && (await page.locator("[data-card]").isVisible()), "on touch, the first tap opens the card and doesn't navigate");
+      check(page.url() === before && (await page.locator("[data-card-title]").textContent()) === p.label, "on touch, the first tap shows the part and doesn't navigate");
       if (await page.locator("[data-card-open]").isVisible()) {
         await page.locator("[data-card-open]").tap();
         await page.waitForTimeout(150);
       }
       const target = new URL(p.page ?? `#part-${p.id}`, url).href;
-      check(page.url() === target, `on touch, the card's Open button follows the link (${new URL(target).pathname}${new URL(target).hash})`);
+      check(page.url() === target, `on touch, "Read the page" follows the link (${new URL(target).pathname}${new URL(target).hash})`);
       await ctx.close();
     }
 
@@ -159,7 +193,10 @@ try {
       const links = await page.locator("a.part[href]").count();
       let listed = 0;
       for (const p of piece.parts) if (await page.locator(`#part-${p.id} a[href]`).isVisible()) listed++;
-      check(links === ids.length && listed === ids.length, `JS off (${view}): ${links} part links, ${listed}/${ids.length} parts visible in the list`);
+      let texts = 0;
+      for (const p of piece.parts) if (await page.locator(`#desc-${p.id}`).isVisible()) texts++;
+      check(links === ids.length && listed === ids.length && texts === ids.length, `JS off (${view}): ${links} part links, ${listed}/${ids.length} parts and ${texts} texts visible in the list`);
+      check(!(await page.locator("[data-card]").isVisible()), `JS off (${view}): no empty panel`);
       if (view === "phone") check(!(await page.locator(".map-frame").isVisible()), "phone: the list (vertical wire) replaces the schematic");
       await ctx.close();
     }

@@ -1,6 +1,7 @@
 ---
 // Piece overview (PLAN 1.3, D19), in English at /<piece>/ and in German at /de/<piece>/
-// (PLAN 1.9a). Not indexed until launch (PLAN 1.9b).
+// (PLAN 1.9a). Not indexed until launch (PLAN 1.9b). Layout A (Patrick, 2026-11-13): the
+// intro and the metric chips side by side, as on the homepage, then the map.
 import Base from "../layouts/Base.astro";
 import Chips from "./Chips.astro";
 import Map from "./Map.astro";
@@ -18,19 +19,28 @@ const both = piece.locales.includes("de");
 <Base title={`${piece.title} — Patrick Diaz`} description={piece.tagline} noindex lang={locale} path={both ? `/${piece.id}/` : undefined}>
   <main class="page">
     <header class="piece-head">
-      <p class="label"><a href={localePath(locale, "/")}>Patrick Diaz</a> · {t(locale, "piece.label")} {n}</p>
-      <h1>{piece.title}</h1>
-      <p class="piece-tagline">{piece.tagline}</p>
-      <p>{piece.summary}</p>
-      <p class="label">{t(locale, "piece.asOf")} {piece.as_of}</p>
-      <Chips chips={piece.chips} locale={locale} />
+      <div class="piece-intro">
+        <p class="label"><a href={localePath(locale, "/")}>Patrick Diaz</a> · {t(locale, "piece.label")} {n}</p>
+        <h1>{piece.title}</h1>
+        <p class="piece-tagline">{piece.tagline}</p>
+        <p>{piece.summary}</p>
+        <p class="label">{t(locale, "piece.asOf")} {piece.as_of}</p>
+      </div>
+      {piece.chips.length > 0 && (
+        <div class="piece-chips">
+          <Chips chips={piece.chips} locale={locale} variant="panel" />
+        </div>
+      )}
     </header>
     <Map svg={piece.svg} parts={piece.parts} locale={locale} svgText={piece.svgText} />
   </main>
 </Base>
 
 <style>
-  .piece-head { display: grid; gap: var(--space-4); }
+  .piece-head { display: flex; flex-wrap: wrap; gap: var(--space-8) var(--space-12); align-items: start; }
+  .piece-intro { flex: 3 1 24rem; min-width: 0; display: grid; gap: var(--space-4); }
+  .piece-intro h1 { font-size: clamp(var(--step-4), 6vw, 3.2rem); line-height: 1.05; }
+  .piece-chips { flex: 2 1 20rem; min-width: 0; }
   .piece-head a { color: inherit; }
-  .piece-tagline { font-size: var(--step-1); line-height: 1.4; }
+  .piece-tagline { font-size: var(--step-1); line-height: 1.4; max-width: 40ch; }
 </style>

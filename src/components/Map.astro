@@ -1,7 +1,11 @@
 ---
 // The piece map (PLAN 1.3, D7, D13): the hand-drawn schematic with every part as a named
-// link, a hover/focus card, and the list of all parts under it. The list works without JS
-// and is the phone layout: a vertical wire with the modules along it.
+// link, and the list of all parts under it. The list works without JS and is the phone
+// layout: a vertical wire with the modules along it.
+// Layout A (Patrick, 2026-11-13): with JS on a wide screen, a panel next to the drawing shows
+// one part at a time (line, number, text, "Read the page", previous/next), and the list
+// becomes a compact index of names by line. The panel replaces the floating card; it keeps
+// the card's data-card hooks, so the no-JS gate treats its text as script-made.
 // Per language (PLAN 1.9a): labels, hover texts and the schematic's texts come from the
 // piece's data in that language; links to part pages that exist only in English are marked.
 import { lineName, t, type Locale } from "../i18n/ui.ts";
@@ -24,37 +28,52 @@ for (const p of parts) {
   else groups.push({ line, parts: [p] });
 }
 ---
-<section class="map" aria-labelledby="h-map" data-map>
-  <h2 id="h-map" class="label">{t(locale, "map.schematic")}</h2>
-  <div class="map-frame">
-    <Fragment set:html={drawing} />
-    <div class="map-card" data-card hidden aria-hidden="true">
-      <p class="map-card-title" data-card-title></p>
-      <p class="map-card-text" data-card-text></p>
-      <a class="map-card-open" data-card-open href="#h-parts" tabindex="-1">{t(locale, "map.open")}</a>
+<div class="piece-map" data-map>
+  <section class="map" aria-labelledby="h-map">
+    <h2 id="h-map" class="label">{t(locale, "map.schematic")}</h2>
+    <div class="map-body">
+      <div class="map-frame">
+        <Fragment set:html={drawing} />
+      </div>
+      <aside class="map-card" data-card hidden aria-label={t(locale, "map.selected")}>
+        <p class="label" data-card-meta></p>
+        <h3 class="map-card-title" data-card-title></h3>
+        <p class="map-card-text" data-card-text></p>
+        <p class="map-card-links">
+          <a class="map-card-open" data-card-open href="#h-parts">{t(locale, "map.readPage")} →</a>
+          {pageLang && <span class="label" data-card-english>{t(locale, "map.englishPage")}</span>}
+        </p>
+        <div class="map-card-nav">
+          <button type="button" data-card-prev>← {t(locale, "map.prev")}</button>
+          <button type="button" data-card-next>{t(locale, "map.next")} →</button>
+        </div>
+      </aside>
     </div>
-  </div>
-</section>
+  </section>
 
-<section class="parts" aria-labelledby="h-parts">
-  <h2 id="h-parts">{t(locale, "map.allParts")}</h2>
-  <ol class="wire-list">
-    {groups.map((g) => (
-      <li class="wire-group">
-        <p class="label wire-line">{lineName(locale, g.line)}</p>
-        <ol>
-          {g.parts.map((p) => (
-            <li class="module wire-item" id={`part-${p.id}`}>
-              <a class="wire-name" href={partHref(p)} hreflang={p.page && pageLang ? pageLang : undefined}>{p.label}</a>
-              {p.page && pageLang && <span class="label">{t(locale, "map.englishPage")}</span>}
-              <p id={`desc-${p.id}`}>{p.hover}</p>
-            </li>
-          ))}
-        </ol>
-      </li>
-    ))}
-  </ol>
-</section>
+  <section class="parts" aria-labelledby="h-parts">
+    <div class="parts-head">
+      <h2 id="h-parts">{t(locale, "map.allParts")}</h2>
+      <span class="parts-rule" aria-hidden="true"></span>
+    </div>
+    <ol class="wire-list">
+      {groups.map((g) => (
+        <li class="wire-group">
+          <p class="label wire-line">{lineName(locale, g.line)}</p>
+          <ol>
+            {g.parts.map((p) => (
+              <li class="module wire-item" id={`part-${p.id}`}>
+                <a class="wire-name" href={partHref(p)} hreflang={p.page && pageLang ? pageLang : undefined}>{p.label}</a>
+                {p.page && pageLang && <span class="label">{t(locale, "map.englishPage")}</span>}
+                <p id={`desc-${p.id}`}>{p.hover}</p>
+              </li>
+            ))}
+          </ol>
+        </li>
+      ))}
+    </ol>
+  </section>
+</div>
 
 <script>
   import { initMap } from "../scripts/map.ts";
@@ -62,9 +81,12 @@ for (const p of parts) {
 </script>
 
 <style is:global>
+  .piece-map { display: grid; gap: var(--space-12); }
   .map { display: grid; gap: var(--space-4); }
 
-  .map-frame { position: relative; }
+  /* The drawing and, with JS, the panel beside it; the panel wraps under a narrow drawing. */
+  .map-body { display: flex; flex-wrap: wrap; gap: var(--space-6); align-items: stretch; }
+  .map-frame { position: relative; flex: 3 1 36rem; min-width: 0; }
   .map-frame .schematic { display: block; width: 100%; height: auto; }
 
   /* Schematic strokes and lettering (D13). Only built parts are drawn (Patrick, 2026-11-11). */
@@ -85,24 +107,31 @@ for (const p of parts) {
   /* No browser outline on any focus (a mouse click showed one around box and wires); keyboard
      focus shows the amber ring below. */
   .schematic .part:focus { outline: none; }
-  .schematic .part:is(:hover, :focus-visible, .is-open) .box { stroke: var(--color-amber); }
-  .schematic .part:is(:hover, :focus-visible, .is-open) .lbl { fill: var(--color-amber); }
+  .schematic .part:is(:hover, :focus-visible, .is-selected) .box { stroke: var(--color-amber); }
+  .schematic .part:is(:hover, :focus-visible, .is-selected) .lbl { fill: var(--color-amber); }
+  .schematic .part.is-selected .box { stroke-width: 2.5; }
   .schematic .part:focus-visible .ring { opacity: 1; }
 
+  /* The panel: one part at a time, next to the drawing. */
   .map-card {
-    position: absolute; z-index: 2; width: min(20rem, 100%);
+    flex: 1 1 15rem; min-width: 0;
     background: var(--color-panel-raised); border: var(--line-module) solid var(--color-amber); border-radius: var(--radius);
-    padding: var(--space-3) var(--space-4); display: grid; gap: var(--space-2);
-    box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 0.45);
+    padding: var(--space-4) var(--space-6); display: flex; flex-direction: column; gap: var(--space-3);
   }
-  .map-card[hidden] { display: none; }
-  .map-card-title { font: 600 var(--step-1) / var(--leading-tight) var(--font-panel); letter-spacing: var(--tracking-panel); text-transform: uppercase; }
-  .map-card-text { font-size: var(--step--1); line-height: 1.5; }
-  .map-card-open { justify-self: start; font: 400 var(--step--1) var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; padding: var(--space-2) var(--space-3); border: var(--line-thin) solid var(--color-silk); min-height: 2.75rem; display: inline-flex; align-items: center; text-decoration: none; }
+  .map-card[hidden], .map-card [hidden] { display: none; }
+  .map-card-title { font-size: var(--step-2); }
+  .map-card-text { font-size: var(--step--1); line-height: 1.55; }
+  .map-card-links { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); align-items: center; }
+  .map-card-open { font: 400 var(--step--1) var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; padding: var(--space-2) var(--space-4); border: var(--line-thin) solid var(--color-silk); border-radius: var(--radius); min-height: 2.75rem; display: inline-flex; align-items: center; text-decoration: none; }
   .map-card-open:hover { border-color: var(--color-amber); }
+  .map-card-nav { margin-top: auto; display: flex; justify-content: space-between; gap: var(--space-2); border-top: var(--line-thin) solid var(--color-silk-dim); padding-top: var(--space-2); }
+  .map-card-nav button { background: none; border: 0; color: var(--color-silk); font: 400 var(--step--1) var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; min-height: 2.75rem; padding: 0 var(--space-1); cursor: pointer; }
+  .map-card-nav button:hover { color: var(--color-amber); }
 
   /* The list: a vertical wire with the modules along it (D13). */
   .parts { display: grid; gap: var(--space-6); }
+  .parts-head { display: flex; align-items: center; gap: var(--space-4); }
+  .parts-rule { flex: 1 1 2rem; height: var(--line-thin); background: var(--color-silk-dim); }
   .wire-list, .wire-list ol { list-style: none; margin: 0; padding: 0; }
   .wire-list { display: grid; gap: var(--space-6); max-width: 46rem; border-left: var(--focus-width) solid var(--color-silk-dim); padding-left: var(--space-6); }
   .wire-group { display: grid; gap: var(--space-3); }
@@ -115,6 +144,21 @@ for (const p of parts) {
   .wire-name { font: 600 var(--step-1) / var(--leading-tight) var(--font-panel); letter-spacing: var(--tracking-panel); text-transform: uppercase; text-decoration: none; justify-self: start; padding-block: var(--space-1); }
   .wire-name:hover { text-decoration: underline; }
   .wire-item p { font-size: var(--step--1); line-height: 1.5; }
+
+  /* With JS on a wide screen, the list is a compact index: names by line, the texts live in
+     the panel (layout A). Without JS, and on phones, it stays the full vertical wire. */
+  @media (min-width: 48rem) {
+    .piece-map.is-enhanced .wire-list { max-width: none; border-left: 0; padding-left: 0; grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); align-items: start; }
+    .is-enhanced .wire-group { border-top: var(--line-module) solid var(--color-silk); padding-top: var(--space-3); gap: var(--space-1); }
+    .is-enhanced .wire-line::before, .is-enhanced .wire-item::before { display: none; }
+    .is-enhanced .wire-group > ol { gap: 0; }
+    .is-enhanced .wire-item { background: none; border: 0; padding: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--space-2); }
+    .is-enhanced .wire-item p { display: none; }
+    .is-enhanced .wire-name { display: inline-flex; align-items: center; gap: var(--space-3); min-height: 2.75rem; font-size: var(--step-0); padding-block: 0; }
+    .is-enhanced .wire-name::before { content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%; border: var(--line-module) solid currentColor; }
+    .is-enhanced .wire-item.is-selected .wire-name { color: var(--color-amber); }
+    .is-enhanced .wire-item.is-selected .wire-name::before { background: var(--color-amber); }
+  }
 
   /* Phones: the schematic gives way to the vertical wire (D13). */
   @media (max-width: 47.99rem) {
