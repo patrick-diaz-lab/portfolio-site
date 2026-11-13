@@ -159,8 +159,9 @@ Cost ≈ $0.0005 per question → ≈ $0.05 / $0.50 / $5.10 per month at 100 / 1
 
 ## 7. The map and accessibility
 
-- **Each part is an `<a>`** in the inline SVG, with an accessible name (its label; the SVG itself has an `aria-label` and no `<title>`, which would show as a tooltip), a visible focus ring, and a hover/focus card (label, ≤ 140-character text, "Open"). On touch screens the first tap opens the card. No pan or zoom. A part without a page links to its entry in the list (item 1.3). The page turns each `<g id class="part">` of the hand-drawn SVG into its link (`src/lib/map-svg.ts`), so the SVG holds no URLs.
-- **List fallback:** a plain list of all parts under the map, which works without JS.
+- **Each part is an `<a>`** in the inline SVG, with an accessible name (its label; the SVG itself has an `aria-label` and no `<title>`, which would show as a tooltip) and a visible focus ring. No pan or zoom. A part without a page links to its entry in the list (item 1.3). The page turns each `<g id class="part">` of the hand-drawn SVG into its link (`src/lib/map-svg.ts`), so the SVG holds no URLs.
+- **Detail panel (layout A, Patrick 2026-11-13):** with JS, a panel next to the drawing shows one part at a time: its line and number, its ≤ 140-character text, "Read the page" when it has one, and previous/next. Hover (on the map or in the index) and keyboard focus show a part; a click or Enter follows its page; on touch the first tap shows it. A part without a page only shows in the panel. The first part shows on load, highlighted but without the signal dot. The panel replaced the floating hover card.
+- **List fallback:** a list of all parts with their texts under the map, which works without JS. With JS on a wide screen it becomes a compact index of names by line; the texts are then in the panel.
 - **Phone layout:** below 48rem the schematic is hidden and the list becomes the vertical wire with the modules along it.
 - **Motion:** the signal dot along a wire runs on hover/focus only. CSS only, off under `prefers-reduced-motion`.
 - **Labels and contrast:** labels are real text; hand lettering is decoration only. Palette at least WCAG AA.

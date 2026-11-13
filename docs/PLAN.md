@@ -47,6 +47,8 @@ Portfolio site for Patrick's work as an AI/LLM engineer. The first piece is **Vi
 
 ### Item 1.3 plan (Patrick's decisions 2026-11-11)
 
+**Changed 2026-11-13 (Patrick, layout A chosen from design options):** the piece overview puts the intro and the metric chips side by side, as on the homepage. The map's floating card became a detail panel next to the drawing, and with JS on a wide screen the list under it is a compact index of names by line. Without JS and on phones the full list stays. `pnpm map-check` tests the panel instead of the card. Details in [ARCHITECTURE §7](ARCHITECTURE.md#7-the-map-and-accessibility).
+
 - **Map nodes (D19 list plus run records):**
   - Built, page in items 1.4–1.7: LiteLLM gateway, agent core, eval harness, guardrails. Each gets its `page:` in `map.yaml` with its item; until then it links to its entry in the list.
   - Built, no page: MCP servers, knowledge core, Claude worker tier, Telegram adapter, console, run records. The console is built and live, not in progress (Patrick).
