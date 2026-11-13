@@ -379,6 +379,27 @@ Knowledge core and MCP servers: two part pages, one PR, on the 1.4 template. Sou
 - **Map:** both parts link to their pages; the German map marks them "(Englisch)".
 - **Done when:** as 1.4. `pnpm check`, axe, Lighthouse and `map-check` pass, then Patrick merges and the Cloudflare build's scan is clean.
 
+### Item 1.11 plan (Patrick's OK 2026-11-12; console hover without the network product, both languages)
+
+The console page, `layers_only`, on the 1.4 template. Sources: `sources/vision/deep/console.md` and its section in `notes.md`, at `8b2a08b…`. The reattach fix being built on the Vision side isn't in the notes and stays out (Patrick).
+
+- **Entries (17):**
+
+  | Kind | Entries |
+  |---|---|
+  | Decisions (5) | private network only, identity from the network, several layers; full traces kept 30 days; budgets per session, counted by agent core; untrusted content renders as text; build my own instead of adopting a tracing tool |
+  | Rejected (6) | trusting identity from any local connection; a separate trace database; one gateway key per session; rendering Markdown with images or live links; an existing tracing tool (too heavy, or blind to agent core's inner steps); a graph view first |
+  | Testing (3) | the live phone test (two sessions, a budget stop at $0.10, the +$1 button, stop all); streaming costs matched and regression quality unchanged; a marker never reaches a live event, and the trace view holds 58–60 frames per second |
+  | Learning (3) | the first phone test after the trace work failed; UI tests that didn't test the change; a long answer appeared all at once |
+- **`evals[]`:** paid steps matching the gateway's spend log, rate 1.0 (n 158). The other numbers have no case count and stay in the text.
+- **Layer-level wording (D19):**
+  - Access is named as layers and reasons: no open port, the private network, identity taken from the network in a way a local process can't fake, signed requests, a separate credential, and the coding agent kept away.
+  - The network product isn't named on the page.
+  - The threat model sentence becomes "access rests on my own devices being locked and current, not on the app", with no description of what a stolen device could do.
+  - No code formatting anywhere on the page (the layers-only check).
+- **Map:** the console gets `page: /vision/console/`. The German map marks it "(Englisch)".
+- **Done when:** as 1.4, plus the layers-only check passes.
+
 ### After the next sync of `sources/vision/` (one small PR)
 
 **Done 2026-11-12, after sync PR #25** (`Source-Tree:` trailer, authored by Patrick, only `sources/vision/`):

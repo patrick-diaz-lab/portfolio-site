@@ -11,7 +11,8 @@ parts:
     line: surfaces
   - id: console
     label: Console
-    hover: "Private web console for chat and run traces: every step, tool call and cost of a run. Reachable only over Tailscale."
+    hover: "Private web console for chat and run traces: every step, tool call and cost of a run. Reachable only inside my private network."
+    page: /vision/console/
     status: built
     line: surfaces
   - id: agent-core
