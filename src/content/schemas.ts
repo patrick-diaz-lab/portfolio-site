@@ -48,10 +48,12 @@ export const evalSchema = z
   .refine((e) => e.baseline_n === undefined || e.baseline !== undefined, { message: "baseline_n needs a baseline", path: ["baseline_n"] });
 
 /** A headline number at the top of a part page (layout 3, Patrick 2026-11-13): an eval of
- *  the same part, by name, with a short label. */
+ *  the same part, by name, with a short label, and an optional short note that qualifies the
+ *  number (Patrick, 2026-11-13: "cause under investigation"). */
 export const readoutSchema = z.strictObject({
   eval: slug,
   label: text(48),
+  note: text(60).optional(),
 });
 
 /** A figure on a part page (layout 3, Patrick 2026-11-13): a hand-drawn SVG in the map's
@@ -152,8 +154,8 @@ export const partSchema = z.strictObject({
   source_commit: sha,
   sources: z.array(sourcePath).min(1),
   evals: z.array(evalSchema).default([]),
-  /** Up to 4 evals shown as readouts under the page's header (layout 3). */
-  readouts: z.array(readoutSchema).max(4, "at most 4 readouts").default([]),
+  /** Up to 5 evals shown as readouts under the page's header (layout 3). */
+  readouts: z.array(readoutSchema).max(5, "at most 5 readouts").default([]),
   figures: z.array(figureSchema).default([]),
   related: z.array(slug).default([]),
   /** Security pages (item 1.7): the page and its entries may name layers and reasons only.

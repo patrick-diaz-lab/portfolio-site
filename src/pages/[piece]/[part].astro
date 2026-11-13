@@ -91,6 +91,7 @@ const readouts = part.data.readouts.flatMap((r) => {
   const shares = evalShares(e);
   return [{
     label: r.label,
+    caveat: r.note,
     value: evalValue(e.metric, e.value, e.n),
     before: evalBefore(e),
     track: shares && { before: pct(shares.before), after: pct(shares.after), lo: pct(Math.min(shares.before, shares.after)), span: pct(Math.abs(shares.after - shares.before)) },
@@ -166,6 +167,7 @@ const tableValue = (v: Eval) => evalValue(v.metric, v.value, v.n);
               ) : (
                 <span class="readout-note">{r.before ? `Before ${r.before} · ` : ""}{r.note}</span>
               )}
+              {r.caveat && <span class="readout-caveat">{r.caveat}</span>}
             </li>
           ))}
         </ul>
@@ -326,8 +328,11 @@ const tableValue = (v: Eval) => evalValue(v.metric, v.value, v.n);
   .readouts { display: grid; gap: var(--space-2); }
   .readouts ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--line-thin); background: var(--color-silk-dim); border: var(--line-thin) solid var(--color-silk-dim); }
   .readout { flex: 1 1 12rem; min-width: 0; background: var(--color-panel-raised); padding: var(--space-4); display: grid; gap: var(--space-2); align-content: start; }
-  .readout-value { font: 400 var(--step-3) / 1 var(--font-mono); }
+  /* A value stays on one line and scales with its tile, so five readouts fit a row. */
+  .readout { container-type: inline-size; }
+  .readout-value { font: 400 min(var(--step-3), 12cqi) / 1 var(--font-mono); white-space: nowrap; }
   .readout-label { font-size: var(--step--1); line-height: 1.35; }
+  .readout-caveat { font: 400 0.6875rem / 1.5 var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-amber); }
   .readout-note { font: 400 0.6875rem / 1.5 var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-silk-dim); }
   .readout-track { position: relative; height: 16px; margin: var(--space-1) 6px 0; }
   .readout-rail, .readout-span { position: absolute; top: 7px; height: 2px; }
