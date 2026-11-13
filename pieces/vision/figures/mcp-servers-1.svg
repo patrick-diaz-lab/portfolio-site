@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 4 724 330" class="schematic figure-svg">
+  <!-- FIG. 7.1, how a tool call reaches my data (layout 3, Patrick 2026-11-13). Layers and
+       reasons only (D19). Classes from src/styles/schematic.css. -->
+  <rect class="box" x="0" y="112" width="140" height="72" />
+  <text class="lbl fig-mid" x="70" y="142">MODEL</text>
+  <text class="fig-sub fig-mid" x="70" y="162">SMART · WORKER</text>
+  <path class="wire-static" d="M140 148 H191" />
+  <polygon class="fig-head" points="199,148 191,144 191,152" />
+  <rect class="box" x="200" y="112" width="160" height="72" />
+  <text class="lbl fig-mid" x="280" y="142">GATEWAY</text>
+  <text class="fig-sub fig-mid" x="280" y="162">TOOLS PER KEY</text>
+
+  <path class="wire-static" d="M360 148 H410 M410 40 V256 M410 40 H441 M410 112 H441 M410 184 H441 M410 256 H441" />
+  <polygon class="fig-head" points="449,40 441,36 441,44" />
+  <polygon class="fig-head" points="449,112 441,108 441,116" />
+  <polygon class="fig-head" points="449,184 441,180 441,188" />
+  <polygon class="fig-head" points="449,256 441,252 441,260" />
+  <rect class="box" x="450" y="14" width="270" height="52" />
+  <text class="lbl fig-mid" x="585" y="38">KNOWLEDGE</text>
+  <text class="fig-sub fig-mid" x="585" y="56">DOCS · NOTES · READ</text>
+  <rect class="box" x="450" y="86" width="270" height="52" />
+  <text class="lbl fig-mid" x="585" y="110">FILES</text>
+  <text class="fig-sub fig-mid" x="585" y="128">MY PDFS · READ</text>
+  <rect class="box" x="450" y="158" width="270" height="52" />
+  <text class="lbl fig-mid" x="585" y="182">HOMELAB</text>
+  <text class="fig-sub fig-mid" x="585" y="200">STATUS · READ</text>
+  <rect class="box" x="450" y="230" width="270" height="52" />
+  <text class="lbl fig-mid" x="585" y="254">INBOX</text>
+  <text class="fig-sub fig-mid" x="585" y="272">ADDS NEW NOTES ONLY</text>
+  <text class="dim-t" x="450" y="304">15 READ TOOLS · 1 WRITE TOOL</text>
+
+  <path class="fig-fallback" d="M280 184 V300 H70 V193" />
+  <polygon class="fig-head-amber" points="70,185 66,193 74,193" />
+  <text class="note" x="90" y="326">results come back marked as untrusted data</text>
+</svg>

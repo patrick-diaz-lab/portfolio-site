@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 324 386" class="schematic figure-svg">
+  <!-- FIG. 7.1 for phones: the same layers, top to bottom (layout 3, Patrick 2026-11-13). -->
+  <rect class="box" x="0" y="0" width="140" height="56" />
+  <text class="lbl fig-mid" x="70" y="24">MODEL</text>
+  <text class="fig-sub fig-mid" x="70" y="44">SMART · WORKER</text>
+  <path class="wire-static" d="M140 28 H171" />
+  <polygon class="fig-head" points="179,28 171,24 171,32" />
+  <rect class="box" x="180" y="0" width="140" height="56" />
+  <text class="lbl fig-mid" x="250" y="24">GATEWAY</text>
+  <text class="fig-sub fig-mid" x="250" y="44">TOOLS PER KEY</text>
+
+  <path class="wire-static" d="M250 56 V84 H30 V282 M30 126 H51 M30 178 H51 M30 230 H51 M30 282 H51" />
+  <polygon class="fig-head" points="59,126 51,122 51,130" />
+  <polygon class="fig-head" points="59,178 51,174 51,182" />
+  <polygon class="fig-head" points="59,230 51,226 51,234" />
+  <polygon class="fig-head" points="59,282 51,278 51,286" />
+  <rect class="box" x="60" y="104" width="260" height="44" />
+  <text class="lbl fig-mid" x="190" y="122">KNOWLEDGE</text>
+  <text class="fig-sub fig-mid" x="190" y="139">DOCS · NOTES · READ</text>
+  <rect class="box" x="60" y="156" width="260" height="44" />
+  <text class="lbl fig-mid" x="190" y="174">FILES</text>
+  <text class="fig-sub fig-mid" x="190" y="191">MY PDFS · READ</text>
+  <rect class="box" x="60" y="208" width="260" height="44" />
+  <text class="lbl fig-mid" x="190" y="226">HOMELAB</text>
+  <text class="fig-sub fig-mid" x="190" y="243">STATUS · READ</text>
+  <rect class="box" x="60" y="260" width="260" height="44" />
+  <text class="lbl fig-mid" x="190" y="278">INBOX</text>
+  <text class="fig-sub fig-mid" x="190" y="295">ADDS NEW NOTES ONLY</text>
+  <text class="dim-t" x="60" y="326">15 READ TOOLS · 1 WRITE TOOL</text>
+
+  <path class="fig-fallback" d="M200 56 V70 H90 V65" />
+  <polygon class="fig-head-amber" points="90,57 86,65 94,65" />
+  <text class="note" x="0" y="356">dashed: results come back</text>
+  <text class="note" x="0" y="376">marked as untrusted data</text>
+</svg>
