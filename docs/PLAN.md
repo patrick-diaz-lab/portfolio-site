@@ -287,6 +287,14 @@ Turn the browser checks from items 1.1 and 1.3 into gates that run on every PR, 
 
 ### Item 1.9b plan (Patrick, 2026-11-13: scoped for a job application the next evening)
 
+**Done 2026-11-13:**
+- `https://patrickdiaz.dev/` and `/de/` answer 200 over HTTPS, and `www` redirects to the bare domain (301), keeping the path.
+- The live pages are byte-identical to the build of `main` (#40).
+- `pnpm link-check -- --live https://patrickdiaz.dev`: all 16 public pages 200, 347 internal links ok.
+- Patrick's test mail to `hello@` arrived.
+- `noindex` stays until the indexing item.
+- The session's network policy (environment `portfolio`) allows `patrickdiaz.dev` and `www.patrickdiaz.dev` for the live check. Node's `fetch` needs `NODE_USE_ENV_PROXY=1` behind the session proxy.
+
 - **Custom domain:** `patrickdiaz.dev` on the Worker, attached in the dashboard by Patrick (STEPS D).
   - Not as routes in `wrangler.jsonc`: the Git build's own token might not be allowed to create domains, and a failing deploy the day before the application isn't worth it.
   - `workers.dev` stays on as a fallback for now.
