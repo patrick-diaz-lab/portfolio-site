@@ -15,6 +15,14 @@ evals:
     value: 1.0
     n: 158
     date: 2026-11-12
+readouts:
+  - eval: paid-steps-matching-spend-log
+    label: Paid steps matching the spend log
+figures:
+  - svg: console-1.svg
+    svg_narrow: console-1-narrow.svg
+    alt: "My devices, locked and up to date, reach the console only inside my private network, which has no open port and gives the console my identity. The console's server signs every request it passes on, with its own credential, and agent core trusts only signed senders. The coding agent that builds Vision has no access to the console."
+    caption: "The console's access layers. It is reachable only inside my private network, which gives it my identity; its server signs every request it passes on, and agent core trusts only signed senders. The coding agent has no access to it. How each layer works stays private."
 related:
   - agent-core
 layers_only: true

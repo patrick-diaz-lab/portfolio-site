@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 324 412" class="schematic figure-svg">
+  <!-- FIG. 10.1 for phones: the same layers, top to bottom (layout 3, Patrick 2026-11-13). -->
+  <rect class="box" x="0" y="0" width="150" height="64" />
+  <text class="lbl fig-mid" x="75" y="26">SESSION</text>
+  <text class="fig-sub fig-mid" x="75" y="44">OWN COPY</text>
+  <text class="fig-sub fig-mid" x="75" y="57">OWN BRANCH</text>
+  <path class="wire-static" d="M150 32 H161" />
+  <polygon class="fig-head" points="169,32 161,28 161,36" />
+  <rect class="box" x="170" y="0" width="150" height="64" />
+  <text class="lbl fig-mid" x="245" y="28">DEPLOY LANE</text>
+  <text class="fig-sub fig-mid" x="245" y="48">ONE AT A TIME</text>
+
+  <path class="wire-static" d="M75 64 V87" />
+  <polygon class="fig-head" points="75,95 71,87 79,87" />
+  <rect class="box" x="0" y="96" width="320" height="64" />
+  <text class="lbl fig-mid" x="160" y="120">CHECK</text>
+  <text class="fig-sub fig-mid" x="160" y="138">BEFORE EVERY COMMAND</text>
+  <text class="fig-sub fig-mid" x="160" y="152">DENY · ASK · ALLOW</text>
+  <path class="wire-static" d="M160 160 V183" />
+  <polygon class="fig-head" points="160,191 156,183 164,183" />
+  <rect class="box" x="0" y="192" width="320" height="64" />
+  <text class="lbl fig-mid" x="160" y="218">PUSH</text>
+  <text class="fig-sub fig-mid" x="160" y="240">SECOND CHECK · SECRET SCAN</text>
+  <path class="wire-static" d="M160 256 V279" />
+  <polygon class="fig-head" points="160,287 156,279 164,279" />
+  <rect class="box" x="0" y="288" width="320" height="64" />
+  <text class="lbl fig-mid" x="160" y="314">MERGE</text>
+  <text class="fig-sub fig-mid" x="160" y="336">I REVIEW · ONLY I MERGE</text>
+
+  <text class="note" x="0" y="382">denied: what can't be undone</text>
+  <text class="note" x="0" y="402">asked: what I should see</text>
+</svg>

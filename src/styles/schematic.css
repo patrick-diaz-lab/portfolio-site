@@ -44,3 +44,4 @@
 .figure-svg .fig-start { fill: none; stroke: var(--color-silk-dim); stroke-width: 1.5; }
 .figure-svg .fig-end { text-anchor: end; }
 .figure-svg .fig-lbl-s { fill: var(--color-silk); font: 400 14px var(--font-mono); letter-spacing: 0.04em; }
+.figure-svg .fig-block { stroke: var(--color-amber); stroke-width: 2.5; fill: none; }
