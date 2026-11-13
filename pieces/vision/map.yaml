@@ -36,7 +36,7 @@ parts:
     line: core
   - id: litellm-gateway
     label: LiteLLM gateway
-    hover: "One gateway for every model call: aliases, not model names; a key and 30-day budget per flow. Prompt caching cut costs by 65 %."
+    hover: "One gateway for every model call: aliases, not model names; a key and 30-day budget per flow. Prompt caching cut eval cost per case by 65 %."
     page: /vision/litellm-gateway/
     status: built
     line: models-and-tools

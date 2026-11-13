@@ -5,7 +5,7 @@ part: agent-core
 page: /vision/agent-core/
 anchor: one-injection-got-through
 kind: learning
-metric: planted-instruction-repeated
+metric: planted-instructions-followed
 sources:
   - sources/vision/deep/agent-core-routing.md
   - sources/vision/notes.md
