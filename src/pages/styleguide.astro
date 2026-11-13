@@ -89,15 +89,6 @@ const pairs = inks.flatMap((ink) => grounds.map((g) => ({ ink, ground: g, r: rat
       </ul>
     </section>
 
-    <section aria-labelledby="h-status" class="sg-sec">
-      <h2 id="h-status">Status (D19)</h2>
-      <p>Line style carries the status, so it doesn't rest on color alone.</p>
-      <div class="status-row">
-        <div class="module" data-status="built"><p class="label">Built · solid</p><p>LiteLLM gateway</p></div>
-        <div class="module" data-status="in-progress"><p class="label">In progress · dashed</p><p>Console</p></div>
-        <div class="module" data-status="planned"><p class="label">Planned · dotted</p><p>Sandbox: designed, not built</p></div>
-      </div>
-    </section>
 
     <section aria-labelledby="h-interact" class="sg-sec">
       <h2 id="h-interact">Links and focus</h2>
@@ -139,8 +130,8 @@ const pairs = inks.flatMap((ink) => grounds.map((g) => ({ ink, ground: g, r: rat
   .ratios caption { text-align: left; padding-bottom: var(--space-2); }
   .ratios th, .ratios td { text-align: left; padding: var(--space-2) var(--space-3); border-bottom: var(--line-thin) solid var(--color-silk-dim); }
   .ratios th { font-family: var(--font-mono); font-weight: 400; color: var(--color-silk-dim); }
-  .faces, .status-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: var(--space-4); }
-  .faces .module, .status-row .module { display: grid; gap: var(--space-2); align-content: start; }
+  .faces { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: var(--space-4); }
+  .faces .module { display: grid; gap: var(--space-2); align-content: start; }
   .panel-sample { font-family: var(--font-panel); font-weight: 600; font-size: var(--step-2); letter-spacing: var(--tracking-panel); text-transform: uppercase; }
   .scale { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); }
   .scale li { display: grid; gap: var(--space-1); min-width: 0; overflow-wrap: anywhere; }

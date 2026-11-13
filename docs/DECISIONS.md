@@ -179,7 +179,7 @@ Decided 2026-11-04 by Patrick (planning Q17).
   - **Dark only.** No light variant: the instrument look is the point, and every text pair passes AA (silk 12.5:1, dim silk 6.5:1, amber 8.6:1 on the panel).
   - **One amber** for the signal dot, notes, focus and link hover; these are told apart by shape (dot, dashed lead line, outline), not by a second accent.
   - **Type:** Barlow for running text, Barlow Condensed for panel titles, JetBrains Mono for labels and values. All OFL, self-hosted from `@fontsource`, Latin subset only.
-  - **Status (D19) by line style:** built solid, in progress dashed, planned dotted, so it never rests on color alone. Since 2026-11-11 the map draws only built parts (D19), so the line styles stay in the tokens but the map shows none.
+  - **Status (D19) by line style:** built solid, in progress dashed, planned dotted, so it never rests on color alone. Since 2026-11-11 the map draws only built parts (D19), so the line styles stay in the tokens but the map shows none. Since 2026-11-13 only built pieces render as well (D19): the status styles and the style sheet's status section are removed (Patrick).
   - Tokens live in `src/styles/tokens.css`; `/styleguide/` renders every one. Rejected on the mood board: cyanotype, drafting vellum, standard sheet, patent figure.
 - **Rules:**
   - The palette meets at least WCAG AA, checked by axe in item 1.

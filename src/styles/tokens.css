@@ -39,7 +39,7 @@
   --space-12: 3rem;
   --space-16: 4rem;
 
-  /* Lines: solid = built, dashed = in progress, dotted = planned (D19). */
+  /* Lines. Only built work is published (D19), so there are no status line styles. */
   --line-thin: 1px;
   --line-module: 1.5px;
   --focus-width: 2px;
