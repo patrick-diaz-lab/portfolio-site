@@ -395,6 +395,36 @@ Knowledge core and MCP servers: two part pages, one PR, on the 1.4 template. Sou
 - **Map:** both parts link to their pages; the German map marks them "(Englisch)".
 - **Done when:** as 1.4. `pnpm check`, axe, Lighthouse and `map-check` pass, then Patrick merges and the Cloudflare build's scan is clean.
 
+### Item 1.13 plan (draft 2026-11-13, waiting for Patrick's OK)
+
+The Claude worker page, `layers_only`, in layout 3, with its readouts, a figure and its lessons in case form. Template files are not touched; the 1.15 session owns them (Patrick). Sources: `sources/vision/deep/claude-worker.md` and its section in `notes.md`, at `8b2a08b…`.
+
+- **Entries (14):**
+
+  | Kind | Entries |
+  |---|---|
+  | Decisions (5) | read the terms first, then set limits; smart is the default, the worker is a command; isolated by layers (network, workspace, credentials, tools); check what actually loaded, on every call; fall back, or switch off and say so |
+  | Rejected (3) | scheduled runs on the subscription; the worker as the default; the gateway on the worker's network |
+  | Testing (3) | offline tests with the real tool against fakes ($0), including removed safety hooks and an extra tool; the 30-call daily cap, signed senders only, and planted files that are never loaded; the benchmark against Vision's own harness |
+  | Learning (3) | plugins the settings didn't stop; a bound that wasn't there; the terms didn't answer the question. All in case form. |
+- **`evals[]` and readouts:**
+  - benchmark solved, Claude Code 1.0 (n 92) and Vision 1.0 (n 92);
+  - cost per solved case, Claude Code $0.0235 and Vision $0.0131.
+- **Figure:**
+  - a command from my private chat reaches agent core, then the worker in its own network with a fresh workspace and the startup check;
+  - a filtering proxy is the only way out, to the provider's API and the gateway's tools;
+  - "no route" to the database, the model endpoints, my home network and the internet;
+  - any failure falls back to smart.
+
+  Wide and narrow versions. Layers and reasons only, and the alt text and caption pass the layers-only check.
+- **Layer-level wording (D19):**
+  - No flag, setting, file or command names; the command is "a command I type in my private chat".
+  - Planted files are "instruction and configuration files planted near the workspace", without where.
+  - Fixed weaknesses are told with their fix.
+  - No code formatting (the layers-only check).
+- **Map:** the Claude worker links to its page.
+- **Done when:** as 1.4, plus the layers-only check and rules `readouts`, `figures` and `case`, and Patrick approves the lessons and the figure in the PR (1.15).
+
 ### Item 1.12 plan (Patrick's OK 2026-11-13)
 
 Run records, a normal page, written in layout 3 from the start (1.15): readouts, a figure, and lessons in case form. Sources: `sources/vision/deep/run-records.md` and its section in `notes.md`, at `8b2a08b…`.
