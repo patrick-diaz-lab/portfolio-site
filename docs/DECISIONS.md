@@ -334,6 +334,16 @@ Decided 2026-11-09 by Patrick. Replaces D12, and the paid-plan part of D8.
   - Private on GitHub Team ($4 per user per month): Patrick doesn't want a paid plan.
   - Private on the Free plan: rulesets aren't enforced, so "only Patrick merges" would rest on settings alone.
 
+## D22 — The site is live: stable URLs, finished work only
+
+Decided 2026-11-13 by Patrick. The site is linked in job applications at all times.
+
+- **Published URLs are stable.** `published-urls.txt` at the repo root lists them, one path per line. Each must keep resolving: a page (200), or a 301 to its new home in `public/_redirects`, added in the same PR. Lines are never removed; only Patrick adds them. The first list: `/`, `/de/`, and the guardrails, eval harness and Claude worker part pages. Their German versions join once they exist (part pages are English only so far, PLAN 1.9a).
+- **Checked in the build:** `scripts/published-check.ts` runs at the end of `pnpm build`, so CI and the Cloudflare build fail on a broken published URL. A test removes a page and expects the check to fail.
+- **`main` always deploys live, so only finished work is merged.** Unfinished pages and redesigns stay on their branch. They are reviewed on the preview URL once branch previews run behind access protection (D3 keeps public previews off); until then from the session's screenshots.
+- **A "check live after merge" list** ends every PR that changes rendered content: the pages Patrick opens on his phone after the merge.
+- The rules are in `CLAUDE.md` (section "Live site rules").
+
 ## D21 — Vision source notes arrive in this repo, in `sources/vision/`
 
 Decided 2026-11-09 by Patrick (export repo), changed 2026-11-10 by Patrick (notes in this repo). Replaces D10.

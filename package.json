@@ -12,12 +12,13 @@
     "scan": "node scripts/scan.ts",
     "test:check": "node --test scripts/test/*.test.ts",
     "check-tools": "node scripts/check-tools.ts",
-    "build": "ASTRO_TELEMETRY_DISABLED=1 astro build && node scripts/scan.ts --dir dist",
+    "build": "ASTRO_TELEMETRY_DISABLED=1 astro build && node scripts/scan.ts --dir dist && node scripts/published-check.ts",
     "preview": "astro preview",
     "design-check": "node scripts/design-check.ts",
     "map-check": "node scripts/map-check.ts",
     "page-check": "node scripts/page-check.ts",
     "gates": "node scripts/gates.ts",
+    "published-check": "node scripts/published-check.ts",
     "lighthouse": "node scripts/lighthouse.ts"
   },
   "devDependencies": {
