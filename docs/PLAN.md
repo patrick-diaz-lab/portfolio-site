@@ -398,6 +398,34 @@ Knowledge core and MCP servers: two part pages, one PR, on the 1.4 template. Sou
 - **Map:** both parts link to their pages; the German map marks them "(Englisch)".
 - **Done when:** as 1.4. `pnpm check`, axe, Lighthouse and `map-check` pass, then Patrick merges and the Cloudflare build's scan is clean.
 
+### Item 1.14 plan (draft 2026-11-13, waiting for Patrick's OK)
+
+The Telegram adapter page, `layers_only`, in layout 3. The signed sender identity appears only as a layer with its fix (Patrick). Template files aren't touched. Sources: `sources/vision/deep/telegram-adapter.md` and its section in `notes.md`, at `8b2a08b…`.
+
+- **Entries (9):**
+
+  | Kind | Entries |
+  |---|---|
+  | Decisions (5) | a thin adapter; one user, one chat, everything else dropped; safe behaviour after an outage; plain text, a cost footer, no error details; every message signed, unsigned ones refused |
+  | Rejected (1) | unsigned requests as an untrusted sender in a separate conversation |
+  | Testing (2) | the probe after the cutover and the phone tests; the origin audit and its records |
+  | Learning (1) | Claude spoke as me, told from the identity side, with its fix (the signed sender), in case form |
+- **Layer-level wording (D19):**
+  - The signing decision names the layers: signing with a key only the adapter holds; verifying against what agent core knows itself; refusing before any run; trust kept in reviewed config, with overlapping keys for rotation; an append-only origin record and its audit.
+  - The note's list of refused cases becomes "anything that isn't a fresh, verified message from me".
+  - How the key is stored and protected isn't described.
+  - The refusal records are "capped, so a flood can't fill them", without the number.
+  - The token-in-logs point keeps only its result: the bot token never appears in a log.
+- **The note's open limit:** what signing can't stop, and why, is an open gap. Per D19 it appears only as one sentence in the signing decision: "Signing is one layer: the guardrail and a hard rule stay in place, and a further separation is an open item." There's no separate lesson about it.
+- **No readouts:** the note's only numbers here are the reply-language score, which is agent core's and already on its page, and the stale-message threshold, which isn't a measurement. The template shows no readouts when there are none (1.15).
+- **Figure:**
+  - phone → my private chat → the adapter, which drops everyone else and holds back stale messages → signs → agent core, which verifies and refuses anything else before a run;
+  - every accepted run gets its origin record.
+
+  Wide and narrow versions, layers only; the alt text and caption pass the layers-only check.
+- **Map:** the Telegram adapter links to its page.
+- **Done when:** as 1.4, plus the layers-only check and rules `figures` and `case`, and Patrick approves the lesson and the figure in the PR (1.15).
+
 ### Item 1.13 plan (Patrick's OK 2026-11-13: terms story without the contact; billing only as "runs on my subscription, only for my own messages", nothing about which usage pool, until the Vision side settles it)
 
 The Claude worker page, `layers_only`, in layout 3, with its readouts, a figure and its lessons in case form. Template files are not touched; the 1.15 session owns them (Patrick). Sources: `sources/vision/deep/claude-worker.md` and its section in `notes.md`, at `8b2a08b…`.
