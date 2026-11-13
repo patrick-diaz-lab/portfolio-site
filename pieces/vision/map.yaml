@@ -7,6 +7,7 @@ parts:
   - id: telegram-adapter
     label: Telegram adapter
     hover: "The chat I talk to Vision through. Each message goes to agent core; only the last 10 turns from the past 6 hours count as context."
+    page: /vision/telegram-adapter/
     status: built
     line: surfaces
   - id: console

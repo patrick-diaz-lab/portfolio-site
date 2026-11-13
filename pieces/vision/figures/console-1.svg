@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 50 724 214" class="schematic figure-svg">
+  <!-- FIG. 2.1, the console's access layers (layout 3, Patrick 2026-11-13). Layers and
+       reasons only (D19): how each layer works stays private. Classes from
+       src/styles/schematic.css. -->
+  <rect class="box" x="0" y="60" width="156" height="84" />
+  <text class="lbl fig-mid" x="78" y="90">MY DEVICES</text>
+  <text class="fig-sub fig-mid" x="78" y="112">LOCKED</text>
+  <text class="fig-sub fig-mid" x="78" y="128">UP TO DATE</text>
+  <path class="wire-static" d="M156 102 H179" />
+  <polygon class="fig-head" points="187,102 179,98 179,106" />
+
+  <rect class="box" x="188" y="60" width="156" height="84" />
+  <text class="lbl fig-mid" x="266" y="90">MY NETWORK</text>
+  <text class="fig-sub fig-mid" x="266" y="112">PRIVATE · NO PORT</text>
+  <text class="fig-sub fig-mid" x="266" y="128">IDENTITY FROM IT</text>
+  <path class="wire-static" d="M344 102 H367" />
+  <polygon class="fig-head" points="375,102 367,98 367,106" />
+
+  <rect class="box" x="376" y="60" width="156" height="84" />
+  <text class="lbl fig-mid" x="454" y="90">CONSOLE</text>
+  <text class="fig-sub fig-mid" x="454" y="112">SIGNS EVERY REQUEST</text>
+  <text class="fig-sub fig-mid" x="454" y="128">OWN CREDENTIAL</text>
+  <path class="wire-static" d="M532 102 H555" />
+  <polygon class="fig-head" points="563,102 555,98 555,106" />
+
+  <rect class="box" x="564" y="60" width="156" height="84" />
+  <text class="lbl fig-mid" x="642" y="90">AGENT CORE</text>
+  <text class="fig-sub fig-mid" x="642" y="112">TRUSTS ONLY</text>
+  <text class="fig-sub fig-mid" x="642" y="128">SIGNED SENDERS</text>
+
+  <rect class="box" x="376" y="208" width="156" height="52" />
+  <text class="lbl fig-mid" x="454" y="232">CODING AGENT</text>
+  <text class="fig-sub fig-mid" x="454" y="250">BUILDS VISION</text>
+  <path class="fig-fallback" d="M454 207 V160" />
+  <path class="fig-block" d="M442 156 H466" />
+  <text class="note" x="544" y="184">no access</text>
+  <text class="note" x="544" y="204">to the console</text>
+</svg>

@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 724 292" class="schematic figure-svg">
+  <!-- FIG. Telegram adapter (layout 3, layers only, D19): my private chat, the adapter that
+       drops everyone else and holds back stale messages and signs the rest, agent core that
+       verifies before any run, and the origin record of every accepted run. Classes from
+       src/styles/schematic.css; the page adds role="img" and the alt text. -->
+  <circle class="fig-start" cx="6" cy="110" r="5" />
+  <text class="dim-t" x="0" y="66">PHONE</text>
+  <path class="wire-static" d="M12 110 H31" />
+  <polygon class="fig-head" points="39,110 31,106 31,114" />
+  <rect class="box" x="40" y="80" width="180" height="60" />
+  <text class="lbl fig-mid" x="130" y="107">MY PRIVATE CHAT</text>
+  <text class="fig-sub fig-mid" x="130" y="127">TELEGRAM</text>
+
+  <path class="wire-static" d="M220 110 H251" />
+  <polygon class="fig-head" points="259,110 251,106 251,114" />
+  <rect class="box" x="260" y="70" width="200" height="80" />
+  <text class="lbl fig-mid" x="360" y="100">ADAPTER</text>
+  <text class="fig-sub fig-mid" x="360" y="120">ONE USER · ONE CHAT</text>
+  <text class="fig-sub fig-mid" x="360" y="137">SIGNS EVERY MESSAGE</text>
+
+  <path class="wire-static" d="M460 110 H501" />
+  <polygon class="fig-head" points="509,110 501,106 501,114" />
+  <text class="note" x="463" y="98">signed</text>
+  <rect class="box" x="510" y="70" width="210" height="80" />
+  <text class="lbl fig-mid" x="615" y="100">AGENT CORE</text>
+  <text class="fig-sub fig-mid" x="615" y="120">VERIFIES, REFUSES</text>
+  <text class="fig-sub fig-mid" x="615" y="137">THE REST BEFORE A RUN</text>
+
+  <path class="wire-static" d="M360 150 V211 M615 150 V211" />
+  <polygon class="fig-head" points="360,219 356,211 364,211" />
+  <polygon class="fig-head" points="615,219 611,211 619,211" />
+  <text class="dim-t" x="372" y="190">everyone else, stale</text>
+  <rect class="box" x="260" y="220" width="200" height="56" />
+  <text class="lbl fig-mid" x="360" y="244">DROPPED</text>
+  <text class="fig-sub fig-mid" x="360" y="263">NO RUN, NO MODEL</text>
+  <text class="dim-t" x="627" y="190">accepted</text>
+  <rect class="box" x="510" y="220" width="210" height="56" />
+  <text class="lbl fig-mid" x="615" y="244">RUN</text>
+  <text class="fig-sub fig-mid" x="615" y="263">WITH ITS ORIGIN RECORD</text>
+</svg>

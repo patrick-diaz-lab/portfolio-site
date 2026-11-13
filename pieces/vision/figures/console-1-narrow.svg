@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 324 368" class="schematic figure-svg">
+  <!-- FIG. 2.1 for phones: the same layers, top to bottom (layout 3, Patrick 2026-11-13). -->
+  <rect class="box" x="0" y="0" width="320" height="56" />
+  <text class="lbl fig-mid" x="160" y="24">MY DEVICES</text>
+  <text class="fig-sub fig-mid" x="160" y="44">LOCKED · UP TO DATE</text>
+  <path class="wire-static" d="M160 56 V71" />
+  <polygon class="fig-head" points="160,79 156,71 164,71" />
+  <rect class="box" x="0" y="80" width="320" height="56" />
+  <text class="lbl fig-mid" x="160" y="104">PRIVATE NETWORK</text>
+  <text class="fig-sub fig-mid" x="160" y="124">NO OPEN PORT · IDENTITY FROM IT</text>
+  <path class="wire-static" d="M160 136 V151" />
+  <polygon class="fig-head" points="160,159 156,151 164,151" />
+  <rect class="box" x="0" y="160" width="320" height="56" />
+  <text class="lbl fig-mid" x="160" y="184">CONSOLE</text>
+  <text class="fig-sub fig-mid" x="160" y="204">SIGNS EVERY REQUEST · OWN CREDENTIAL</text>
+  <path class="wire-static" d="M160 216 V231" />
+  <polygon class="fig-head" points="160,239 156,231 164,231" />
+  <rect class="box" x="0" y="240" width="320" height="56" />
+  <text class="lbl fig-mid" x="160" y="264">AGENT CORE</text>
+  <text class="fig-sub fig-mid" x="160" y="284">TRUSTS ONLY SIGNED SENDERS</text>
+
+  <rect class="box" x="0" y="312" width="150" height="52" />
+  <text class="lbl fig-mid" x="75" y="336">CODING AGENT</text>
+  <text class="fig-sub fig-mid" x="75" y="354">BUILDS VISION</text>
+  <text class="note" x="164" y="334">no access</text>
+  <text class="note" x="164" y="354">to the console</text>
+</svg>

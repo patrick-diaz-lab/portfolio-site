@@ -358,6 +358,7 @@ Chosen from three mock-ups on the agent core page (decisions stacked or side by 
 - **1.15c, MCP servers and knowledge core.** **Done 2026-11-13 (PR #34).**: FIG. 7.1 (how a tool call reaches my data: model → gateway with tools per key → three read-only servers and an inbox that only adds notes, results marked untrusted; layers and reasons only) and FIG. 8.1 (sources → indexer → index → search, and the embedding fallback). Readouts from the notes: homelab answers with and without tools; docs dev hit@5 and notes chunk search before → after the ranking fix, named documents, freshness. Five lessons in case form; "A server name took the gateway down" and "One limit I kept" stay prose.
 - **Template fixes after Patrick's review of #33** (with 1.15c, on all part pages): the "you are here" sheet is drawn compact, with the part's wired neighbours as named terminals, instead of a crop of the map (which left empty space and loose wires); the table under *How it's tested* lists only values that aren't readouts, and disappears when none are left.
 - **1.15c follow-up (Patrick, 2026-11-13, after #34):** knowledge core shows docs held-out hit@5 0.75 (n = 16) next to the dev improvement, noted "cause under investigation", so the page doesn't show only the dev gain; readouts go up to 5 and may carry a short note. MCP servers' run without tools is labelled for what it measured: no invented numbers.
+- **1.15d, guardrails and console** (this PR, both layers-only): FIG. 10.1 (where the checks sit: a session in its own copy and branch, a check before every command, a second check and a secret scan at push, only I merge, one deploy lane for anything live) and FIG. 2.1 (the console's access layers: my devices, the private network, the console signing every request, agent core trusting only signed senders, no access for the coding agent). Layers and reasons only, like the pages; the figures' texts pass the layers-only check. One readout each, from their evals. Six lessons in case form, using each entry's own outcome or lesson as its result; "A long answer still arrived all at once" stays prose, because nothing was changed. With this PR every part page with a page is in layout 3 with a figure; the Telegram adapter page (1.14) is written in layout 3 from the start.
 - **A lesson stays prose** when the notes don't give one of the three steps: a step is never filled in to complete the form.
 - **1.12–1.14** are written in layout 3 from the start, each with its figure.
 - **Until a page is converted** it keeps working: lessons without the case subheadings stay prose, and a page without `figures` or `readouts` shows none.
@@ -397,6 +398,28 @@ Knowledge core and MCP servers: two part pages, one PR, on the 1.4 template. Sou
   - The agents' write folder is "their own inbox folder".
 - **Map:** both parts link to their pages; the German map marks them "(Englisch)".
 - **Done when:** as 1.4. `pnpm check`, axe, Lighthouse and `map-check` pass, then Patrick merges and the Cloudflare build's scan is clean.
+
+### Item 1.14 plan (Patrick's OK 2026-11-13)
+
+The Telegram adapter page, `layers_only`, in layout 3. The signed sender identity appears only as a layer with its fix (Patrick). Template files aren't touched. Sources: `sources/vision/deep/telegram-adapter.md` and its section in `notes.md`, at `8b2a08b…`.
+
+- **Entries (9):**
+
+  | Kind | Entries |
+  |---|---|
+  | Decisions (5) | a thin adapter; one user, one chat, everything else dropped; safe behaviour after an outage; plain text, a cost footer, no error details; every message signed, unsigned ones refused |
+  | Rejected (1) | unsigned requests as an untrusted sender in a separate conversation |
+  | Testing (2) | the probe after the cutover and the phone tests; the origin audit and its records |
+  | Learning (1) | Claude spoke as me, told from the identity side, with its fix (the signed sender), in case form |
+- **Wording:** layers and reasons only (D19). The signing decision names its layers: signing with a key only the adapter holds; verifying against what agent core knows itself; refusing anything that isn't a fresh, verified message from me before any run; trust kept in reviewed config, with overlapping keys for rotation; an append-only origin record and its audit. The bot token never appears in a log.
+- **No readouts:** there are no measured values for this part with a case count; the template then shows none (1.15).
+- **Figure:**
+  - phone → my private chat → the adapter, which drops everyone else and holds back stale messages → signs → agent core, which verifies and refuses anything else before a run;
+  - every accepted run gets its origin record.
+
+  Wide and narrow versions, layers only; the alt text and caption pass the layers-only check.
+- **Map:** the Telegram adapter links to its page.
+- **Done when:** as 1.4, plus the layers-only check and rules `figures` and `case`, and Patrick approves the lesson and the figure in the PR (1.15).
 
 ### Item 1.13 plan (Patrick's OK 2026-11-13: terms story without the contact; billing only as "runs on my subscription, only for my own messages", nothing about which usage pool, until the Vision side settles it)
 
