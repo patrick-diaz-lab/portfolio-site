@@ -67,6 +67,8 @@ evals/retrieval.yaml             public retrieval eval (questions → expected e
 
 **Knowledge entry frontmatter:** `id, piece, part, page, anchor, kind (overview | decision | rejected | testing | learning), lost_to?, metric?, sources (files under sources/vision/), as_of, source_commit`. A `learning` entry in **case form** has, under its title, exactly the subheadings *What happened*, *What I changed* and *Result*, each one paragraph; its optional `metric` names an eval of its part, shown as the case's before → after. `lost_to` (rejected entries only) names the decision on the same part that the option lost to; the page renders it right under that decision (item 1.4). Entries render in the order of their file names (`NN-<id>.md`).
 
+**Published URLs (D22):** `published-urls.txt` lists the paths that must keep resolving; `scripts/published-check.ts` runs at the end of `pnpm build` and fails if a listed path is neither a page nor a 301 in `_redirects` to one.
+
 **Rules (`scripts/check-content.ts` in `pnpm check`, before the build; schemas in `src/content/schemas.ts`, shared with the Astro collections):**
 - A missing, unknown or wrong field (every object is strict).
 - An entry whose `page` isn't its part's page, whose part has no page, or whose `anchor` repeats on that page. Each part page renders its own entries under their anchors, so these checks are enough for the anchor to exist.
