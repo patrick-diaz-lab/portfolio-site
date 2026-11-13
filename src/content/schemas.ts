@@ -29,15 +29,39 @@ const sourcePath = z
   .regex(/^sources\/vision\/[\w./-]+\.md$/, "must be a Markdown file under sources/vision/")
   .refine((p) => !p.includes(".."), "must not contain ..");
 
-/** One measured number. Aggregates only: no case text, ids or examples (D19). */
-export const evalSchema = z.strictObject({
-  name: z.string().max(48, "must be at most 48 characters").regex(SLUG, "must be a lowercase slug (a-z, 0-9, hyphens)"),
-  metric: z.enum(METRICS),
-  value: z.number().finite(),
-  n: z.number().int().positive(),
-  date: isoDate,
-  baseline: z.number().finite().optional(),
-  cost_usd: z.number().finite().nonnegative().optional(),
+/** One measured number. Aggregates only: no case text, ids or examples (D19).
+ *  `n` is the case count; a count needs it, other metrics may lack it where the notes give
+ *  none (a median time). `baseline` is the value before a change, and `baseline_n` the case
+ *  count it was measured on, where that differs (1 of 2 before, 0 of 12 after). */
+export const evalSchema = z
+  .strictObject({
+    name: z.string().max(48, "must be at most 48 characters").regex(SLUG, "must be a lowercase slug (a-z, 0-9, hyphens)"),
+    metric: z.enum(METRICS),
+    value: z.number().finite(),
+    n: z.number().int().positive().optional(),
+    date: isoDate,
+    baseline: z.number().finite().optional(),
+    baseline_n: z.number().int().positive().optional(),
+    cost_usd: z.number().finite().nonnegative().optional(),
+  })
+  .refine((e) => e.metric !== "count" || e.n !== undefined, { message: "a count needs n", path: ["n"] })
+  .refine((e) => e.baseline_n === undefined || e.baseline !== undefined, { message: "baseline_n needs a baseline", path: ["baseline_n"] });
+
+/** A headline number at the top of a part page (layout 3, Patrick 2026-11-13): an eval of
+ *  the same part, by name, with a short label. */
+export const readoutSchema = z.strictObject({
+  eval: slug,
+  label: text(48),
+});
+
+/** A figure on a part page (layout 3, Patrick 2026-11-13): a hand-drawn SVG in the map's
+ *  style under pieces/<piece>/figures/, an optional narrow version for phones, the text a
+ *  screen reader gets, and the caption. Numbered FIG. <part>.<n> on the page. */
+export const figureSchema = z.strictObject({
+  svg: z.string().regex(/^[a-z0-9-]+\.svg$/, "must be a file name like agent-core-1.svg"),
+  svg_narrow: z.string().regex(/^[a-z0-9-]+\.svg$/, "must be a file name like agent-core-1-narrow.svg").optional(),
+  alt: text(400),
+  caption: text(300),
 });
 
 /** A metric chip on a piece's overview page (item 1.3 follow-up): one aggregate number,
@@ -128,6 +152,9 @@ export const partSchema = z.strictObject({
   source_commit: sha,
   sources: z.array(sourcePath).min(1),
   evals: z.array(evalSchema).default([]),
+  /** Up to 4 evals shown as readouts under the page's header (layout 3). */
+  readouts: z.array(readoutSchema).max(4, "at most 4 readouts").default([]),
+  figures: z.array(figureSchema).default([]),
   related: z.array(slug).default([]),
   /** Security pages (item 1.7): the page and its entries may name layers and reasons only.
    *  `pnpm check` then refuses code, paths, command-line flags and file names in them. */
@@ -144,6 +171,9 @@ export const knowledgeSchema = z.strictObject({
   /** Rejected entries only: the id of the decision this option lost to, on the same part.
    *  The page renders it right under that decision (Patrick, 2026-11-11, item 1.4). */
   lost_to: slug.optional(),
+  /** Learning entries only: an eval of the same part shown as the case's headline number,
+   *  before → after (layout 3, Patrick 2026-11-13). */
+  metric: slug.optional(),
   sources: z.array(sourcePath).min(1),
   as_of: isoDate,
   source_commit: sha,

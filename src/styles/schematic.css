@@ -1,0 +1,44 @@
+/* The schematic look (D13): the piece maps, the "you are here" crops and the figures on
+   part pages. Shared so every drawing on the site reads as one sheet (layout 3, 2026-11-13). */
+/* Schematic strokes and lettering (D13). Only built parts are drawn (Patrick, 2026-11-11). */
+.schematic .frame :is(rect, path) { fill: none; stroke: var(--color-silk-dim); stroke-width: var(--line-thin); }
+.schematic .frame-t { fill: var(--color-silk-dim); font: 400 13px var(--font-mono); letter-spacing: 0.12em; }
+.schematic .dim { stroke: var(--color-silk-dim); stroke-width: var(--line-thin); fill: none; }
+.schematic .dim-t { fill: var(--color-silk-dim); font: 400 12px var(--font-mono); letter-spacing: 0.08em; }
+.schematic .terminal circle { fill: none; stroke: var(--color-silk-dim); stroke-width: 1.5; }
+.schematic .wire-static { stroke: var(--color-silk); stroke-width: var(--line-module); fill: none; }
+.schematic .note { fill: var(--color-amber); font: 600 17px var(--font-panel); letter-spacing: 0.03em; }
+.schematic .note-line { stroke: var(--color-amber); stroke-width: 1.2; fill: none; stroke-dasharray: 3 3; }
+.schematic .wire { stroke: var(--color-silk); stroke-width: var(--line-module); fill: none; pointer-events: none; }
+.schematic .box { fill: var(--color-panel-raised); stroke: var(--color-silk); stroke-width: var(--line-module); }
+.schematic .ring { fill: none; stroke: var(--color-amber); stroke-width: 2.5; opacity: 0; }
+.schematic .lbl { fill: var(--color-silk); font: 400 17px var(--font-mono); letter-spacing: 0.04em; }
+/* No underline under the box labels; focus shows as the amber ring only. */
+.schematic .part { cursor: pointer; text-decoration: none; }
+/* No browser outline on any focus (a mouse click showed one around box and wires); keyboard
+   focus shows the amber ring below. */
+.schematic .part:focus { outline: none; }
+.schematic .part:is(:hover, :focus-visible, .is-selected) .box { stroke: var(--color-amber); }
+.schematic .part:is(:hover, :focus-visible, .is-selected) .lbl { fill: var(--color-amber); }
+.schematic .part.is-selected .box { stroke-width: 2.5; }
+.schematic .part:focus-visible .ring { opacity: 1; }
+
+/* "You are here" crop on a part page: wires and boxes only, the part in amber. */
+.locator :is(.frame, .notes, .terminal, .signal-dot, .ring) { display: none; }
+.locator .part { cursor: default; }
+.locator .part.is-away { display: none; }
+.locator .part.is-here .box { stroke: var(--color-amber); stroke-width: 3; }
+.locator .part.is-here .lbl { fill: var(--color-amber); font-weight: 700; }
+.locator .part.is-here .wire { stroke: var(--color-amber); }
+
+/* Figures on part pages (FIG. <part>.<n>): the same strokes and lettering as the map. */
+.figure-svg { display: block; width: 100%; height: auto; }
+.figure-svg .fig-sub { fill: var(--color-silk-dim); font: 400 11px var(--font-mono); letter-spacing: 0.06em; }
+.figure-svg .fig-mid { text-anchor: middle; }
+.figure-svg .fig-decision { fill: var(--color-silk-dim); }
+.figure-svg .fig-decision-t { fill: var(--color-panel); font: 700 12px var(--font-mono); letter-spacing: 0.04em; text-anchor: middle; }
+.figure-svg .fig-head { fill: var(--color-silk); }
+.figure-svg .fig-fallback { stroke: var(--color-amber); stroke-width: 2; stroke-dasharray: 6 6; fill: none; }
+.figure-svg .fig-head-amber { fill: var(--color-amber); }
+.figure-svg .fig-start { fill: none; stroke: var(--color-silk-dim); stroke-width: 1.5; }
+.figure-svg .fig-end { text-anchor: end; }

@@ -79,3 +79,58 @@ export function linkParts(svg: string, parts: MapPart[], t: SvgText = {}): strin
       return `<a ${attrs.join(" ")}>${body}</a>`;
     });
 }
+
+const BOX = /<rect\s+class="box"\s+x="([\d.]+)"\s+y="([\d.]+)"\s+width="([\d.]+)"\s+height="([\d.]+)"/;
+
+/** The two ends of a wire path made of absolute M, L, H and V commands. */
+function wireEnds(d: string): [number, number][] {
+  const tokens = d.match(/[MLHV]|-?[\d.]+/g) ?? [];
+  let x = 0, y = 0, cmd = "M";
+  const points: [number, number][] = [];
+  for (let i = 0; i < tokens.length; ) {
+    if (/[MLHV]/.test(tokens[i]!)) cmd = tokens[i++]!;
+    if (cmd === "M" || cmd === "L") { x = Number(tokens[i++]); y = Number(tokens[i++]); }
+    else if (cmd === "H") x = Number(tokens[i++]);
+    else if (cmd === "V") y = Number(tokens[i++]);
+    else i++;
+    points.push([x, y]);
+  }
+  return points.length ? [points[0]!, points.at(-1)!] : [];
+}
+
+/** A part page's "you are here" map (layout 3, Patrick 2026-11-13): the piece's drawing cut
+ *  down to the part and the parts wired to it (a wire of one ending on the other's box),
+ *  everything else hidden, the part marked, no links or notes. The drawing is hidden from
+ *  screen readers; the page names the neighbours as text links. */
+export function locator(svg: string, partId: string, pad = 16): { svg: string; neighbours: string[] } | undefined {
+  const view = /viewBox="([\d.]+) ([\d.]+) ([\d.]+) ([\d.]+)"/.exec(svg);
+  const boxes = new Map<string, [number, number, number, number]>();
+  const wires = new Map<string, [number, number][]>();
+  for (const m of svg.matchAll(PART)) {
+    const b = BOX.exec(m[2]!);
+    if (b) boxes.set(m[1]!, [Number(b[1]), Number(b[2]), Number(b[3]), Number(b[4])]);
+    const w = /<path\s+class="wire"\s+d="([^"]+)"/.exec(m[2]!);
+    wires.set(m[1]!, w ? wireEnds(w[1]!) : []);
+  }
+  const here = boxes.get(partId);
+  if (!view || !here) return undefined;
+  const on = ([bx, by, bw, bh]: [number, number, number, number], [px, py]: [number, number]) =>
+    px >= bx - 2 && px <= bx + bw + 2 && py >= by - 2 && py <= by + bh + 2;
+  const neighbours = [...boxes.keys()].filter((id) =>
+    id !== partId && ((wires.get(id) ?? []).some((p) => on(here, p)) || (wires.get(partId) ?? []).some((p) => on(boxes.get(id)!, p))));
+  // A part wired to nothing is shown with the parts around it instead.
+  const shown = neighbours.length ? [partId, ...neighbours] : [...boxes.keys()];
+  const near = neighbours.length ? shown.map((id) => boxes.get(id)!) : [[here[0] - 260, here[1] - 120, here[2] + 520, here[3] + 240] as [number, number, number, number]];
+  const [vx, vy, vw, vh] = view.slice(1).map(Number) as [number, number, number, number];
+  const x0 = Math.max(vx, Math.min(...near.map((b) => b[0])) - pad);
+  const y0 = Math.max(vy, Math.min(...near.map((b) => b[1])) - pad);
+  const x1 = Math.min(vx + vw, Math.max(...near.map((b) => b[0] + b[2])) + pad);
+  const y1 = Math.min(vy + vh, Math.max(...near.map((b) => b[1] + b[3])) + pad);
+  const keep = new Set(shown);
+  const out = svg
+    .replace(/^\s*<\?xml[^>]*>\s*/, "")
+    .replace(/<!--[\s\S]*?-->/g, "")
+    .replace(/<svg\b[^>]*>/, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${x0} ${y0} ${x1 - x0} ${y1 - y0}" class="schematic locator" aria-hidden="true" focusable="false">`)
+    .replace(PART_OPEN, (_whole, id: string) => `<g data-part="${esc(id)}" class="part${id === partId ? " is-here" : keep.has(id) ? "" : " is-away"}">`);
+  return { svg: out, neighbours: neighbours.length ? neighbours : [] };
+}

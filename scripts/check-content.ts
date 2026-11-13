@@ -206,6 +206,65 @@ function checkHome(root: string, pieceIds: string[], parts: Map<string, unknown>
   }
 }
 
+// Layout 3 (Patrick, 2026-11-13): readouts name evals of the part; figures exist under
+// pieces/<piece>/figures/, hold no script, links or ids, and on a layers-only page their
+// texts, alt and caption name layers only.
+function checkPartExtras(root: string, file: string, doc: Doc, part: z.infer<typeof partSchema>, P: Problem[]): void {
+  const names = new Set(part.evals.map((e) => e.name));
+  for (const r of part.readouts) {
+    if (!names.has(r.eval)) P.push({ rule: "readouts", file, line: lineOf(doc, ["readouts"]), msg: `readout "${r.eval}" isn't an eval of this part` });
+  }
+  for (const f of part.figures) {
+    for (const name of [f.svg, f.svg_narrow].filter((x): x is string => !!x)) {
+      const path = join(root, "pieces", part.piece, "figures", name);
+      if (!existsSync(path)) {
+        P.push({ rule: "figures", file, line: lineOf(doc, ["figures"]), msg: `pieces/${part.piece}/figures/${name} doesn't exist` });
+        continue;
+      }
+      const svg = readFileSync(path, "utf8");
+      const where = `pieces/${part.piece}/figures/${name}`;
+      if (!/<svg\b[^>]*\bviewBox="[^"]+"/.test(svg)) P.push({ rule: "figures", file: where, line: 1, msg: "the figure needs a viewBox, so it scales to its frame" });
+      if (!/<svg\b[^>]*\bclass="schematic figure-svg"/.test(svg)) P.push({ rule: "figures", file: where, line: 1, msg: 'the <svg> needs class="schematic figure-svg", the map\'s style' });
+      for (const [re, what] of [[/<script\b/i, "a script"], [/\son\w+\s*=/i, "an event handler"], [/\bhref\s*=/i, "a link"], [/\sid\s*=/i, "an id (two figures on a page would clash)"], [/<(?:image|foreignObject|style)\b/i, "an embedded image, HTML or style"]] as [RegExp, string][]) {
+        if (re.test(svg)) P.push({ rule: "figures", file: where, line: svg.slice(0, svg.search(re)).split("\n").length, msg: `the figure holds ${what}` });
+      }
+      if (part.layers_only) {
+        const texts = [...svg.matchAll(/<text\b[^>]*>([^<]*)<\/text>/g)].map((m) => m[1]!).join("\n");
+        for (const hit of layersOnlyHits(texts)) P.push({ rule: "layers-only", file: where, line: 1, msg: hit.msg });
+      }
+    }
+    if (part.layers_only) {
+      for (const hit of layersOnlyHits(`${f.alt}\n${f.caption}`)) P.push({ rule: "layers-only", file, line: lineOf(doc, ["figures"]), msg: hit.msg });
+    }
+  }
+}
+
+const CASE_HEAD = /^#### What happened\s*$/m;
+const CASE_STEPS = ["What happened", "What I changed", "Result"];
+
+/** A lesson in case form has its title, then exactly the three steps, each one paragraph. */
+export function caseProblem(text: string): { line: number; msg: string } | undefined {
+  const lines = text.split(/\r?\n/);
+  let start = 0;
+  if (lines[0] === "---") start = lines.indexOf("---", 1) + 1;
+  const body = lines.slice(start);
+  const h4 = body.map((l, i) => [l, i] as const).filter(([l]) => /^####\s/.test(l));
+  if (h4.length === 0) return undefined;
+  const found = h4.map(([l]) => l.replace(/^####\s+/, "").trim());
+  if (found.join("|") !== CASE_STEPS.join("|")) {
+    return { line: h4[0]![1] + 1, msg: `a lesson in case form has exactly the subheadings ${CASE_STEPS.map((s) => `"${s}"`).join(", ")}, in that order (found ${found.map((s) => `"${s}"`).join(", ")})` };
+  }
+  for (let k = 0; k < h4.length; k++) {
+    const from = h4[k]![1] + 1;
+    const to = k + 1 < h4.length ? h4[k + 1]![1] : body.length;
+    const blocks = body.slice(from, to).join("\n").split(/\n\s*\n/).map((b) => b.trim()).filter(Boolean);
+    if (blocks.length !== 1 || /^(?:#|[-*+]\s|\d+\.\s|>|\||```)/.test(blocks[0]!)) {
+      return { line: h4[k]![1] + 1, msg: `"${found[k]}" needs exactly one paragraph (found ${blocks.length} block(s))` };
+    }
+  }
+  return undefined;
+}
+
 let ROOT_FOR_CHECK = ".";
 
 export function checkContent(root: string): { problems: Problem[]; counts: { pieces: number; parts: number; entries: number } } {
@@ -278,7 +337,7 @@ export function checkContent(root: string): { problems: Problem[]; counts: { pie
   }
 
   // Part pages.
-  const parts = new Map<string, { file: string; doc: Doc; status: string; related: string[]; sources: string[]; layersOnly: boolean }>();
+  const parts = new Map<string, { file: string; doc: Doc; status: string; related: string[]; sources: string[]; layersOnly: boolean; evals: Set<string> }>();
   for (const f of walk(join(root, "content", "parts"), ".mdx")) {
     const file = rel(f);
     const doc = readFrontmatter(f);
@@ -288,13 +347,15 @@ export function checkContent(root: string): { problems: Problem[]; counts: { pie
     const name = basename(f, ".mdx");
     if (part.id !== name) P.push({ rule: "path", file, line: lineOf(doc, ["id"]), msg: `id "${part.id}" must match the file name "${name}"` });
     if (part.piece !== pieceDir) P.push({ rule: "path", file, line: lineOf(doc, ["piece"]), msg: `piece "${part.piece}" must match the folder "${pieceDir}"` });
-    parts.set(`${part.piece}/${part.id}`, { file, doc, status: part.status, related: part.related, sources: part.sources, layersOnly: part.layers_only === true });
+    parts.set(`${part.piece}/${part.id}`, { file, doc, status: part.status, related: part.related, sources: part.sources, layersOnly: part.layers_only === true, evals: new Set(part.evals.map((e) => e.name)) });
+    checkPartExtras(root, file, doc, part, P);
   }
 
   // Knowledge entries.
   const kinds = new Map<string, Set<string>>();
   const anchors = new Map<string, string>();
   const entries: { file: string; doc: Doc; sources: string[]; partKey: string }[] = [];
+  const learningEntries: { file: string; doc: Doc; metric?: string; partKey: string }[] = [];
   const byId = new Map<string, { file: string; doc: Doc; kind: string; part: string; lost_to?: string }>();
   for (const f of walk(join(root, "content", "knowledge"), ".md")) {
     const file = rel(f);
@@ -302,6 +363,8 @@ export function checkContent(root: string): { problems: Problem[]; counts: { pie
     const e = validate(knowledgeSchema, doc, file, P);
     if (!e) continue;
     entries.push({ file, doc, sources: e.sources, partKey: `${e.piece}/${e.part}` });
+    if (e.kind === "learning") learningEntries.push({ file, doc, metric: e.metric, partKey: `${e.piece}/${e.part}` });
+    else if (e.metric) P.push({ rule: "case", file, line: lineOf(doc, ["metric"]), msg: `only learning entries have a headline metric (this one is ${e.kind})` });
     const idKey = `${e.piece}/${e.id}`;
     const dup = byId.get(idKey);
     if (dup) P.push({ rule: "lost-to", file, line: lineOf(doc, ["id"]), msg: `entry id "${e.id}" is already used by ${dup.file}` });
@@ -330,6 +393,19 @@ export function checkContent(root: string): { problems: Problem[]; counts: { pie
     const piece = key.split("/")[0]!;
     for (const r of p.related) {
       if (!parts.has(`${piece}/${r}`)) P.push({ rule: "related", file: p.file, line: lineOf(p.doc, ["related"]), msg: `related part "${r}" doesn't exist` });
+    }
+  }
+  // Case form (layout 3, Patrick 2026-11-13): a lesson is prose, or exactly What happened /
+  // What I changed / Result; its headline metric is an eval of its own part.
+  for (const l of learningEntries) {
+    const body = readFileSync(join(root, l.file), "utf8");
+    const offset = body.split(/\r?\n/).findIndex((x, i) => i > 0 && x === "---") + 1;
+    const problem = caseProblem(body);
+    if (problem) P.push({ rule: "case", file: l.file, line: offset + problem.line, msg: problem.msg });
+    if (l.metric) {
+      const evals = parts.get(l.partKey)?.evals;
+      if (evals && !evals.has(l.metric)) P.push({ rule: "case", file: l.file, line: lineOf(l.doc, ["metric"]), msg: `metric "${l.metric}" isn't an eval of this part` });
+      else if (!CASE_HEAD.test(body)) P.push({ rule: "case", file: l.file, line: lineOf(l.doc, ["metric"]), msg: "a headline metric needs the case form (What happened / What I changed / Result)" });
     }
   }
   // lost_to (item 1.4): a rejected option names the decision it lost to, on the same part.

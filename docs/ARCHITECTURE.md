@@ -51,6 +51,7 @@ pieces/<piece>/piece.yaml        id, title, tagline, summary, status, as_of, sou
                                  order, map_svg, chat_enabled, starters
 pieces/<piece>/map.yaml          parts: id, label, hover (≤140 chars), page?, status, line
 pieces/<piece>/map.svg           annotated schematic; element ids = map.yaml ids
+pieces/<piece>/figures/*.svg     part page figures in the map's style (FIG. <part>.<n>)
 content/parts/<piece>/<part>.mdx frontmatter + fixed sections (below)
 content/knowledge/<piece>/*.md   one entry per decision / rejected option / testing note / lesson
 content/starters/<piece>/*.md    pre-written answers to the starter chips
@@ -58,11 +59,13 @@ redaction/exceptions.yaml        the only place for scan exceptions (changes via
 evals/retrieval.yaml             public retrieval eval (questions → expected entry ids)
 ```
 
-**Part page frontmatter:** `id, piece, title, summary, status (built | in-progress | planned), as_of, source_commit, sources[], evals[] {name, metric, value, n, date, baseline?, cost_usd?}, related[]`. `evals[]` is aggregates only (D19): `name` is a slug of at most 48 characters, `metric` one of `accuracy, hit_at_5, mrr, rate, count, cost_usd, seconds`, every other field a number or an ISO date, and no other keys.
+**Part page frontmatter:** `id, piece, title, summary, status (built | in-progress | planned), as_of, source_commit, sources[], evals[] {name, metric, value, n?, date, baseline?, baseline_n?, cost_usd?}, readouts[] {eval, label}, figures[] {svg, svg_narrow?, alt, caption}, related[]`. `evals[]` is aggregates only (D19): `name` is a slug of at most 48 characters, `metric` one of `accuracy, hit_at_5, mrr, rate, count, cost_usd, seconds`, every other field a number or an ISO date, and no other keys. `n` is required for a count; `baseline_n` is the case count of the baseline where it differs. `readouts[]` (at most 4) picks evals for the top of the page; `figures[]` names SVGs in `pieces/<piece>/figures/`, with a narrow version for phones (layout 3, Patrick 2026-11-13).
 
-**Fixed sections:** *What it does* (MDX body) · *Why this way* (entries `decision` + `rejected`) · *How it's tested* (entries `testing` + `evals[]`) · *What I learned* (entries `learning`).
+**Fixed sections:** *What it does* (MDX body, then the figures) · *Why this way* (entries `decision` + `rejected`) · *How it's tested* (entries `testing` + `evals[]`) · *What I learned* (entries `learning`).
 
-**Knowledge entry frontmatter:** `id, piece, part, page, anchor, kind (overview | decision | rejected | testing | learning), lost_to?, sources (files under sources/vision/), as_of, source_commit`. `lost_to` (rejected entries only) names the decision on the same part that the option lost to; the page renders it right under that decision (item 1.4). Entries render in the order of their file names (`NN-<id>.md`).
+**Part page layout 3 (Patrick, 2026-11-13):** a "you are here" crop of the piece's map (the part and the parts wired to it, cut from `map.svg` by `src/lib/map-svg.ts`), the readouts with before → after where an eval has a baseline, a sticky section rail (a strip on phones), each decision as a card with the options it beat beside it, lessons in case form as case cards, and previous / next part with a page in map order. All drawings share `src/styles/schematic.css`.
+
+**Knowledge entry frontmatter:** `id, piece, part, page, anchor, kind (overview | decision | rejected | testing | learning), lost_to?, metric?, sources (files under sources/vision/), as_of, source_commit`. A `learning` entry in **case form** has, under its title, exactly the subheadings *What happened*, *What I changed* and *Result*, each one paragraph; its optional `metric` names an eval of its part, shown as the case's before → after. `lost_to` (rejected entries only) names the decision on the same part that the option lost to; the page renders it right under that decision (item 1.4). Entries render in the order of their file names (`NN-<id>.md`).
 
 **Rules (`scripts/check-content.ts` in `pnpm check`, before the build; schemas in `src/content/schemas.ts`, shared with the Astro collections):**
 - A missing, unknown or wrong field (every object is strict).
@@ -71,6 +74,8 @@ evals/retrieval.yaml             public retrieval eval (questions → expected e
 - A `lost_to` that doesn't name a decision on the same part, `lost_to` on an entry that isn't `rejected`, or two entries of a piece with the same id (rule `lost-to`, item 1.4).
 - A `built` part with a page but without at least one `decision`, `rejected`, `testing` and `learning` entry.
 - Free text in `evals[]`.
+- A readout or a lesson `metric` that isn't an eval of its part; a `metric` on a lesson that isn't in case form; a case form with other subheadings or more than one paragraph per step (rules `readouts`, `case`).
+- A figure file that doesn't exist, has no `viewBox` or the map's classes, or doesn't pass the figure safety check, which keeps a figure to a plain drawing; on a layers-only page also its texts, alt and caption (rules `figures`, `layers-only`).
 - A `map.yaml` part without its `<g id class="part">` in the SVG, an SVG part missing from `map.yaml`, a part listed twice, or a part group with a nested `<g>` (rule `svg`, item 1.3).
 - A starter citing a missing entry (Phase 3; starters and `evals/retrieval.yaml` get their schemas when first used).
 
