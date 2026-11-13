@@ -20,6 +20,23 @@ evals:
     value: 0.0023
     n: 40
     date: 2026-11-04
+  - name: agent-eval-cost-per-case
+    metric: cost_usd
+    value: 0.014
+    baseline: 0.040
+    date: 2026-11-12
+readouts:
+  - eval: agent-eval-cost-per-case
+    label: Agent eval cost per case, prompt caching
+  - eval: first-chat-runs-total-cost
+    label: First 31 chat runs, in total
+  - eval: classifier-cases-on-cheap-cost
+    label: 40 classifier cases on cheap
+figures:
+  - svg: litellm-gateway-1.svg
+    svg_narrow: litellm-gateway-1-narrow.svg
+    alt: "The indexer, the eval harness and the chat agent each call the gateway with their own key and 30-day budget. The gateway, under a 24-dollar global cap, maps roles to models at prices I set. smart and cheap go to the provider, limited to 30 dollars a month; local and embed go to my GPU PC. When money runs out, the chat gets a reply that says what ran out."
+    caption: "How a model call is paid for. Each service spends from its own key and 30-day budget, under a global cap of $24 and the provider's $30 monthly limit. local and embed run on my GPU PC, outside the credits. When money runs out, the chat is told what ran out, and nothing retries."
 related: []
 ---
 

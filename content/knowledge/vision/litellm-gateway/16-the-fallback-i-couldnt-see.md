@@ -13,4 +13,14 @@ source_commit: bb4fb3747aa6d7a80666b2d19dd718d1e4bedd98
 
 ### A fallback I couldn't see
 
-The gateway can switch from one role to another on its own. For the classifier that meant `local` could time out in agent-core while the gateway quietly retried on `cheap`: money was spent that the run never recorded, and the run no longer matched the spend log. I turned the gateway's fallback off for that call, so only agent-core decides when to fall back. Since then every call has to appear in both the run record and the gateway's log, joined by run and step number.
+#### What happened
+
+The gateway can switch from one role to another on its own. For the classifier that meant `local` could time out in agent core while the gateway quietly retried on `cheap`: money was spent that the run never recorded, and the run no longer matched the spend log.
+
+#### What I changed
+
+I turned the gateway's fallback off for that call, so only agent core decides when to fall back.
+
+#### Result
+
+Every call now has to appear in both the run record and the gateway's log, joined by run and step number.

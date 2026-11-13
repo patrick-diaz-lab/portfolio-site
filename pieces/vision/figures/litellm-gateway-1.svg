@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 14 724 320" class="schematic figure-svg">
+  <!-- FIG. 6.1, how a model call is paid for (layout 3, Patrick 2026-11-13). Classes from
+       src/styles/schematic.css. The page adds role="img" and the alt text. -->
+  <rect class="box" x="0" y="20" width="170" height="56" />
+  <text class="lbl fig-mid" x="85" y="45">INDEXER</text>
+  <text class="fig-sub fig-mid" x="85" y="64">KEY · 30-DAY BUDGET</text>
+  <rect class="box" x="0" y="120" width="170" height="56" />
+  <text class="lbl fig-mid" x="85" y="145">EVAL HARNESS</text>
+  <text class="fig-sub fig-mid" x="85" y="164">KEY · 30-DAY BUDGET</text>
+  <rect class="box" x="0" y="220" width="170" height="56" />
+  <text class="lbl fig-mid" x="85" y="245">CHAT AGENT</text>
+  <text class="fig-sub fig-mid" x="85" y="264">KEY · 30-DAY BUDGET</text>
+
+  <path class="wire-static" d="M170 48 H210 M170 148 H210 M170 248 H210 M210 48 V248 M210 148 H241" />
+  <polygon class="fig-head" points="249,148 241,144 241,152" />
+
+  <text class="note" x="300" y="92">global cap $24</text>
+  <path class="note-line" d="M350 97 V108" />
+  <rect class="box" x="250" y="108" width="200" height="80" />
+  <text class="lbl fig-mid" x="350" y="140">GATEWAY</text>
+  <text class="fig-sub fig-mid" x="350" y="160">ROLES → MODELS</text>
+  <text class="fig-sub fig-mid" x="350" y="176">PRICES I SET</text>
+
+  <path class="wire-static" d="M450 148 H500 M500 78 V218 M500 78 H531 M500 218 H531" />
+  <polygon class="fig-head" points="539,78 531,74 531,82" />
+  <polygon class="fig-head" points="539,218 531,214 531,222" />
+
+  <text class="note" x="540" y="38">spend limit $30 a month</text>
+  <rect class="box" x="540" y="50" width="180" height="56" />
+  <text class="lbl fig-mid" x="630" y="74">PROVIDER</text>
+  <text class="fig-sub fig-mid" x="630" y="94">SMART · CHEAP</text>
+  <rect class="box" x="540" y="190" width="180" height="56" />
+  <text class="lbl fig-mid" x="630" y="214">MY GPU PC</text>
+  <text class="fig-sub fig-mid" x="630" y="234">LOCAL · EMBED</text>
+  <text class="dim-t" x="540" y="266">not from the credits</text>
+
+  <path class="fig-fallback" d="M350 188 V300 H85 V286" />
+  <polygon class="fig-head-amber" points="85,278 81,286 89,286" />
+  <text class="note" x="100" y="324">out of money: a reply that says what ran out</text>
+</svg>

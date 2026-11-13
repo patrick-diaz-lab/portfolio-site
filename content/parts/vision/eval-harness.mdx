@@ -20,6 +20,37 @@ evals:
     value: 0.75
     n: 16
     date: 2026-11-12
+  - name: files-retrieval-hit-at-5-held-out
+    metric: hit_at_5
+    value: 1.0
+    date: 2026-11-04
+  - name: vault-retrieval-chunk-search
+    metric: hit_at_5
+    value: 0.909
+    date: 2026-11-04
+  - name: vault-retrieval-note-search
+    metric: hit_at_5
+    value: 0.591
+    date: 2026-11-04
+  - name: agent-eval-cost-per-case
+    metric: cost_usd
+    value: 0.014
+    baseline: 0.040
+    date: 2026-11-12
+readouts:
+  - eval: docs-retrieval-hit-at-5-held-out-now
+    label: Docs retrieval hit@5, held-out, grown corpus
+  - eval: files-retrieval-hit-at-5-held-out
+    label: Files retrieval hit@5, held-out
+  - eval: vault-retrieval-chunk-search
+    label: Vault retrieval hit@5, chunk search
+  - eval: agent-eval-cost-per-case
+    label: Agent eval cost per case, prompt caching
+figures:
+  - svg: eval-harness-1.svg
+    svg_narrow: eval-harness-1-narrow.svg
+    alt: "Two sets per eval go into the harness: a dev set that Claude drafts and I review, and a held-out set written by me. The harness runs the production code and scores the results with code. Dev runs keep every case; held-out runs keep totals only, with no case text or IDs. A run stops at 2 dollars."
+    caption: "How the harness measures a change. It runs the code the chat runs on two sets per eval: dev sets that Claude drafts and I review, and held-out sets I write myself. Code scores every result, held-out runs leave only totals, and a run stops once it has spent $2."
 related:
   - agent-core
   - litellm-gateway

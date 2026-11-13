@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 324 358" class="schematic figure-svg">
+  <!-- FIG. 9.1 for phones: the same flow, top to bottom (layout 3, Patrick 2026-11-13). -->
+  <rect class="box" x="0" y="0" width="150" height="64" />
+  <text class="lbl fig-mid" x="75" y="28">DEV SET</text>
+  <text class="fig-sub fig-mid" x="75" y="48">CLAUDE DRAFTS</text>
+  <rect class="box" x="170" y="0" width="150" height="64" />
+  <text class="lbl fig-mid" x="245" y="28">HELD-OUT SET</text>
+  <text class="fig-sub fig-mid" x="245" y="48">WRITTEN BY ME</text>
+
+  <path class="wire-static" d="M75 64 V88 M245 64 V88 M75 88 H245 M160 88 V111" />
+  <polygon class="fig-head" points="160,119 156,111 164,111" />
+  <rect class="box" x="60" y="120" width="200" height="80" />
+  <text class="lbl fig-mid" x="160" y="152">HARNESS</text>
+  <text class="fig-sub fig-mid" x="160" y="172">PRODUCTION CODE</text>
+  <text class="fig-sub fig-mid" x="160" y="188">SCORED BY CODE</text>
+
+  <path class="wire-static" d="M160 200 V224 M75 224 H245 M75 224 V247 M245 224 V247" />
+  <polygon class="fig-head" points="75,255 71,247 79,247" />
+  <polygon class="fig-head" points="245,255 241,247 249,247" />
+  <text class="dim-t" x="87" y="244">dev</text>
+  <text class="dim-t fig-end" x="233" y="244">held-out</text>
+  <rect class="box" x="0" y="256" width="150" height="64" />
+  <text class="lbl fig-mid" x="75" y="284">EVERY CASE</text>
+  <text class="fig-sub fig-mid" x="75" y="304">DEV RESULTS</text>
+  <rect class="box" x="170" y="256" width="150" height="64" />
+  <text class="lbl fig-mid" x="245" y="284">TOTALS ONLY</text>
+  <text class="fig-sub fig-mid" x="245" y="304">NO CASE TEXT OR IDS</text>
+  <text class="note" x="0" y="346">stops at $2 a run</text>
+</svg>

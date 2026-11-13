@@ -13,4 +13,14 @@ source_commit: bb4fb3747aa6d7a80666b2d19dd718d1e4bedd98
 
 ### Test the test
 
-One homelab case had a list of phrases that count as a false all-clear, and one of them was "all 7". The correct answer contained it, because seven containers really were running, so the case failed a right answer. I cut the list down to real all-clear phrases and the rerun passed. Word lists in tests need testing too.
+#### What happened
+
+One homelab case had a list of phrases that count as a false all-clear, and one of them was "all 7". The correct answer contained it, because seven containers really were running, so the case failed a right answer.
+
+#### What I changed
+
+I cut the list down to real all-clear phrases.
+
+#### Result
+
+The rerun passed. Word lists in tests need testing too.

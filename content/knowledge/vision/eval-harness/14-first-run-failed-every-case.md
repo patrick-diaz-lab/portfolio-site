@@ -13,4 +13,14 @@ source_commit: bb4fb3747aa6d7a80666b2d19dd718d1e4bedd98
 
 ### The first comparison run failed on every case
 
-My first run on `cheap` returned an error for all 40 cases: the provider refuses a `temperature` setting for those models. The harness now leaves `temperature` out for `cheap` and `smart` only, every result file records that override, and the output says so. Local runs stay identical to production.
+#### What happened
+
+My first run on `cheap` returned an error for all 40 cases: the provider refuses a `temperature` setting for those models.
+
+#### What I changed
+
+The harness now leaves `temperature` out for `cheap` and `smart` only, and every result file records that override.
+
+#### Result
+
+The output says when the override applied, and local runs stay identical to production.

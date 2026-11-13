@@ -10,15 +10,21 @@ const SHARE = new Set(["accuracy", "hit_at_5", "mrr", "rate"]);
 
 // Counts stay integers ("0 of 12", like the chip on the overview page); ratios keep at least
 // one decimal (1.0, not 1).
-export function evalValue(metric: string, v: number, n?: number): string {
-  if (metric === "cost_usd") return `$${v}`;
+export function evalValue(metric: string, v: number, n?: number, digits?: number): string {
+  if (metric === "cost_usd") return `$${digits === undefined ? v : v.toFixed(digits)}`;
   if (metric === "seconds") return `${v} s`;
   if (metric === "count") return n === undefined ? String(v) : `${v} of ${n}`;
   return v.toLocaleString("en", { minimumFractionDigits: 1, maximumFractionDigits: 4 });
 }
 
-/** The value before a change, on the case count it was measured on. */
-export const evalBefore = (e: Eval) => (e.baseline === undefined ? undefined : evalValue(e.metric, e.baseline, e.baseline_n ?? e.n));
+const decimals = (v: number) => (String(v).split(".")[1] ?? "").length;
+
+/** The value before a change, on the case count it was measured on. A cost keeps as many
+ *  decimals as the value after it ($0.040 → $0.014, not $0.04). */
+export const evalBefore = (e: Eval) =>
+  e.baseline === undefined
+    ? undefined
+    : evalValue(e.metric, e.baseline, e.baseline_n ?? e.n, e.metric === "cost_usd" ? Math.max(decimals(e.value), decimals(e.baseline)) : undefined);
 
 /** A slug made readable: "reply-language" → "Reply language". */
 export const evalName = (s: string) => (s.charAt(0).toUpperCase() + s.slice(1)).replace(/-/g, " ");
