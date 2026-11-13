@@ -1,11 +1,25 @@
 ---
-// Part page template (PLAN 1.4, D19): one page per content/parts/<piece>/<part>.mdx, with
-// the fixed sections. Each knowledge entry renders under its own anchor (the content check
-// relies on that). Rejected options sit right under the decision they lost to (`lost_to`,
-// Patrick 2026-11-11). Entries keep the order of their file names. Not indexed until launch.
+// Part page template (PLAN 1.4, D19), layout 3 (Patrick, 2026-11-13): one page per
+// content/parts/<piece>/<part>.mdx. Top to bottom:
+//   - the header and a "you are here" crop of the piece's map, with the neighbours as links
+//   - up to 4 readouts (the part's `readouts`), before → after where an eval has a baseline
+//   - the four fixed sections, with a sticky rail beside them (a strip on phones)
+//       What it does     the overview, then the figures (FIG. <part>.<n>, the map's style)
+//       Why this way     each decision as a card, the options it beat beside it (`lost_to`)
+//       How it's tested  the testing entries and every eval in a table
+//       What I learned   learning entries; one in case form (What happened / What I changed /
+//                        Result, checked by `pnpm check`) renders as a case card
+//   - previous / next part with a page, in map order, and the way back to the map
+// Each knowledge entry keeps its own anchor (the content check relies on that). Entries keep
+// the order of their file names. Not indexed until launch.
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { getCollection, render, type CollectionEntry } from "astro:content";
 import Base from "../../layouts/Base.astro";
 import { loadPieces } from "../../lib/pieces.ts";
+import { evalBefore, evalName, evalShares, evalValue, type Eval } from "../../lib/evals.ts";
+import { esc, locator } from "../../lib/map-svg.ts";
+import "../../styles/schematic.css";
 
 export async function getStaticPaths() {
   // Part pages only for built pieces (Patrick, 2026-11-13).
@@ -35,113 +49,347 @@ const rejected = ofKind("rejected");
 const rejectedFor = (id: string) => rejected.filter((r) => r.data.lost_to === id);
 const decisionIds = new Set(decisions.map((d) => d.data.id));
 const looseRejected = rejected.filter((r) => !r.data.lost_to || !decisionIds.has(r.data.lost_to));
+const testing = ofKind("testing");
+const learning = ofKind("learning");
+const evals = part.data.evals;
+const evalBy = new Map(evals.map((e) => [e.name, e]));
 
+// The piece: map order numbers the parts, gives previous / next and the "you are here" crop.
+const piece = loadPieces("en").find((p) => p.id === part.data.piece);
 const back = `/${part.data.piece}/`;
-const money = (v: number) => `$${v}`;
-// Counts stay integers ("0 of 12", like the chip on the overview page); ratios keep at
-// least one decimal (1.0, not 1).
-const evalValue = (m: string, v: number, n: number) =>
-  m === "cost_usd" ? money(v)
-  : m === "seconds" ? `${v} s`
-  : m === "count" ? `${v} of ${n}`
-  : v.toLocaleString("en", { minimumFractionDigits: 1, maximumFractionDigits: 4 });
-const evalName = (s: string) => (s.charAt(0).toUpperCase() + s.slice(1)).replace(/-/g, " ");
+const pieceTitle = piece?.title ?? part.data.piece;
+const order = piece?.parts ?? [];
+const at = order.findIndex((p) => p.id === part.data.id);
+const num = at < 0 ? "" : String(at + 1).padStart(2, "0");
+const withPage = order.filter((p) => p.page);
+const pageAt = withPage.findIndex((p) => p.id === part.data.id);
+const prev = pageAt > 0 ? withPage[pageAt - 1] : undefined;
+const next = pageAt >= 0 && pageAt < withPage.length - 1 ? withPage[pageAt + 1] : undefined;
+const numOf = (id: string) => String(order.findIndex((p) => p.id === id) + 1).padStart(2, "0");
+const partLink = (id: string) => order.find((p) => p.id === id)?.page ?? `${back}#part-${id}`;
+const here = piece ? locator(piece.svg, part.data.id) : undefined;
+const neighbours = (here?.neighbours ?? []).map((id) => ({ id, label: order.find((p) => p.id === id)?.label ?? id }));
+
+// Figures: hand-drawn SVGs next to the piece's map, each with the text a screen reader gets.
+const figureSvg = (file: string, alt: string, cls: string) =>
+  readFileSync(join(process.cwd(), "pieces", part.data.piece, "figures", file), "utf8")
+    .replace(/<!--[\s\S]*?-->/g, "")
+    .replace(/<svg\b/, `<svg role="img" aria-label="${esc(alt)}" data-figure="${cls}"`)
+    .replace(/class="schematic figure-svg"/, `class="schematic figure-svg ${cls}"`);
+const figures = part.data.figures.map((f, i) => ({
+  n: `${Number(num) || 0}.${i + 1}`,
+  caption: f.caption,
+  wide: figureSvg(f.svg, f.alt, f.svg_narrow ? "is-wide" : "is-only"),
+  narrow: f.svg_narrow ? figureSvg(f.svg_narrow, f.alt, "is-narrow") : undefined,
+}));
+
+// Readouts: the part's chosen evals; a baseline on a 0–1 scale gets a before → after track.
+const pct = (v: number) => `${(Math.min(1, Math.max(0, v)) * 100).toFixed(1)}%`;
+const readouts = part.data.readouts.flatMap((r) => {
+  const e = evalBy.get(r.eval);
+  if (!e) return [];
+  const shares = evalShares(e);
+  return [{
+    label: r.label,
+    value: evalValue(e.metric, e.value, e.n),
+    before: evalBefore(e),
+    track: shares && { before: pct(shares.before), after: pct(shares.after), lo: pct(Math.min(shares.before, shares.after)), span: pct(Math.abs(shares.after - shares.before)) },
+    note: [e.n !== undefined && e.metric !== "count" ? `n = ${e.n}` : "", `as of ${e.date}`].filter(Boolean).join(" · "),
+  }];
+});
+
+// Case form: a learning entry with the three fixed subheadings renders as a case card.
+const isCase = (e: K) => /^#### What happened\s*$/m.test(e.body ?? "");
+const caseMetric = (e: K) => {
+  const v = e.data.metric ? evalBy.get(e.data.metric) : undefined;
+  return v && { value: `${evalBefore(v) ?? "—"} → ${evalValue(v.metric, v.value, v.n)}`, label: evalName(v.name) };
+};
+let caseNo = 0;
+
+// The rail: the sections this page has, with what each holds.
+const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
+const stations = [
+  { id: "what-it-does", name: "What it does", count: figures.length ? plural(figures.length, "figure") : "", show: true },
+  { id: "why-this-way", name: "Why this way", count: [plural(decisions.length, "decision"), rejected.length ? `${rejected.length} rejected` : ""].filter(Boolean).join(" · "), show: decisions.length + rejected.length > 0 },
+  { id: "how-its-tested", name: "How it's tested", count: [testing.length ? plural(testing.length, "test") : "", evals.length ? plural(evals.length, "value") : ""].filter(Boolean).join(" · "), show: testing.length + evals.length > 0 },
+  { id: "what-i-learned", name: "What I learned", count: plural(learning.length, "lesson"), show: learning.length > 0 },
+].filter((s) => s.show);
+const tableValue = (v: Eval) => evalValue(v.metric, v.value, v.n);
 ---
-<Base title={`${part.data.title} — Vision — Patrick Diaz`} description={part.data.summary} noindex>
+<Base title={`${part.data.title} — ${pieceTitle} — Patrick Diaz`} description={part.data.summary} noindex>
   <main class="page part-page">
-    <header class="part-head">
-      <p class="label"><a href={back}>{part.data.piece === "vision" ? "Vision" : part.data.piece}</a> · Part</p>
-      <h1>{part.data.title}</h1>
-      <p class="part-summary">{part.data.summary}</p>
-      <p class="label">As of {part.data.as_of}</p>
-    </header>
+    <div class="part-top">
+      <header class="part-head">
+        <p class="label"><a href={back}>{pieceTitle}</a> · Part {num}</p>
+        <h1>{part.data.title}</h1>
+        <p class="part-summary">{part.data.summary}</p>
+        <p class="label">As of {part.data.as_of}</p>
+      </header>
+      {here && (
+        <figure class="part-where">
+          <p class="part-where-head label"><span class="part-where-here">You are here</span><span>{pieceTitle} · map</span></p>
+          <Fragment set:html={here.svg} />
+          {neighbours.length > 0 && (
+            <figcaption class="part-where-links">
+              Next to {neighbours.map((n, i) => (
+                <>{i > 0 && (i === neighbours.length - 1 ? " and " : ", ")}<a href={partLink(n.id)}>{n.label}</a></>
+              ))} on the <a href={back}>{pieceTitle} map</a>.
+            </figcaption>
+          )}
+        </figure>
+      )}
+    </div>
 
-    <section aria-labelledby="what-it-does" class="part-sec">
-      <h2 id="what-it-does">What it does</h2>
-      <div class="prose"><Content /></div>
-      {ofKind("overview").map((e) => {
-        const C = rendered.get(e.data.id)!;
-        return <section id={e.data.anchor} class="entry prose"><C /></section>;
-      })}
-    </section>
-
-    {(decisions.length > 0 || rejected.length > 0) && (
-      <section aria-labelledby="why-this-way" class="part-sec">
-        <h2 id="why-this-way">Why this way</h2>
-        {decisions.map((d) => {
-          const C = rendered.get(d.data.id)!;
-          return (
-            <section id={d.data.anchor} class="entry decision prose">
-              <C />
-              {rejectedFor(d.data.id).map((r) => {
-                const R = rendered.get(r.data.id)!;
-                return <section id={r.data.anchor} class="rejected prose"><R /></section>;
-              })}
-            </section>
-          );
-        })}
-        {looseRejected.map((r) => {
-          const R = rendered.get(r.data.id)!;
-          return <section id={r.data.anchor} class="entry rejected prose"><R /></section>;
-        })}
+    {readouts.length > 0 && (
+      <section class="readouts" aria-labelledby="h-measured">
+        <h2 id="h-measured" class="label">Measured · aggregates only</h2>
+        <ul>
+          {readouts.map((r) => (
+            <li class="readout">
+              <span class="readout-value">{r.value}</span>
+              <span class="readout-label">{r.label}</span>
+              {r.track ? (
+                <>
+                  <span class="readout-track" aria-hidden="true">
+                    <span class="readout-rail"></span>
+                    <span class="readout-span" style={`left:${r.track.lo};width:${r.track.span}`}></span>
+                    <span class="readout-dot is-before" style={`left:${r.track.before}`}></span>
+                    <span class="readout-dot is-after" style={`left:${r.track.after}`}></span>
+                  </span>
+                  <span class="readout-scale" aria-hidden="true"><span>0</span><span>1</span></span>
+                  <span class="readout-note"><span class="key is-before" aria-hidden="true"></span>Before {r.before} <span class="key is-after" aria-hidden="true"></span>After {r.value}</span>
+                </>
+              ) : (
+                <span class="readout-note">{r.before ? `Before ${r.before} · ` : ""}{r.note}</span>
+              )}
+            </li>
+          ))}
+        </ul>
       </section>
     )}
 
-    {(ofKind("testing").length > 0 || part.data.evals.length > 0) && (
-      <section aria-labelledby="how-its-tested" class="part-sec">
-        <h2 id="how-its-tested">How it's tested</h2>
-        {ofKind("testing").map((e) => {
-          const C = rendered.get(e.data.id)!;
-          return <section id={e.data.anchor} class="entry prose"><C /></section>;
-        })}
-        {part.data.evals.length > 0 && (
-          <div class="evals-wrap">
-            <table class="evals">
-              <caption class="label">Measured (aggregates only)</caption>
-              <thead><tr><th scope="col">What</th><th scope="col">Value</th><th scope="col">n</th><th scope="col">Date</th></tr></thead>
-              <tbody>
-                {part.data.evals.map((v) => (
-                  <tr>
-                    <th scope="row">{evalName(v.name)}</th>
-                    <td>{evalValue(v.metric, v.value, v.n)}{v.baseline !== undefined && <span class="label"> (before: {evalValue(v.metric, v.baseline, v.n)})</span>}</td>
-                    <td>{v.n}</td>
-                    <td>{v.date}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+    <div class="part-body">
+      <nav class="rail" aria-label="On this page" data-rail>
+        <p class="label rail-label">On this page</p>
+        <ol>
+          {stations.map((s) => (
+            <li><a href={`#${s.id}`}><span class="rail-name">{s.name}</span>{s.count && <span class="rail-count">{s.count}</span>}</a></li>
+          ))}
+        </ol>
+        <p class="rail-more">
+          {part.data.related.length > 0 && (
+            <>
+              <span class="label">Related</span>
+              {part.data.related.map((r) => <a href={partLink(r)}>{order.find((p) => p.id === r)?.label ?? r} →</a>)}
+            </>
+          )}
+          <a href={back}>Back to the {pieceTitle} map</a>
+        </p>
+      </nav>
+
+      <article class="part-article">
+        <section aria-labelledby="what-it-does" class="part-sec" data-station>
+          <h2 id="what-it-does">What it does</h2>
+          <div class="prose"><Content /></div>
+          {ofKind("overview").map((e) => {
+            const C = rendered.get(e.data.id)!;
+            return <section id={e.data.anchor} class="entry prose"><C /></section>;
+          })}
+          {figures.map((f) => (
+            <figure class="part-figure">
+              <p class="part-figure-head label" aria-hidden="true"><span>Fig. {f.n}</span><span>{pieceTitle} · {part.data.title.split(",")[0]}</span></p>
+              <Fragment set:html={f.wide} />
+              {f.narrow && <Fragment set:html={f.narrow} />}
+              <figcaption><span class="part-figure-n">Fig. {f.n}</span> {f.caption}</figcaption>
+            </figure>
+          ))}
+        </section>
+
+        {(decisions.length > 0 || rejected.length > 0) && (
+          <section aria-labelledby="why-this-way" class="part-sec" data-station>
+            <h2 id="why-this-way">Why this way</h2>
+            {decisions.map((d, i) => {
+              const C = rendered.get(d.data.id)!;
+              const lost = rejectedFor(d.data.id);
+              return (
+                <div class="decision-card">
+                  <section id={d.data.anchor} class="decision-main prose">
+                    <p class="label">Decision {String(i + 1).padStart(2, "0")}</p>
+                    <C />
+                  </section>
+                  {lost.length > 0 && (
+                    <div class="decision-lost">
+                      {lost.map((r) => {
+                        const R = rendered.get(r.data.id)!;
+                        return <section id={r.data.anchor} class="rejected prose"><R /></section>;
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+            {looseRejected.map((r) => {
+              const R = rendered.get(r.data.id)!;
+              return <section id={r.data.anchor} class="rejected rejected-loose prose"><R /></section>;
+            })}
+          </section>
         )}
-      </section>
-    )}
 
-    {ofKind("learning").length > 0 && (
-      <section aria-labelledby="what-i-learned" class="part-sec">
-        <h2 id="what-i-learned">What I learned</h2>
-        {ofKind("learning").map((e) => {
-          const C = rendered.get(e.data.id)!;
-          return <section id={e.data.anchor} class="entry prose"><C /></section>;
-        })}
-      </section>
-    )}
+        {(testing.length > 0 || evals.length > 0) && (
+          <section aria-labelledby="how-its-tested" class="part-sec" data-station>
+            <h2 id="how-its-tested">How it's tested</h2>
+            {testing.map((e) => {
+              const C = rendered.get(e.data.id)!;
+              return <section id={e.data.anchor} class="entry prose"><C /></section>;
+            })}
+            {evals.length > 0 && (
+              <div class="evals-wrap">
+                <table class="evals">
+                  <caption class="label">Measured (aggregates only)</caption>
+                  <thead><tr><th scope="col">What</th><th scope="col">Value</th><th scope="col">n</th><th scope="col">Date</th></tr></thead>
+                  <tbody>
+                    {evals.map((v) => (
+                      <tr>
+                        <th scope="row">{evalName(v.name)}</th>
+                        <td>{tableValue(v)}{v.baseline !== undefined && <span class="label"> (before: {evalBefore(v)})</span>}</td>
+                        <td>{v.n ?? "—"}</td>
+                        <td>{v.date}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
+        )}
 
-    <p><a href={back}>← Back to the Vision map</a></p>
+        {learning.length > 0 && (
+          <section aria-labelledby="what-i-learned" class="part-sec" data-station>
+            <h2 id="what-i-learned">What I learned</h2>
+            {learning.map((e) => {
+              const C = rendered.get(e.data.id)!;
+              if (!isCase(e)) return <section id={e.data.anchor} class="entry prose"><C /></section>;
+              const m = caseMetric(e);
+              caseNo++;
+              return (
+                <section id={e.data.anchor} class="case">
+                  <p class="label case-no">Case {String(caseNo).padStart(2, "0")}</p>
+                  <C />
+                  {m && <p class="case-metric"><span class="case-metric-value">{m.value}</span> <span class="label">{m.label}</span></p>}
+                </section>
+              );
+            })}
+          </section>
+        )}
+
+        <nav class="part-steps" aria-label="Previous and next part">
+          {prev ? (
+            <a class="part-step" href={prev.page} rel="prev"><span class="label">← Previous · Part {numOf(prev.id)}</span><span class="part-step-name">{prev.label}</span></a>
+          ) : <span class="part-step is-empty"></span>}
+          {next ? (
+            <a class="part-step is-next" href={next.page} rel="next"><span class="label">Next · Part {numOf(next.id)} →</span><span class="part-step-name">{next.label}</span></a>
+          ) : <span class="part-step is-empty"></span>}
+          <a class="part-back" href={back}>Back to the {pieceTitle} map</a>
+        </nav>
+      </article>
+    </div>
   </main>
 </Base>
 
+<script>
+  import { initRail } from "../../scripts/part-rail.ts";
+  const rail = document.querySelector<HTMLElement>("[data-rail]");
+  if (rail) initRail(rail);
+</script>
+
 <style>
-  .part-page { max-width: 48rem; gap: var(--space-12); }
-  .part-head { display: grid; gap: var(--space-4); }
-  .part-head a { color: inherit; }
-  .part-summary { font-size: var(--step-1); line-height: 1.45; }
-  .part-sec { display: grid; gap: var(--space-6); }
+  .part-page { gap: var(--space-12); }
+  .part-head a, .part-where a { color: inherit; }
+
+  /* Header and "you are here", side by side; stacked on a phone. */
+  .part-top { display: flex; flex-wrap: wrap; gap: var(--space-8) var(--space-12); align-items: start; }
+  .part-head { flex: 3 1 24rem; min-width: 0; display: grid; gap: var(--space-4); }
+  .part-head h1 { font-size: clamp(var(--step-3), 5vw, 3rem); line-height: 1.05; }
+  .part-summary { font-size: var(--step-1); line-height: 1.45; max-width: 46ch; }
+  .part-where { flex: 2 1 18rem; min-width: 0; margin: 0; border: var(--line-thin) solid var(--color-silk-dim); border-radius: var(--radius); padding: var(--space-3); display: grid; gap: var(--space-2); }
+  .part-where-head { display: flex; justify-content: space-between; gap: var(--space-2); font-size: 0.6875rem; max-width: none; }
+  .part-where-here { color: var(--color-amber); }
+  .part-where :global(.locator) { display: block; width: 100%; height: auto; }
+  .part-where-links { font-size: var(--step--1); line-height: 1.5; color: var(--color-silk-dim); }
+  .part-where-links a { color: var(--color-silk); }
+
+  /* Readouts: joined cells, as the chips on the overview page. */
+  .readouts { display: grid; gap: var(--space-2); }
+  .readouts ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--line-thin); background: var(--color-silk-dim); border: var(--line-thin) solid var(--color-silk-dim); }
+  .readout { flex: 1 1 12rem; min-width: 0; background: var(--color-panel-raised); padding: var(--space-4); display: grid; gap: var(--space-2); align-content: start; }
+  .readout-value { font: 400 var(--step-3) / 1 var(--font-mono); }
+  .readout-label { font-size: var(--step--1); line-height: 1.35; }
+  .readout-note { font: 400 0.6875rem / 1.5 var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-silk-dim); }
+  .readout-track { position: relative; height: 16px; margin: var(--space-1) 6px 0; }
+  .readout-rail, .readout-span { position: absolute; top: 7px; height: 2px; }
+  .readout-rail { left: 0; right: 0; background: var(--color-panel); }
+  .readout-span { background: var(--color-silk-dim); }
+  .readout-dot { position: absolute; top: 2px; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; }
+  .readout-dot.is-before, .key.is-before { border: var(--focus-width) solid var(--color-silk-dim); background: var(--color-panel-raised); }
+  .readout-dot.is-after, .key.is-after { background: var(--color-amber); }
+  .readout-scale { display: flex; justify-content: space-between; font: 400 0.6875rem var(--font-mono); color: var(--color-silk-dim); }
+  .key { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: var(--space-1); vertical-align: 0.05em; }
+  .key.is-after { margin-left: var(--space-2); }
+
+  /* The body: the sections, and the rail beside them (first in the source, so it comes first
+     when the row wraps on a phone). */
+  .part-body { display: flex; flex-direction: row-reverse; flex-wrap: wrap; gap: var(--space-8) var(--space-12); align-items: flex-start; }
+  .part-article { flex: 999 1 35rem; min-width: 0; max-width: 48rem; display: grid; gap: var(--space-16); }
+  .rail { flex: 1 1 13rem; min-width: 0; position: sticky; top: var(--space-6); display: grid; gap: var(--space-4); }
+  .rail ol { list-style: none; margin: 0 0 0 6px; padding: 0 0 0 var(--space-6); border-left: var(--focus-width) solid var(--color-silk-dim); display: grid; gap: var(--space-3); }
+  .rail li { position: relative; }
+  .rail li::before { content: ""; position: absolute; left: calc(-1 * var(--space-6) - 8px); top: 0.55rem; width: 14px; height: 14px; box-sizing: border-box; border-radius: 50%; border: var(--focus-width) solid var(--color-silk-dim); background: var(--color-panel); }
+  .rail li:has(a[aria-current])::before { border-color: var(--color-amber); background: var(--color-amber); }
+  .rail a { display: grid; text-decoration: none; padding-block: var(--space-1); }
+  .rail a[aria-current] { color: var(--color-amber); }
+  .rail-name { font: 600 var(--step-0) / 1.3 var(--font-panel); letter-spacing: var(--tracking-panel); text-transform: uppercase; }
+  .rail a:hover .rail-name { text-decoration: underline; }
+  .rail-count { font: 400 0.6875rem / 1.4 var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-silk-dim); }
+  .rail-more { display: grid; gap: var(--space-1); border-top: var(--line-thin) solid var(--color-silk-dim); padding-top: var(--space-3); font-size: var(--step--1); }
+  .rail-more a { padding-block: var(--space-1); }
+
+  .part-sec { display: grid; gap: var(--space-6); scroll-margin-top: var(--space-8); }
+  .part-sec > h2 { scroll-margin-top: var(--space-8); }
   .entry { display: grid; gap: var(--space-3); scroll-margin-top: var(--space-8); }
   .entry + .entry { border-top: var(--line-thin) solid var(--color-silk-dim); padding-top: var(--space-6); }
-  .rejected { display: grid; gap: var(--space-2); margin-top: var(--space-2); padding: var(--space-3) var(--space-4); border-left: var(--focus-width) dashed var(--color-silk-dim); background: var(--color-panel-raised); scroll-margin-top: var(--space-8); }
   .prose :global(h3) { font-size: var(--step-1); }
   .prose :global(h4) { font: 600 var(--step-0) / var(--leading-tight) var(--font-panel); letter-spacing: var(--tracking-panel); text-transform: uppercase; color: var(--color-silk-dim); }
   .prose :global(p) { line-height: var(--leading-body); }
   .prose { display: grid; gap: var(--space-3); }
+
+  /* Figures: framed like a drawing sheet; the narrow version replaces the wide one on phones. */
+  .part-figure { margin: var(--space-2) 0 0; border: var(--line-thin) solid var(--color-silk-dim); border-radius: var(--radius); padding: var(--space-4) var(--space-3); display: grid; gap: var(--space-4); }
+  .part-figure-head { display: flex; justify-content: space-between; gap: var(--space-2); font-size: 0.6875rem; max-width: none; }
+  .part-figure :global(.figure-svg.is-narrow) { display: none; max-width: 22rem; justify-self: center; }
+  .part-figure figcaption { font-size: var(--step--1); line-height: 1.5; border-top: var(--line-thin) solid var(--color-silk-dim); padding-top: var(--space-3); }
+  .part-figure-n { font: 400 var(--step--1) var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-amber); margin-right: var(--space-1); }
+
+  /* Decisions: the choice on the left, the options it beat on the right. */
+  .decision-card { display: flex; flex-wrap: wrap; border: var(--line-module) solid var(--color-silk); border-radius: var(--radius); overflow: hidden; }
+  .decision-main { flex: 3 1 18rem; min-width: 0; background: var(--color-panel-raised); padding: var(--space-6); align-content: start; scroll-margin-top: var(--space-8); }
+  .decision-lost { flex: 2 1 14rem; min-width: 0; background: var(--color-panel); padding: var(--space-6); display: grid; gap: var(--space-4); align-content: start; }
+  .rejected { display: grid; gap: var(--space-2); padding-left: var(--space-3); border-left: var(--focus-width) dashed var(--color-silk-dim); scroll-margin-top: var(--space-8); }
+  .rejected-loose { background: var(--color-panel-raised); padding: var(--space-3) var(--space-4); }
+  .rejected :global(p) { font-size: var(--step--1); }
+
+  /* Case cards: a learning entry in case form. The entry's own h3 is the title; each h4 and
+     its paragraph form one row. */
+  .case { display: grid; grid-template-columns: 9rem minmax(0, 1fr); border: var(--line-module) solid var(--color-silk); border-radius: var(--radius); background: var(--color-panel-raised); scroll-margin-top: var(--space-8); }
+  .case > :global(*) { margin: 0; max-width: none; }
+  .case-no { grid-column: 1 / -1; order: 0; padding: var(--space-4) var(--space-6) 0; }
+  .case :global(h3) { grid-column: 1 / -1; order: 1; font-size: var(--step-1); padding: var(--space-1) var(--space-6) var(--space-4); }
+  .case-metric { grid-column: 1 / -1; order: 2; max-width: none; padding: 0 var(--space-6) var(--space-4); display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-3); align-items: baseline; }
+  .case-metric-value { font: 400 var(--step-1) var(--font-mono); color: var(--color-amber); }
+  .case :global(h4), .case :global(h4 + p) { order: 3; border-top: var(--line-thin) solid var(--color-panel); padding: var(--space-3) var(--space-6); }
+  .case :global(h4) { font: 400 0.6875rem / 1.9 var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-silk-dim); padding-right: 0; }
+  .case :global(h4 + p) { font-size: var(--step--1); line-height: 1.55; padding-left: var(--space-3); }
+  .case :global(h4:last-of-type) { color: var(--color-amber); }
+
   .evals-wrap { overflow-x: auto; }
   .evals { border-collapse: collapse; width: 100%; font-size: var(--step--1); }
   .evals caption { text-align: left; padding-bottom: var(--space-2); }
@@ -149,4 +397,27 @@ const evalName = (s: string) => (s.charAt(0).toUpperCase() + s.slice(1)).replace
   .evals thead th { font: 400 var(--step--1) var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-silk-dim); }
   .evals td { font-family: var(--font-mono); }
   .evals tbody th { font-weight: 400; }
+
+  /* Previous / next, then the way back to the map. */
+  .part-steps { display: flex; flex-wrap: wrap; gap: var(--space-3); border-top: var(--line-module) solid var(--color-silk); padding-top: var(--space-6); }
+  .part-step { flex: 1 1 12rem; display: grid; gap: var(--space-1); padding: var(--space-3) var(--space-4); border: var(--line-thin) solid var(--color-silk-dim); border-radius: var(--radius); text-decoration: none; }
+  .part-step:hover { border-color: var(--color-amber); }
+  .part-step.is-next { text-align: right; }
+  .part-step.is-empty { border: 0; padding: 0; }
+  .part-step-name { font: 600 var(--step-1) / 1.2 var(--font-panel); letter-spacing: var(--tracking-panel); text-transform: uppercase; }
+  .part-back { flex: 1 1 100%; text-align: center; font: 400 var(--step--1) var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; padding-block: var(--space-3); }
+
+  @media (max-width: 47.99rem) {
+    .part-figure :global(.figure-svg.is-wide) { display: none; }
+    .part-figure :global(.figure-svg.is-narrow) { display: block; }
+    .case { grid-template-columns: minmax(0, 1fr); }
+    .case :global(h4) { padding-bottom: 0; }
+    .case :global(h4 + p) { border-top: 0; padding-left: var(--space-6); padding-top: var(--space-1); }
+    /* The rail becomes a strip of section links that stays at the top while reading. */
+    .rail { flex-basis: 100%; top: 0; z-index: 3; gap: 0; background: var(--color-panel); border-bottom: var(--line-thin) solid var(--color-silk-dim); }
+    .rail-label, .rail-count, .rail-more { display: none; }
+    .rail ol { display: flex; gap: var(--space-4); margin: 0; padding: 0; border-left: 0; overflow-x: auto; white-space: nowrap; }
+    .rail li::before { display: none; }
+    .rail a { min-height: 2.75rem; align-items: center; }
+  }
 </style>

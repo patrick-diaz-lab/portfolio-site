@@ -42,6 +42,7 @@ Portfolio site for Patrick's work as an AI/LLM engineer. The first piece is **Vi
 | 1.12 | Detail page: run records | Same as 1.4; built after the sync |
 | 1.13 | Detail page: Claude worker tier | Same as 1.4; layers only (D19); built after the sync |
 | 1.14 | Detail page: Telegram adapter | Same as 1.4; layers only (D19); built after the sync |
+| 1.15 | Part page layout 3 (D19, Patrick 2026-11-13): "you are here" crop, readouts, section rail, decision cards, case cards, previous / next, and a figure on every part page. Plan below | Every part page has at least one figure and its lessons in case form; `pnpm check` (rules `readouts`, `figures`, `case`) and every gate pass; Patrick approves each page's reworded lessons and figure in its PR |
 
 **Order (Patrick, 2026-11-12):** 1.9a, then the post-sync PR, then 1.10–1.14, then 1.9b (domain and launch switch). Nothing in 1.10–1.14 is built before the sync PR with their notes is merged.
 
@@ -346,6 +347,16 @@ More part pages before launch (Patrick). Their notes are being written on the Vi
 - **1.14, Telegram adapter:** `layers_only`, because sender identity is a security layer. The signed sender identity is told at layer level, once the notes say it's built.
 - **Before 1.10:** the small post-sync PR below, so the existing pages match the corrected notes first.
 - **Cost:** build sessions on the subscription; no API spend.
+
+### Item 1.15 plan (Patrick's OK 2026-11-13)
+
+Chosen from three mock-ups on the agent core page (decisions stacked or side by side, lessons as prose or case cards): side-by-side decisions and case cards, plus a figure on every page.
+
+- **1.15a, the template and agent core** (this PR): the layout in `src/pages/[piece]/[part].astro`, the crop in `src/lib/map-svg.ts`, the shared `src/styles/schematic.css`, the rail script, the schema fields (`readouts`, `figures`, `metric`, `baseline_n`, `n` optional except for counts) and the check rules. Agent core gets its readouts, its three lessons in case form and FIG. 3.1 (routing: command → classifier → cheap or smart, and the fallback to smart).
+- **1.15b–d, the other part pages, two per PR:** LiteLLM gateway and eval harness; MCP servers and knowledge core; guardrails and console. Each gets its figure, its lessons in case form and its readouts, from numbers in `sources/vision/`. On layers-only pages the figure shows layers and reasons only (D19), checked like the page text.
+- **1.12–1.14** are written in layout 3 from the start, each with its figure.
+- **Until a page is converted** it keeps working: lessons without the case subheadings stay prose, and a page without `figures` or `readouts` shows none.
+- **Figures:** hand-drawn SVG in the map's classes, a wide version and, where the wide one would be too small on a phone, a narrow one. No scripts, links or ids (rule `figures`).
 
 ### Item 1.10 plan (Patrick's OK 2026-11-12)
 

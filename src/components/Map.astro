@@ -10,6 +10,7 @@
 // piece's data in that language; links to part pages that exist only in English are marked.
 import { lineName, t, type Locale } from "../i18n/ui.ts";
 import { linkParts, partHref, type MapPart, type SvgText } from "../lib/map-svg.ts";
+import "../styles/schematic.css";
 
 interface Props {
   svg: string;
@@ -88,29 +89,6 @@ for (const p of parts) {
   .map-body { display: flex; flex-wrap: wrap; gap: var(--space-6); align-items: stretch; }
   .map-frame { position: relative; flex: 3 1 36rem; min-width: 0; }
   .map-frame .schematic { display: block; width: 100%; height: auto; }
-
-  /* Schematic strokes and lettering (D13). Only built parts are drawn (Patrick, 2026-11-11). */
-  .schematic .frame :is(rect, path) { fill: none; stroke: var(--color-silk-dim); stroke-width: var(--line-thin); }
-  .schematic .frame-t { fill: var(--color-silk-dim); font: 400 13px var(--font-mono); letter-spacing: 0.12em; }
-  .schematic .dim { stroke: var(--color-silk-dim); stroke-width: var(--line-thin); fill: none; }
-  .schematic .dim-t { fill: var(--color-silk-dim); font: 400 12px var(--font-mono); letter-spacing: 0.08em; }
-  .schematic .terminal circle { fill: none; stroke: var(--color-silk-dim); stroke-width: 1.5; }
-  .schematic .wire-static { stroke: var(--color-silk); stroke-width: var(--line-module); fill: none; }
-  .schematic .note { fill: var(--color-amber); font: 600 17px var(--font-panel); letter-spacing: 0.03em; }
-  .schematic .note-line { stroke: var(--color-amber); stroke-width: 1.2; fill: none; stroke-dasharray: 3 3; }
-  .schematic .wire { stroke: var(--color-silk); stroke-width: var(--line-module); fill: none; pointer-events: none; }
-  .schematic .box { fill: var(--color-panel-raised); stroke: var(--color-silk); stroke-width: var(--line-module); }
-  .schematic .ring { fill: none; stroke: var(--color-amber); stroke-width: 2.5; opacity: 0; }
-  .schematic .lbl { fill: var(--color-silk); font: 400 17px var(--font-mono); letter-spacing: 0.04em; }
-  /* No underline under the box labels; focus shows as the amber ring only. */
-  .schematic .part { cursor: pointer; text-decoration: none; }
-  /* No browser outline on any focus (a mouse click showed one around box and wires); keyboard
-     focus shows the amber ring below. */
-  .schematic .part:focus { outline: none; }
-  .schematic .part:is(:hover, :focus-visible, .is-selected) .box { stroke: var(--color-amber); }
-  .schematic .part:is(:hover, :focus-visible, .is-selected) .lbl { fill: var(--color-amber); }
-  .schematic .part.is-selected .box { stroke-width: 2.5; }
-  .schematic .part:focus-visible .ring { opacity: 1; }
 
   /* The panel: one part at a time, next to the drawing. */
   .map-card {

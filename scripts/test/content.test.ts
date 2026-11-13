@@ -401,3 +401,59 @@ test("a count chip needs n; a chip with a baseline needs none", () => {
   });
   assert.equal(change.status, 0, change.output);
 });
+
+// Layout 3 (Patrick, 2026-11-13): readouts, figures and lessons in case form.
+const CASE = (steps: string[]) => `### A lesson\n\n${steps.map((s) => `#### ${s}\n\nOne paragraph.`).join("\n\n")}\n`;
+const withBody = (md: string, body: string) => md.replace("Entry text.\n", body);
+
+test("readouts and a case-form lesson with its metric pass", () => {
+  const { status, output } = fixture((f) => {
+    f["content/parts/demo/gateway.mdx"] = PART.replace("related: []", "readouts:\n  - eval: classifier-local-heldout\n    label: Classifier, held-out\nrelated: []");
+    f["content/knowledge/demo/price-lesson.md"] = withBody(entry("price-lesson", "learning", "\nmetric: classifier-local-heldout"), CASE(["What happened", "What I changed", "Result"]));
+  });
+  assert.equal(status, 0, output);
+});
+
+test("a readout or a lesson metric that isn't an eval of the part fails", () => {
+  const { status, output } = fixture((f) => {
+    f["content/parts/demo/gateway.mdx"] = PART.replace("related: []", "readouts:\n  - eval: nowhere\n    label: Nothing\nrelated: []");
+    f["content/knowledge/demo/price-lesson.md"] = withBody(entry("price-lesson", "learning", "\nmetric: nowhere"), CASE(["What happened", "What I changed", "Result"]));
+  });
+  assert.equal(status, 1, output);
+  assert.match(output, /readouts\s+content\/parts\/demo\/gateway\.mdx:\d+\s+readout "nowhere" isn't an eval of this part/);
+  assert.match(output, /case\s+content\/knowledge\/demo\/price-lesson\.md:\d+\s+metric "nowhere" isn't an eval of this part/);
+});
+
+test("a lesson in case form with a wrong step or two paragraphs fails; a metric needs the case form", () => {
+  const order = fixture((f) => {
+    f["content/knowledge/demo/price-lesson.md"] = withBody(entry("price-lesson", "learning"), CASE(["What happened", "Result", "What I changed"]));
+  });
+  assert.equal(order.status, 1, order.output);
+  assert.match(order.output, /case\s+content\/knowledge\/demo\/price-lesson\.md:\d+\s+a lesson in case form has exactly the subheadings/);
+  const two = fixture((f) => {
+    f["content/knowledge/demo/price-lesson.md"] = withBody(entry("price-lesson", "learning"), CASE(["What happened", "What I changed", "Result"]).replace("#### Result\n\nOne paragraph.", "#### Result\n\nOne paragraph.\n\nAnother."));
+  });
+  assert.equal(two.status, 1, two.output);
+  assert.match(two.output, /"Result" needs exactly one paragraph \(found 2 block\(s\)\)/);
+  const prose = fixture((f) => {
+    f["content/knowledge/demo/price-lesson.md"] = entry("price-lesson", "learning", "\nmetric: classifier-local-heldout");
+  });
+  assert.equal(prose.status, 1, prose.output);
+  assert.match(prose.output, /a headline metric needs the case form/);
+});
+
+test("a figure that's missing, scripted or linked fails", () => {
+  const fig = (svg: string) => `figures:\n  - svg: ${svg}\n    alt: A figure.\n    caption: A caption.\nrelated: []`;
+  const missing = fixture((f) => {
+    f["content/parts/demo/gateway.mdx"] = PART.replace("related: []", fig("gateway-1.svg"));
+  });
+  assert.equal(missing.status, 1, missing.output);
+  assert.match(missing.output, /figures\s+content\/parts\/demo\/gateway\.mdx:\d+\s+pieces\/demo\/figures\/gateway-1\.svg doesn't exist/);
+  const bad = fixture((f) => {
+    f["content/parts/demo/gateway.mdx"] = PART.replace("related: []", fig("gateway-1.svg"));
+    f["pieces/demo/figures/gateway-1.svg"] = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10" class="schematic figure-svg">\n<a href="https://example.org"><text>x</text></a>\n<script>1</script>\n</svg>\n';
+  });
+  assert.equal(bad.status, 1, bad.output);
+  assert.match(bad.output, /figures\s+pieces\/demo\/figures\/gateway-1\.svg:\d+\s+the figure holds a script/);
+  assert.match(bad.output, /figures\s+pieces\/demo\/figures\/gateway-1\.svg:\d+\s+the figure holds a link/);
+});

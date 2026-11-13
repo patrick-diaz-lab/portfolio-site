@@ -29,12 +29,41 @@ evals:
     metric: count
     value: 0
     n: 12
+    baseline: 1
+    baseline_n: 2
     date: 2026-11-04
   - name: right-source-retrieved
     metric: rate
     value: 1.0
     n: 18
     date: 2026-11-04
+  - name: reply-language
+    metric: rate
+    value: 1.0
+    baseline: 0.8
+    date: 2026-11-04
+  - name: answer-time-median
+    metric: seconds
+    value: 6
+    date: 2026-11-04
+  - name: answer-time-p95
+    metric: seconds
+    value: 11.6
+    date: 2026-11-04
+readouts:
+  - eval: classifier-local-held-out
+    label: Classifier accuracy, held-out
+  - eval: planted-instruction-repeated
+    label: Planted instruction repeated
+  - eval: reply-language
+    label: Reply in the question's language
+  - eval: answer-time-median
+    label: Median answer time
+figures:
+  - svg: agent-core-1.svg
+    svg_narrow: agent-core-1-narrow.svg
+    alt: "A message first meets a command check. Commands run without a model. Everything else goes to the local classifier on the GPU PC, which sends simple messages to cheap, without tools, and complex ones to smart, with read-only tools. If the classifier gives no answer within 2 seconds, or takes over 20, the message goes straight to smart."
+    caption: "How agent core routes a message. Commands never reach a model. The local classifier sends simple messages to cheap and the rest to smart; if it doesn't answer within 2 seconds, or takes over 20, the message goes straight to smart with its tools."
 related:
   - litellm-gateway
 ---

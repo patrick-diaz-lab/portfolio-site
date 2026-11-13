@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 324 444" class="schematic figure-svg">
+  <!-- FIG. 3.1 for phones: the same flow, top to bottom (layout 3, Patrick 2026-11-13). -->
+  <circle class="fig-start" cx="128" cy="6" r="5" />
+  <text class="dim-t" x="142" y="10">MESSAGE</text>
+  <path class="wire-static" d="M128 12 V31" />
+  <polygon class="fig-head" points="128,39 124,31 132,31" />
+
+  <polygon class="fig-decision" points="128,40 184,80 128,120 72,80" />
+  <text class="fig-decision-t" x="128" y="84">COMMAND?</text>
+
+  <path class="wire-static" d="M184 80 H223" />
+  <polygon class="fig-head" points="231,80 223,76 223,84" />
+  <text class="dim-t fig-mid" x="208" y="68">yes</text>
+  <rect class="box" x="232" y="52" width="88" height="56" />
+  <text class="lbl fig-mid" x="276" y="78">RUN</text>
+  <text class="fig-sub fig-mid" x="276" y="96">NO MODEL</text>
+
+  <path class="wire-static" d="M128 120 V167" />
+  <polygon class="fig-head" points="128,175 124,167 132,167" />
+  <text class="dim-t" x="140" y="152">no</text>
+  <rect class="box" x="32" y="176" width="192" height="72" />
+  <text class="lbl fig-mid" x="128" y="208">CLASSIFIER</text>
+  <text class="fig-sub fig-mid" x="128" y="230">LOCAL MODEL · GPU PC</text>
+
+  <path class="wire-static" d="M128 248 V288 M72 288 H248 M72 288 V327 M248 288 V327" />
+  <polygon class="fig-head" points="72,335 68,327 76,327" />
+  <polygon class="fig-head" points="248,335 244,327 252,327" />
+  <text class="dim-t" x="84" y="315">simple</text>
+  <text class="dim-t fig-end" x="236" y="315">complex</text>
+  <rect class="box" x="0" y="336" width="144" height="60" />
+  <text class="lbl fig-mid" x="72" y="362">CHEAP</text>
+  <text class="fig-sub fig-mid" x="72" y="382">NO TOOLS</text>
+  <rect class="box" x="176" y="336" width="144" height="60" />
+  <text class="lbl fig-mid" x="248" y="362">SMART</text>
+  <text class="fig-sub fig-mid" x="248" y="382">READ-ONLY TOOLS</text>
+
+  <path class="fig-fallback" d="M224 212 H296 V327" />
+  <polygon class="fig-head-amber" points="296,335 292,327 300,327" />
+  <text class="note" x="0" y="430">dashed: no answer in 2 s, or over 20 s</text>
+</svg>
