@@ -5,9 +5,12 @@
 // Patrick 2026-11-11). Entries keep the order of their file names. Not indexed until launch.
 import { getCollection, render, type CollectionEntry } from "astro:content";
 import Base from "../../layouts/Base.astro";
+import { loadPieces } from "../../lib/pieces.ts";
 
 export async function getStaticPaths() {
-  const parts = await getCollection("parts");
+  // Part pages only for built pieces (Patrick, 2026-11-13).
+  const built = new Set(loadPieces("en").map((p) => p.id));
+  const parts = (await getCollection("parts")).filter((p) => built.has(p.data.piece));
   const knowledge = await getCollection("knowledge");
   return parts.map((part) => ({
     params: { piece: part.data.piece, part: part.data.id },

@@ -375,6 +375,18 @@ test("homepages with the same work links pass; different links or a missing page
   assert.match(bad.output, /i18n\s+content\/home\/de\.yaml:1\s+the work links differ from en\.yaml/);
 });
 
+test("a homepage featuring or linking a piece that isn't built fails", () => {
+  const { status, output } = fixture((f) => {
+    withPiece(f);
+    f["pieces/demo/piece.yaml"] = PIECE.replace("status: built", "status: in-progress");
+    f["content/home/en.yaml"] = HOME(["/demo/gateway/", "/demo/", "/demo/gateway/"]);
+    f["content/home/de.yaml"] = HOME(["/demo/gateway/", "/demo/", "/demo/gateway/"]);
+  });
+  assert.equal(status, 1, output);
+  assert.match(output, /i18n\s+content\/home\/en\.yaml:\d+\s+featured piece "demo" doesn't exist or isn't built/);
+  assert.match(output, /i18n\s+content\/home\/en\.yaml:\d+\s+work link \/demo\/gateway\/ has no page/);
+});
+
 test("a count chip needs n; a chip with a baseline needs none", () => {
   const chip = (body: string) => `chips:\n  - label: A chip\n${body}    sources:\n      - sources/vision/notes.md\n    as_of: 2026-11-12\n`;
   const count = fixture((f) => {

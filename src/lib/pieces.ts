@@ -50,11 +50,13 @@ function readPiece(dir: string, locale: Locale): Piece | null {
   };
 }
 
+/** The built pieces, in their order. Only finished pieces are published (Patrick, 2026-11-13):
+ *  a piece that isn't built gets no overview, no part pages and no place on the homepage. */
 export function loadPieces(locale: Locale = "en"): Piece[] {
   if (!existsSync(ROOT)) return [];
   return readdirSync(ROOT)
     .filter((n) => statSync(join(ROOT, n)).isDirectory() && existsSync(join(ROOT, n, "piece.yaml")))
     .map((n) => readPiece(join(ROOT, n), locale))
-    .filter((p): p is Piece => p !== null)
+    .filter((p): p is Piece => p !== null && p.status === "built")
     .sort((a, b) => a.order - b.order);
 }

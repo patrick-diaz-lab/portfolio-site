@@ -1,20 +1,22 @@
 ---
 // Metric chips (aggregates only, D19), per language. Used on the piece overview and on the
-// homepage's featured card (PLAN 1.9a).
+// homepage's featured card (PLAN 1.9a). `panel` joins them into one grid inside a card, and
+// shows a measured change (a chip with a baseline) in amber (homepage layout, 2026-11-13).
 import { t, type Locale } from "../i18n/ui.ts";
 import { chipNote, chipValue } from "../lib/chips.ts";
 
 interface Props {
-  chips: { label: string; metric: string; value: number; n: number; as_of: string }[];
+  chips: { label: string; metric: string; value: number; n?: number; baseline?: number; as_of: string }[];
   locale: Locale;
+  variant?: "cards" | "panel";
 }
-const { chips, locale } = Astro.props;
+const { chips, locale, variant = "cards" } = Astro.props;
 ---
 {chips.length > 0 && (
-  <ul class="chips" aria-label={t(locale, "piece.measured")}>
+  <ul class:list={["chips", variant]} aria-label={t(locale, "piece.measured")}>
     {chips.map((c) => (
       <li class="chip">
-        <span class="chip-value">{chipValue(c, locale)}</span>
+        <span class:list={["chip-value", { change: c.baseline !== undefined }]}>{chipValue(c, locale)}</span>
         <span class="chip-label">{c.label}</span>
         <span class="label">{chipNote(c, locale)}</span>
       </li>
@@ -27,5 +29,11 @@ const { chips, locale } = Astro.props;
   .chip { display: grid; gap: var(--space-1); min-width: 13rem; padding: var(--space-3) var(--space-4); background: var(--color-panel-raised); border: var(--line-thin) solid var(--color-silk-dim); border-left: 3px solid var(--color-amber); border-radius: var(--radius); }
   .chip-value { font: 400 var(--step-2) / 1 var(--font-mono); color: var(--color-silk); }
   .chip-label { font-size: var(--step--1); line-height: 1.35; }
-  @media (max-width: 47.99rem) { .chip { flex: 1 1 100%; } }
+  @media (max-width: 47.99rem) { .chips.cards .chip { flex: 1 1 100%; } }
+
+  /* Lines between cells are the gap over a silk-dim ground; a cell that wraps alone fills its row. */
+  .chips.panel { gap: var(--line-thin); background: var(--color-silk-dim); border: var(--line-thin) solid var(--color-silk-dim); }
+  .panel .chip { flex: 1 1 9.5rem; min-width: 0; border: 0; border-radius: 0; padding: var(--space-3); align-content: start; }
+  .panel .chip-value.change { color: var(--color-amber); }
+  .panel .label { font-size: 0.6875rem; line-height: 1.4; }
 </style>
