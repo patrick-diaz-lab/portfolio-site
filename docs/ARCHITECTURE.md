@@ -75,7 +75,7 @@ evals/retrieval.yaml             public retrieval eval (questions → expected e
 - A `built` part with a page but without at least one `decision`, `rejected`, `testing` and `learning` entry.
 - Free text in `evals[]`.
 - A readout or a lesson `metric` that isn't an eval of its part; a `metric` on a lesson that isn't in case form; a case form with other subheadings or more than one paragraph per step (rules `readouts`, `case`).
-- A figure file that doesn't exist, has no `viewBox` or the map's classes, or holds a script, event handler, link, id, embedded image, HTML or style; on a layers-only page also its texts, alt and caption (rules `figures`, `layers-only`).
+- A figure file that doesn't exist, has no `viewBox` or the map's classes, or doesn't pass the figure safety check, which keeps a figure to a plain drawing; on a layers-only page also its texts, alt and caption (rules `figures`, `layers-only`).
 - A `map.yaml` part without its `<g id class="part">` in the SVG, an SVG part missing from `map.yaml`, a part listed twice, or a part group with a nested `<g>` (rule `svg`, item 1.3).
 - A starter citing a missing entry (Phase 3; starters and `evals/retrieval.yaml` get their schemas when first used).
 

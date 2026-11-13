@@ -356,7 +356,7 @@ Chosen from three mock-ups on the agent core page (decisions stacked or side by 
 - **1.15b–d, the other part pages, two per PR:** LiteLLM gateway and eval harness; MCP servers and knowledge core; guardrails and console. Each gets its figure, its lessons in case form and its readouts, from numbers in `sources/vision/`. On layers-only pages the figure shows layers and reasons only (D19), checked like the page text.
 - **1.12–1.14** are written in layout 3 from the start, each with its figure.
 - **Until a page is converted** it keeps working: lessons without the case subheadings stay prose, and a page without `figures` or `readouts` shows none.
-- **Figures:** hand-drawn SVG in the map's classes, a wide version and, where the wide one would be too small on a phone, a narrow one. No scripts, links or ids (rule `figures`).
+- **Figures:** hand-drawn SVG in the map's classes, a wide version and, where the wide one would be too small on a phone, a narrow one. Plain drawings only, checked by rule `figures`.
 
 ### Item 1.10 plan (Patrick's OK 2026-11-12)
 
