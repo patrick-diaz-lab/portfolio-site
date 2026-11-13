@@ -285,6 +285,25 @@ Turn the browser checks from items 1.1 and 1.3 into gates that run on every PR, 
   - Patrick has made `gates` a required check.
 - **Cost:** CI minutes on a public repo (free); no API spend.
 
+### Item 1.9b plan (Patrick, 2026-11-13: scoped for a job application the next evening)
+
+- **Custom domain:** `patrickdiaz.dev` on the Worker, attached in the dashboard by Patrick (STEPS D).
+  - Not as routes in `wrangler.jsonc`: the Git build's own token might not be allowed to create domains, and a failing deploy the day before the application isn't worth it.
+  - `workers.dev` stays on as a fallback for now.
+- **`hello@` forwarding:** Cloudflare Email Routing to Patrick's inbox (D14), set up and verified by Patrick (STEPS D).
+- **`pnpm link-check`**, also part of `pnpm gates`:
+  - every link on every built page, in both languages, resolves, including its anchor, the hreflang alternates and preloaded assets;
+  - external links go only to the site's own domain, GitHub and LinkedIn;
+  - the only email is `hello@`.
+
+  With `--live https://patrickdiaz.dev` it also requests every page from the live site and expects 200.
+- **`noindex` stays** (Patrick: only if trivial and safe; it isn't). Indexing needs a sitemap, `robots.txt`, `is-crawlable` back in Lighthouse, and a last search-engine review of every page. That comes later as its own small item. Recruiters use the link, and indexing takes days anyway.
+- **Done when:**
+  - `https://patrickdiaz.dev` and `/de/` serve the site over HTTPS;
+  - a test mail to `hello@` arrives;
+  - `pnpm link-check` passes locally and with `--live`;
+  - every gate passes.
+
 ### Item 1.9 plan (Patrick's OK 2026-11-12; 1.9b waits for the domain and for items 1.10–1.14)
 
 Patrick's decisions of 2026-11-12, folded into 1.9 rather than a parallel item. Two PRs: **1.9a**, the homepage and the German structure; **1.9b**, the launch switch.
