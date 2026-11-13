@@ -1,0 +1,40 @@
+---
+id: run-records
+piece: vision
+title: Run records, what ran and what it cost
+summary: Every service writes the same records, a run per piece of work and a step per call. They show what happened, what it cost and why it failed, while the content itself expires.
+status: built
+as_of: 2026-11-12
+source_commit: 8b2a08b580419fd5f06330fce3b7e25a982b0150
+sources:
+  - sources/vision/deep/run-records.md
+  - sources/vision/notes.md
+evals:
+  - name: paid-steps-matching-spend-log
+    metric: rate
+    value: 1.0
+    n: 158
+    date: 2026-11-12
+  - name: tokens-matching-spend-log
+    metric: rate
+    value: 1.0
+    date: 2026-11-12
+readouts:
+  - eval: paid-steps-matching-spend-log
+    label: Paid steps matching the spend log
+  - eval: tokens-matching-spend-log
+    label: Tokens matching the spend log
+figures:
+  - svg: run-records-1.svg
+    svg_narrow: run-records-1-narrow.svg
+    alt: "A piece of work opens one run. Each model call, tool call and command is a step of that run. A model step carries the run and step number, so it joins the gateway's spend log; a tool call becomes a child run on the MCP server. The run writes names, counts and costs to its record, and the full content to a trace store, which deletes it after 30 days unless the run is flagged."
+    caption: "One run per piece of work, one step per call. Model steps join the gateway's spend log by run and step number; the record keeps counts and costs, and the content expires with the trace after 30 days unless I flag the run."
+related:
+  - agent-core
+  - litellm-gateway
+  - console
+---
+
+Every service in Vision that does work writes the same kind of record: the chat agent, the indexer, the [MCP servers](/vision/mcp-servers/), the eval harness and the cleanup jobs. A run stands for one piece of work, and every model call, tool call or command inside it is a step with its tokens, cost and time. One query then answers what ran yesterday, what it cost and what failed, across everything.
+
+The records hold names, counts and costs. The words themselves, the question, what each step saw and the answer, live in a separate trace store for the [console](/vision/console/), and that store forgets them after 30 days.
