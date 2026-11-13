@@ -9,7 +9,25 @@ source_commit: 8b2a08b580419fd5f06330fce3b7e25a982b0150
 sources:
   - sources/vision/deep/mcp-servers.md
   - sources/vision/notes.md
-evals: []
+evals:
+  - name: homelab-answers-with-tools
+    metric: rate
+    value: 1.0
+    date: 2026-11-04
+  - name: homelab-answers-without-tools
+    metric: rate
+    value: 1.0
+    date: 2026-11-04
+readouts:
+  - eval: homelab-answers-with-tools
+    label: Homelab answers, with tools
+  - eval: homelab-answers-without-tools
+    label: Homelab answers, without tools
+figures:
+  - svg: mcp-servers-1.svg
+    svg_narrow: mcp-servers-1-narrow.svg
+    alt: "A model, smart or the worker, calls the gateway, where each key lists the tools it may use. The gateway reaches four servers of my own: knowledge for docs and notes, files for my PDFs and homelab for status, all read-only, and an inbox that can only add new notes. Every result comes back to the model marked as untrusted data."
+    caption: "How a tool call reaches my data. Every call passes the gateway, where each key lists the tools it may use. Three servers can only read; the fourth can only add new notes. Each layer holds only the rights it needs, and every result comes back marked as untrusted data."
 related:
   - knowledge-core
   - litellm-gateway

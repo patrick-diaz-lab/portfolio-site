@@ -67,7 +67,7 @@ const prev = pageAt > 0 ? withPage[pageAt - 1] : undefined;
 const next = pageAt >= 0 && pageAt < withPage.length - 1 ? withPage[pageAt + 1] : undefined;
 const numOf = (id: string) => String(order.findIndex((p) => p.id === id) + 1).padStart(2, "0");
 const partLink = (id: string) => order.find((p) => p.id === id)?.page ?? `${back}#part-${id}`;
-const here = piece ? locator(piece.svg, part.data.id) : undefined;
+const here = piece ? locator(piece.svg, part.data.id, (id) => order.find((p) => p.id === id)?.label ?? id) : undefined;
 const neighbours = (here?.neighbours ?? []).map((id) => ({ id, label: order.find((p) => p.id === id)?.label ?? id }));
 
 // Figures: hand-drawn SVGs next to the piece's map, each with the text a screen reader gets.
@@ -97,6 +97,10 @@ const readouts = part.data.readouts.flatMap((r) => {
     note: [e.n !== undefined && e.metric !== "count" ? `n = ${e.n}` : "", `as of ${e.date}`].filter(Boolean).join(" · "),
   }];
 });
+// The table under "How it's tested" lists only the values that aren't readouts (Patrick,
+// 2026-11-13, after #33): a number appears once on the page.
+const readoutNames = new Set(part.data.readouts.map((r) => r.eval));
+const tableEvals = evals.filter((e) => !readoutNames.has(e.name));
 
 // Case form: a learning entry with the three fixed subheadings renders as a case card.
 const isCase = (e: K) => /^#### What happened\s*$/m.test(e.body ?? "");
@@ -111,7 +115,7 @@ const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? o
 const stations = [
   { id: "what-it-does", name: "What it does", count: figures.length ? plural(figures.length, "figure") : "", show: true },
   { id: "why-this-way", name: "Why this way", count: [plural(decisions.length, "decision"), rejected.length ? `${rejected.length} rejected` : ""].filter(Boolean).join(" · "), show: decisions.length + rejected.length > 0 },
-  { id: "how-its-tested", name: "How it's tested", count: [testing.length ? plural(testing.length, "test") : "", evals.length ? plural(evals.length, "value") : ""].filter(Boolean).join(" · "), show: testing.length + evals.length > 0 },
+  { id: "how-its-tested", name: "How it's tested", count: [testing.length ? plural(testing.length, "test") : "", tableEvals.length ? plural(tableEvals.length, readouts.length ? "more value" : "value", readouts.length ? "more values" : "values") : ""].filter(Boolean).join(" · "), show: testing.length + tableEvals.length > 0 },
   { id: "what-i-learned", name: "What I learned", count: plural(learning.length, "lesson"), show: learning.length > 0 },
 ].filter((s) => s.show);
 const tableValue = (v: Eval) => evalValue(v.metric, v.value, v.n);
@@ -235,20 +239,20 @@ const tableValue = (v: Eval) => evalValue(v.metric, v.value, v.n);
           </section>
         )}
 
-        {(testing.length > 0 || evals.length > 0) && (
+        {(testing.length > 0 || tableEvals.length > 0) && (
           <section aria-labelledby="how-its-tested" class="part-sec" data-station>
             <h2 id="how-its-tested">How it's tested</h2>
             {testing.map((e) => {
               const C = rendered.get(e.data.id)!;
               return <section id={e.data.anchor} class="entry prose"><C /></section>;
             })}
-            {evals.length > 0 && (
+            {tableEvals.length > 0 && (
               <div class="evals-wrap">
                 <table class="evals">
-                  <caption class="label">Measured (aggregates only)</caption>
+                  <caption class="label">{readouts.length ? "More measured values (aggregates only)" : "Measured (aggregates only)"}</caption>
                   <thead><tr><th scope="col">What</th><th scope="col">Value</th><th scope="col">n</th><th scope="col">Date</th></tr></thead>
                   <tbody>
-                    {evals.map((v) => (
+                    {tableEvals.map((v) => (
                       <tr>
                         <th scope="row">{evalName(v.name)}</th>
                         <td>{tableValue(v)}{v.baseline !== undefined && <span class="label"> (before: {evalBefore(v)})</span>}</td>
@@ -314,7 +318,7 @@ const tableValue = (v: Eval) => evalValue(v.metric, v.value, v.n);
   .part-where { flex: 2 1 18rem; min-width: 0; margin: 0; border: var(--line-thin) solid var(--color-silk-dim); border-radius: var(--radius); padding: var(--space-3); display: grid; gap: var(--space-2); }
   .part-where-head { display: flex; justify-content: space-between; gap: var(--space-2); font-size: 0.6875rem; max-width: none; }
   .part-where-here { color: var(--color-amber); }
-  .part-where :global(.locator) { display: block; width: 100%; height: auto; }
+  .part-where :global(.locator) { display: block; max-width: 100%; height: auto; justify-self: center; }
   .part-where-links { font-size: var(--step--1); line-height: 1.5; color: var(--color-silk-dim); }
   .part-where-links a { color: var(--color-silk); }
 
