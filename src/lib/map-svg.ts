@@ -98,12 +98,26 @@ function wireEnds(d: string): [number, number][] {
   return points.length ? [points[0]!, points.at(-1)!] : [];
 }
 
-/** A part page's "you are here" map (layout 3, Patrick 2026-11-13): the piece's drawing cut
- *  down to the part and the parts wired to it (a wire of one ending on the other's box),
- *  everything else hidden, the part marked, no links or notes. The drawing is hidden from
- *  screen readers; the page names the neighbours as text links. */
-export function locator(svg: string, partId: string, pad = 16): { svg: string; neighbours: string[] } | undefined {
-  const view = /viewBox="([\d.]+) ([\d.]+) ([\d.]+) ([\d.]+)"/.exec(svg);
+/** Terminals in the drawing (`<g class="terminal">`): each circle with the texts beside it. */
+function terminals(svg: string): { x: number; y: number; lines: string[] }[] {
+  const out: { x: number; y: number; lines: string[] }[] = [];
+  for (const g of svg.matchAll(/<g\s+class="terminal"[^>]*>([\s\S]*?)<\/g>/g)) {
+    const texts = [...g[1]!.matchAll(/<text\b[^>]*\bx="([\d.]+)"[^>]*\by="([\d.]+)"[^>]*>([^<]*)<\/text>/g)].map((m) => ({ x: Number(m[1]), y: Number(m[2]), t: m[3]!.trim() }));
+    for (const c of g[1]!.matchAll(/<circle\b[^>]*\bcx="([\d.]+)"[^>]*\bcy="([\d.]+)"/g)) {
+      const x = Number(c[1]);
+      const y = Number(c[2]);
+      out.push({ x, y, lines: texts.filter((t) => t.x > x && t.y - y >= -12 && t.y - y <= 24).sort((a, b) => a.y - b.y).map((t) => t.t) });
+    }
+  }
+  return out;
+}
+
+/** A part page's "you are here" sheet (layout 3, Patrick 2026-11-13; drawn compact after his
+ *  review of #33): the part's box in the map's style, and every part wired to it (a wire of
+ *  one ending on the other's box) as a named terminal on the side where it sits on the map,
+ *  joined by a bus. A part wired to no other part shows where its own wire leads, labelled
+ *  as on the map. Hidden from screen readers; the page names the neighbours as text links. */
+export function locator(svg: string, partId: string, labelOf: (id: string) => string): { svg: string; neighbours: string[] } | undefined {
   const boxes = new Map<string, [number, number, number, number]>();
   const wires = new Map<string, [number, number][]>();
   for (const m of svg.matchAll(PART)) {
@@ -113,24 +127,68 @@ export function locator(svg: string, partId: string, pad = 16): { svg: string; n
     wires.set(m[1]!, w ? wireEnds(w[1]!) : []);
   }
   const here = boxes.get(partId);
-  if (!view || !here) return undefined;
+  if (!here) return undefined;
   const on = ([bx, by, bw, bh]: [number, number, number, number], [px, py]: [number, number]) =>
     px >= bx - 2 && px <= bx + bw + 2 && py >= by - 2 && py <= by + bh + 2;
   const neighbours = [...boxes.keys()].filter((id) =>
     id !== partId && ((wires.get(id) ?? []).some((p) => on(here, p)) || (wires.get(partId) ?? []).some((p) => on(boxes.get(id)!, p))));
-  // A part wired to nothing is shown with the parts around it instead.
-  const shown = neighbours.length ? [partId, ...neighbours] : [...boxes.keys()];
-  const near = neighbours.length ? shown.map((id) => boxes.get(id)!) : [[here[0] - 260, here[1] - 120, here[2] + 520, here[3] + 240] as [number, number, number, number]];
-  const [vx, vy, vw, vh] = view.slice(1).map(Number) as [number, number, number, number];
-  const x0 = Math.max(vx, Math.min(...near.map((b) => b[0])) - pad);
-  const y0 = Math.max(vy, Math.min(...near.map((b) => b[1])) - pad);
-  const x1 = Math.min(vx + vw, Math.max(...near.map((b) => b[0] + b[2])) + pad);
-  const y1 = Math.min(vy + vh, Math.max(...near.map((b) => b[1] + b[3])) + pad);
-  const keep = new Set(shown);
-  const out = svg
-    .replace(/^\s*<\?xml[^>]*>\s*/, "")
-    .replace(/<!--[\s\S]*?-->/g, "")
-    .replace(/<svg\b[^>]*>/, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${x0} ${y0} ${x1 - x0} ${y1 - y0}" class="schematic locator" aria-hidden="true" focusable="false">`)
-    .replace(PART_OPEN, (_whole, id: string) => `<g data-part="${esc(id)}" class="part${id === partId ? " is-here" : keep.has(id) ? "" : " is-away"}">`);
-  return { svg: out, neighbours: neighbours.length ? neighbours : [] };
+
+  // Sides as on the map; a neighbour straight above or below goes to the shorter side.
+  const mid = (b: [number, number, number, number]) => b[0] + b[2] / 2;
+  const left: string[] = [];
+  const right: string[] = [];
+  const ties: string[] = [];
+  for (const id of neighbours) {
+    const d = mid(boxes.get(id)!) - mid(here);
+    (d < -1 ? left : d > 1 ? right : ties).push(id);
+  }
+  for (const id of ties) (left.length <= right.length ? left : right).push(id);
+  const top = (id: string) => boxes.get(id)![1];
+  left.sort((a, b) => top(a) - top(b));
+  right.sort((a, b) => top(a) - top(b));
+  const outside = neighbours.length
+    ? []
+    : (terminals(svg).find((t) => (wires.get(partId) ?? []).some(([px, py]) => Math.abs(px - t.x) <= 6 && Math.abs(py - t.y) <= 6))?.lines ?? []);
+
+  // The sheet: labels | terminal | bus | the part | bus | terminal | labels.
+  // One scale for every sheet, so a part with one neighbour isn't drawn bigger than a hub.
+  const SCALE = 0.72;
+  const STEP = 34, BH = 64, BX = 210, BW = 210;
+  const L = { end: 168, dot: 178, bus: 196 };
+  const R = { bus: BX + BW + 14, dot: BX + BW + 32, start: BX + BW + 42 };
+  const rows = Math.max(left.length, right.length, 1);
+  const H = Math.max(BH, (rows - 1) * STEP + 28) + 32;
+  const yc = H / 2;
+  const ys = (n: number) => Array.from({ length: n }, (_, i) => yc + (i - (n - 1) / 2) * STEP);
+  const parts: string[] = [];
+  const side = (ids: string[], s: "left" | "right") => {
+    if (!ids.length) return;
+    const y = ys(ids.length);
+    const bus = s === "left" ? L.bus : R.bus;
+    const dot = s === "left" ? L.dot : R.dot;
+    const edge = s === "left" ? BX : BX + BW;
+    ids.forEach((id, i) => {
+      parts.push(`<path class="wire-static" d="M${s === "left" ? dot + 4 : bus} ${y[i]} H${s === "left" ? bus : dot - 4}" />`);
+      parts.push(`<circle class="loc-dot" cx="${dot}" cy="${y[i]}" r="4" />`);
+      parts.push(`<text class="loc-n${s === "left" ? " loc-end" : ""}" x="${s === "left" ? L.end : R.start}" y="${y[i]! + 5}">${esc(labelOf(id).toUpperCase())}</text>`);
+    });
+    const lo = Math.min(...y, yc);
+    const hi = Math.max(...y, yc);
+    if (hi > lo) parts.push(`<path class="wire-static" d="M${bus} ${lo} V${hi}" />`);
+    parts.push(`<path class="wire-static" d="M${Math.min(bus, edge)} ${yc} H${Math.max(bus, edge)}" />`);
+  };
+  side(left, "left");
+  side(right, "right");
+  if (outside.length) {
+    parts.push(`<path class="wire-static" d="M${BX + BW} ${yc} H${R.dot - 4}" />`, `<circle class="loc-dot" cx="${R.dot}" cy="${yc}" r="4" />`);
+    outside.forEach((line, j) => parts.push(`<text class="loc-n loc-dim" x="${R.start}" y="${yc + 5 + (j - (outside.length - 1) / 2) * 17}">${esc(line)}</text>`));
+  }
+  parts.push(`<g class="part is-here"><rect class="box" x="${BX}" y="${yc - BH / 2}" width="${BW}" height="${BH}" /><text class="lbl loc-mid" x="${BX + BW / 2}" y="${yc + 6}">${esc(labelOf(partId).toUpperCase())}</text></g>`);
+
+  const x0 = left.length ? 0 : BX - 16;
+  const x1 = right.length || outside.length ? R.start + 178 : BX + BW + 16;
+  return {
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${x0} 0 ${x1 - x0} ${H}" width="${Math.round((x1 - x0) * SCALE)}" height="${Math.round(H * SCALE)}" class="schematic locator" aria-hidden="true" focusable="false">${parts.join("")}</svg>`,
+    neighbours,
+  };
 }

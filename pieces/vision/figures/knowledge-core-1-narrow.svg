@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 324 450" class="schematic figure-svg">
+  <!-- FIG. 8.1 for phones: the same path, top to bottom (layout 3, Patrick 2026-11-13). -->
+  <rect class="box" x="0" y="0" width="100" height="52" />
+  <text class="lbl fig-mid" x="50" y="24">DOCS</text>
+  <text class="fig-sub fig-mid" x="50" y="42">MERGED</text>
+  <rect class="box" x="110" y="0" width="100" height="52" />
+  <text class="lbl fig-mid" x="160" y="24">NOTES</text>
+  <text class="fig-sub fig-mid" x="160" y="42">ONE-WAY</text>
+  <rect class="box" x="220" y="0" width="100" height="52" />
+  <text class="lbl fig-mid" x="270" y="24">PDFS</text>
+  <text class="fig-sub fig-mid" x="270" y="42">FILES</text>
+
+  <path class="wire-static" d="M50 52 V72 M160 52 V72 M270 52 V72 M50 72 H270 M160 72 V95" />
+  <polygon class="fig-head" points="160,103 156,95 164,95" />
+  <rect class="box" x="60" y="104" width="200" height="56" />
+  <text class="lbl fig-mid" x="160" y="128">INDEXER</text>
+  <text class="fig-sub fig-mid" x="160" y="148">BY HEADING · NO MODEL</text>
+  <path class="wire-static" d="M160 160 V183" />
+  <polygon class="fig-head" points="160,191 156,183 164,183" />
+  <rect class="box" x="60" y="192" width="200" height="56" />
+  <text class="lbl fig-mid" x="160" y="216">INDEX</text>
+  <text class="fig-sub fig-mid" x="160" y="236">VECTOR + KEYWORDS</text>
+  <path class="wire-static" d="M160 248 V271" />
+  <polygon class="fig-head" points="160,279 156,271 164,271" />
+  <rect class="box" x="60" y="280" width="200" height="56" />
+  <text class="lbl fig-mid" x="160" y="304">SEARCH</text>
+  <text class="fig-sub fig-mid" x="160" y="324">BOTH RANKINGS, FUSED</text>
+
+  <text class="dim-t" x="0" y="364">EMBEDDING, IN THIS ORDER</text>
+  <rect class="box" x="0" y="372" width="90" height="40" />
+  <text class="lbl fig-mid" x="45" y="398">GPU PC</text>
+  <path class="fig-fallback" d="M90 392 H106" />
+  <polygon class="fig-head-amber" points="114,392 106,388 106,396" />
+  <rect class="box" x="115" y="372" width="90" height="40" />
+  <text class="lbl fig-mid" x="160" y="390">CPU</text>
+  <text class="fig-sub fig-mid" x="160" y="405">SAME MODEL</text>
+  <path class="fig-fallback" d="M205 392 H221" />
+  <polygon class="fig-head-amber" points="229,392 221,388 221,396" />
+  <rect class="box" x="230" y="372" width="90" height="40" />
+  <text class="fig-lbl-s fig-mid" x="275" y="397">KEYWORDS</text>
+
+  <text class="note" x="0" y="440">private notes never leave my devices</text>
+</svg>

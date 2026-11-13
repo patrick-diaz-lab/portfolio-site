@@ -23,13 +23,14 @@
 .schematic .part.is-selected .box { stroke-width: 2.5; }
 .schematic .part:focus-visible .ring { opacity: 1; }
 
-/* "You are here" crop on a part page: wires and boxes only, the part in amber. */
-.locator :is(.frame, .notes, .terminal, .signal-dot, .ring) { display: none; }
-.locator .part { cursor: default; }
-.locator .part.is-away { display: none; }
+/* "You are here" sheet on a part page: the part in amber, its neighbours as named terminals. */
 .locator .part.is-here .box { stroke: var(--color-amber); stroke-width: 3; }
 .locator .part.is-here .lbl { fill: var(--color-amber); font-weight: 700; }
-.locator .part.is-here .wire { stroke: var(--color-amber); }
+.locator .loc-mid { text-anchor: middle; }
+.locator .loc-dot { fill: none; stroke: var(--color-silk-dim); stroke-width: 1.5; }
+.locator .loc-n { fill: var(--color-silk); font: 400 14px var(--font-mono); letter-spacing: 0.04em; }
+.locator .loc-end { text-anchor: end; }
+.locator .loc-dim { fill: var(--color-silk-dim); }
 
 /* Figures on part pages (FIG. <part>.<n>): the same strokes and lettering as the map. */
 .figure-svg { display: block; width: 100%; height: auto; }
@@ -42,3 +43,4 @@
 .figure-svg .fig-head-amber { fill: var(--color-amber); }
 .figure-svg .fig-start { fill: none; stroke: var(--color-silk-dim); stroke-width: 1.5; }
 .figure-svg .fig-end { text-anchor: end; }
+.figure-svg .fig-lbl-s { fill: var(--color-silk); font: 400 14px var(--font-mono); letter-spacing: 0.04em; }

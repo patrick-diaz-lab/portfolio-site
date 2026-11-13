@@ -25,6 +25,39 @@ evals:
     value: 1.0
     n: 5
     date: 2026-11-12
+  - name: docs-hit-at-5-dev
+    metric: hit_at_5
+    value: 1.0
+    baseline: 0.933
+    date: 2026-11-12
+  - name: notes-chunk-search-hit-at-5-held-out
+    metric: hit_at_5
+    value: 0.95
+    baseline: 0.91
+    date: 2026-11-12
+  - name: notes-note-search-hit-at-5-held-out
+    metric: hit_at_5
+    value: 0.68
+    baseline: 0.59
+    date: 2026-11-12
+  - name: merged-doc-searchable-after
+    metric: seconds
+    value: 887
+    date: 2026-11-12
+readouts:
+  - eval: docs-hit-at-5-dev
+    label: Docs retrieval hit@5, dev, ranking fix
+  - eval: notes-chunk-search-hit-at-5-held-out
+    label: Notes, chunk search hit@5, held-out
+  - eval: named-document-right-source
+    label: Named documents, right source
+  - eval: merged-doc-searchable-after
+    label: A merged doc is searchable after
+figures:
+  - svg: knowledge-core-1.svg
+    svg_narrow: knowledge-core-1-narrow.svg
+    alt: "My docs, merged only, my notes, synced one way, and my PDFs go into the indexer, which splits them by heading without a model. The index holds a vector and keywords for every piece, and search runs both rankings and fuses them. Embedding tries the GPU PC first, then the CPU with the same model, then keywords only. Private notes never leave my devices."
+    caption: "How my material becomes searchable. The indexer splits docs, notes and PDFs by heading, without a model; search fuses a vector and a keyword ranking. Embedding falls back from the GPU to the CPU with the same model, then to keywords only. Private notes never leave my devices."
 related:
   - mcp-servers
   - eval-harness

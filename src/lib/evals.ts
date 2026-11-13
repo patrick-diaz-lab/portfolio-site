@@ -12,7 +12,7 @@ const SHARE = new Set(["accuracy", "hit_at_5", "mrr", "rate"]);
 // one decimal (1.0, not 1).
 export function evalValue(metric: string, v: number, n?: number, digits?: number): string {
   if (metric === "cost_usd") return `$${digits === undefined ? v : v.toFixed(digits)}`;
-  if (metric === "seconds") return `${v} s`;
+  if (metric === "seconds") return v >= 60 ? `${Math.floor(v / 60)} min ${Math.round(v % 60)} s` : `${v} s`;
   if (metric === "count") return n === undefined ? String(v) : `${v} of ${n}`;
   return v.toLocaleString("en", { minimumFractionDigits: 1, maximumFractionDigits: 4 });
 }

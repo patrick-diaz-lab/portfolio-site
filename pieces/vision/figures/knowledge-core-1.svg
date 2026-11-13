@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 12 724 282" class="schematic figure-svg">
+  <!-- FIG. 8.1, how my material becomes searchable (layout 3, Patrick 2026-11-13). Classes
+       from src/styles/schematic.css. The page adds role="img" and the alt text. -->
+  <rect class="box" x="0" y="20" width="150" height="52" />
+  <text class="lbl fig-mid" x="75" y="44">DOCS</text>
+  <text class="fig-sub fig-mid" x="75" y="62">MERGED ONLY</text>
+  <rect class="box" x="0" y="96" width="150" height="52" />
+  <text class="lbl fig-mid" x="75" y="120">MY NOTES</text>
+  <text class="fig-sub fig-mid" x="75" y="138">ONE-WAY SYNC</text>
+  <rect class="box" x="0" y="172" width="150" height="52" />
+  <text class="lbl fig-mid" x="75" y="196">MY PDFS</text>
+  <text class="fig-sub fig-mid" x="75" y="214">FILES</text>
+
+  <path class="wire-static" d="M150 46 H175 M150 122 H175 M150 198 H175 M175 46 V198 M175 122 H201" />
+  <polygon class="fig-head" points="209,122 201,118 201,126" />
+  <rect class="box" x="210" y="92" width="150" height="60" />
+  <text class="lbl fig-mid" x="285" y="114">INDEXER</text>
+  <text class="fig-sub fig-mid" x="285" y="132">BY HEADING</text>
+  <text class="fig-sub fig-mid" x="285" y="146">NO MODEL</text>
+  <path class="wire-static" d="M360 122 H401" />
+  <polygon class="fig-head" points="409,122 401,118 401,126" />
+  <rect class="box" x="410" y="92" width="140" height="60" />
+  <text class="lbl fig-mid" x="480" y="118">INDEX</text>
+  <text class="fig-sub fig-mid" x="480" y="138">VECTOR + KEYWORDS</text>
+  <path class="wire-static" d="M550 122 H591" />
+  <polygon class="fig-head" points="599,122 591,118 591,126" />
+  <rect class="box" x="600" y="92" width="120" height="60" />
+  <text class="lbl fig-mid" x="660" y="118">SEARCH</text>
+  <text class="fig-sub fig-mid" x="660" y="138">BOTH, FUSED</text>
+  <text class="dim-t" x="600" y="172">read tools only</text>
+
+  <path class="wire-static" d="M270 152 V201" />
+  <polygon class="fig-head" points="270,209 266,201 274,201" />
+  <text class="dim-t" x="370" y="200">EMBEDDING</text>
+  <rect class="box" x="210" y="210" width="120" height="44" />
+  <text class="lbl fig-mid" x="270" y="230">GPU PC</text>
+  <text class="fig-sub fig-mid" x="270" y="246">FIRST</text>
+  <path class="fig-fallback" d="M330 232 H361" />
+  <polygon class="fig-head-amber" points="369,232 361,228 361,236" />
+  <text class="dim-t fig-mid" x="350" y="268">10 s</text>
+  <rect class="box" x="370" y="210" width="130" height="44" />
+  <text class="lbl fig-mid" x="435" y="230">CPU</text>
+  <text class="fig-sub fig-mid" x="435" y="246">SAME MODEL</text>
+  <path class="fig-fallback" d="M500 232 H531" />
+  <polygon class="fig-head-amber" points="539,232 531,228 531,236" />
+  <rect class="box" x="540" y="210" width="180" height="44" />
+  <text class="lbl fig-mid" x="630" y="230">KEYWORDS</text>
+  <text class="fig-sub fig-mid" x="630" y="246">AND SEARCH SAYS SO</text>
+
+  <text class="note" x="0" y="288">private notes never leave my devices</text>
+</svg>
