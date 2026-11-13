@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 30 724 246" class="schematic figure-svg">
+  <!-- FIG. 9.1, how the harness measures a change (layout 3, Patrick 2026-11-13). Classes
+       from src/styles/schematic.css. The page adds role="img" and the alt text. -->
+  <rect class="box" x="0" y="40" width="170" height="64" />
+  <text class="lbl fig-mid" x="85" y="64">DEV SET</text>
+  <text class="fig-sub fig-mid" x="85" y="82">CLAUDE DRAFTS</text>
+  <text class="fig-sub fig-mid" x="85" y="96">I REVIEW</text>
+  <rect class="box" x="0" y="200" width="170" height="64" />
+  <text class="lbl fig-mid" x="85" y="228">HELD-OUT SET</text>
+  <text class="fig-sub fig-mid" x="85" y="248">WRITTEN BY ME</text>
+
+  <path class="wire-static" d="M170 72 H210 M170 232 H210 M210 72 V232 M210 152 H241" />
+  <polygon class="fig-head" points="249,152 241,148 241,156" />
+
+  <rect class="box" x="250" y="112" width="200" height="80" />
+  <text class="lbl fig-mid" x="350" y="144">HARNESS</text>
+  <text class="fig-sub fig-mid" x="350" y="164">PRODUCTION CODE</text>
+  <text class="fig-sub fig-mid" x="350" y="180">SCORED BY CODE</text>
+  <path class="note-line" d="M350 192 V206" />
+  <text class="note" x="296" y="224">stops at $2 a run</text>
+
+  <path class="wire-static" d="M450 152 H500 M500 72 V232 M500 72 H531 M500 232 H531" />
+  <polygon class="fig-head" points="539,72 531,68 531,76" />
+  <polygon class="fig-head" points="539,232 531,228 531,236" />
+  <text class="dim-t fig-end" x="532" y="62">dev</text>
+  <text class="dim-t fig-end" x="532" y="254">held-out</text>
+
+  <rect class="box" x="540" y="40" width="180" height="64" />
+  <text class="lbl fig-mid" x="630" y="68">EVERY CASE</text>
+  <text class="fig-sub fig-mid" x="630" y="88">DEV RESULTS</text>
+  <rect class="box" x="540" y="200" width="180" height="64" />
+  <text class="lbl fig-mid" x="630" y="228">TOTALS ONLY</text>
+  <text class="fig-sub fig-mid" x="630" y="248">NO CASE TEXT OR IDS</text>
+</svg>

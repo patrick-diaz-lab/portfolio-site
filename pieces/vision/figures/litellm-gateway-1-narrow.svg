@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 324 404" class="schematic figure-svg">
+  <!-- FIG. 6.1 for phones: the same flow, top to bottom (layout 3, Patrick 2026-11-13). -->
+  <text class="dim-t" x="0" y="12">each: its own key and 30-day budget</text>
+  <rect class="box" x="0" y="24" width="100" height="56" />
+  <text class="lbl fig-mid" x="50" y="48">CHAT</text>
+  <text class="lbl fig-mid" x="50" y="68">AGENT</text>
+  <rect class="box" x="110" y="24" width="100" height="56" />
+  <text class="lbl fig-mid" x="160" y="48">EVAL</text>
+  <text class="lbl fig-mid" x="160" y="68">HARNESS</text>
+  <rect class="box" x="220" y="24" width="100" height="56" />
+  <text class="lbl fig-mid" x="270" y="58">INDEXER</text>
+
+  <path class="wire-static" d="M50 80 V100 M160 80 V100 M270 80 V100 M50 100 H270 M160 100 V131" />
+  <polygon class="fig-head" points="160,139 156,131 164,131" />
+  <text class="note" x="172" y="126">global cap $24</text>
+  <rect class="box" x="60" y="140" width="200" height="72" />
+  <text class="lbl fig-mid" x="160" y="168">GATEWAY</text>
+  <text class="fig-sub fig-mid" x="160" y="186">ROLES → MODELS</text>
+  <text class="fig-sub fig-mid" x="160" y="202">PRICES I SET</text>
+
+  <path class="wire-static" d="M160 212 V236 M75 236 H245 M75 236 V259 M245 236 V259" />
+  <polygon class="fig-head" points="75,267 71,259 79,259" />
+  <polygon class="fig-head" points="245,267 241,259 249,259" />
+  <rect class="box" x="0" y="268" width="150" height="56" />
+  <text class="lbl fig-mid" x="75" y="292">PROVIDER</text>
+  <text class="fig-sub fig-mid" x="75" y="312">SMART · CHEAP</text>
+  <rect class="box" x="170" y="268" width="150" height="56" />
+  <text class="lbl fig-mid" x="245" y="292">MY GPU PC</text>
+  <text class="fig-sub fig-mid" x="245" y="312">LOCAL · EMBED</text>
+  <text class="note" x="0" y="346">limit $30 a month</text>
+  <text class="dim-t" x="170" y="344">not from credits</text>
+
+  <path class="fig-fallback" d="M60 176 H20 V89" />
+  <polygon class="fig-head-amber" points="20,81 16,89 24,89" />
+  <text class="note" x="0" y="376">dashed: out of money, a reply</text>
+  <text class="note" x="0" y="396">that says what ran out</text>
+</svg>

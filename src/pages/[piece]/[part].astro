@@ -197,7 +197,7 @@ const tableValue = (v: Eval) => evalValue(v.metric, v.value, v.n);
           })}
           {figures.map((f) => (
             <figure class="part-figure">
-              <p class="part-figure-head label" aria-hidden="true"><span>Fig. {f.n}</span><span>{pieceTitle} · {part.data.title.split(",")[0]}</span></p>
+              <p class="part-figure-head label" aria-hidden="true"><span>Fig. {f.n}</span><span>{pieceTitle} · {order.find((p) => p.id === part.data.id)?.label ?? part.data.title}</span></p>
               <Fragment set:html={f.wide} />
               {f.narrow && <Fragment set:html={f.narrow} />}
               <figcaption><span class="part-figure-n">Fig. {f.n}</span> {f.caption}</figcaption>

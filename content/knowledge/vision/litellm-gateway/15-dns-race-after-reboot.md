@@ -13,4 +13,14 @@ source_commit: bb4fb3747aa6d7a80666b2d19dd718d1e4bedd98
 
 ### Every chat failed after a reboot
 
-One morning no message got through: the gateway couldn't look up the provider's address. Docker hands each container its name servers when the container starts, and at boot some containers started before the host had its own settings, so they got none. A restart fixed it until the next boot, and reordering the services would only have made the race rarer. Docker now uses fixed upstream name servers, and the check script above proves it after every cold boot.
+#### What happened
+
+One morning no message got through: the gateway couldn't look up the provider's address. Docker hands each container its name servers when the container starts, and at boot some containers started before the host had its own settings, so they got none.
+
+#### What I changed
+
+A restart fixed it until the next boot, and reordering the services would only have made the race rarer. Docker now uses fixed upstream name servers.
+
+#### Result
+
+A check script tests name resolution in every container, and the fix counted only after a cold reboot with no manual restarts.
