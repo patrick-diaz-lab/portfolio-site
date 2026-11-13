@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 364 584" class="schematic figure-svg">
+  <!-- FIG. Claude worker, narrow version for phones (layout 3, layers only). Same content as
+       the wide one, stacked. -->
+  <rect class="box" x="100" y="10" width="160" height="56" />
+  <text class="lbl fig-mid" x="180" y="34">AGENT CORE</text>
+  <text class="fig-sub fig-mid" x="180" y="54">SIGNED SENDER</text>
+  <path class="wire-static" d="M180 66 V111" />
+  <polygon class="fig-head" points="180,119 176,111 184,111" />
+
+  <g class="frame"><rect x="40" y="96" width="280" height="190" /></g>
+  <text class="frame-t" x="50" y="114">OWN NETWORK</text>
+  <rect class="box" x="85" y="120" width="190" height="56" />
+  <text class="lbl fig-mid" x="180" y="144">CLAUDE WORKER</text>
+  <text class="fig-sub fig-mid" x="180" y="164">FRESH WORKSPACE</text>
+  <path class="wire-static" d="M180 176 V197" />
+  <polygon class="fig-head" points="180,205 176,197 184,197" />
+  <rect class="box" x="85" y="206" width="190" height="50" />
+  <text class="lbl fig-mid" x="180" y="229">STARTUP CHECK</text>
+  <text class="fig-sub fig-mid" x="180" y="247">EXACT EXPECTED SET</text>
+
+  <path class="wire-static" d="M275 148 H300 V311" />
+  <polygon class="fig-head" points="300,319 296,311 304,311" />
+  <rect class="box" x="200" y="320" width="160" height="46" />
+  <text class="lbl fig-mid" x="280" y="341">PROXY</text>
+  <text class="fig-sub fig-mid" x="280" y="358">ONLY WAY OUT</text>
+  <path class="wire-static" d="M240 366 V391 M320 366 V391" />
+  <polygon class="fig-head" points="240,399 236,391 244,391" />
+  <polygon class="fig-head" points="320,399 316,391 324,391" />
+  <rect class="box" x="180" y="400" width="88" height="46" />
+  <text class="fig-sub fig-mid" x="224" y="420">PROVIDER</text>
+  <text class="fig-sub fig-mid" x="224" y="436">API</text>
+  <rect class="box" x="272" y="400" width="88" height="46" />
+  <text class="fig-sub fig-mid" x="316" y="420">GATEWAY</text>
+  <text class="fig-sub fig-mid" x="316" y="436">TOOLS</text>
+
+  <text class="dim-t" x="40" y="476">NO ROUTE TO THE DATABASE,</text>
+  <text class="dim-t" x="40" y="494">MODEL ENDPOINTS, MY HOME</text>
+  <text class="dim-t" x="40" y="512">NETWORK OR THE INTERNET</text>
+
+  <path class="fig-fallback" d="M85 148 H20 V545 H31" />
+  <polygon class="fig-head-amber" points="39,545 31,541 31,549" />
+  <rect class="box" x="40" y="524" width="150" height="46" />
+  <text class="lbl fig-mid" x="115" y="545">SMART</text>
+  <text class="fig-sub fig-mid" x="115" y="562">ANY FAILURE</text>
+</svg>

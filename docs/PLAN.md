@@ -397,7 +397,7 @@ Knowledge core and MCP servers: two part pages, one PR, on the 1.4 template. Sou
 - **Map:** both parts link to their pages; the German map marks them "(Englisch)".
 - **Done when:** as 1.4. `pnpm check`, axe, Lighthouse and `map-check` pass, then Patrick merges and the Cloudflare build's scan is clean.
 
-### Item 1.13 plan (draft 2026-11-13, waiting for Patrick's OK)
+### Item 1.13 plan (Patrick's OK 2026-11-13: terms story without the contact; billing only as "runs on my subscription, only for my own messages", nothing about which usage pool, until the Vision side settles it)
 
 The Claude worker page, `layers_only`, in layout 3, with its readouts, a figure and its lessons in case form. Template files are not touched; the 1.15 session owns them (Patrick). Sources: `sources/vision/deep/claude-worker.md` and its section in `notes.md`, at `8b2a08b…`.
 
