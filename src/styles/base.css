@@ -46,15 +46,13 @@ code { font-size: 0.9em; background: var(--color-panel-raised); padding: 0.1em 0
   color: var(--color-silk-dim);
 }
 
-/* Modules and their status (D19): line style carries the status, not only color. */
+/* Modules: a raised panel with a silk outline. */
 .module {
   background: var(--color-panel-raised);
   border: var(--line-module) solid var(--color-silk);
   border-radius: var(--radius);
   padding: var(--space-4);
 }
-.module[data-status="in-progress"] { border-style: dashed; border-width: var(--focus-width); border-color: var(--color-silk-dim); }
-.module[data-status="planned"] { border-style: dotted; border-width: var(--focus-width); border-color: var(--color-silk-dim); }
 
 .page {
   max-width: 72rem;

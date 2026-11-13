@@ -294,6 +294,7 @@ Patrick's decisions of 2026-11-12, folded into 1.9 rather than a parallel item. 
   5. **Contact:** `hello@patrickdiaz.dev` (D14), GitHub and LinkedIn, and "CV on request" next to the contact link. No CV download, no photo, no personal email anywhere.
 
   The homepage replaces the separate About page: education, links and background live there. Country only, as in D18.
+- **Homepage layout "A2" (Patrick, 2026-11-13, chosen from design options):** the intro and the featured piece side by side (stacked on a phone), the chips joined into one panel inside the card; an "All pieces" list, one row per built piece with its first chip, shown once there is more than one built piece; the work lines as a 2×2 grid, each tagged with its piece and part; then contact. No status labels (D19, only built pieces render). A piece without German text shows in English on `/de/`, marked.
 - **Languages:** English at `/`, German at `/de/` (Astro i18n routing, no prefix for English).
   - `<html lang>` per page, `hreflang` alternates, and a language switch that links each page to its counterpart.
   - Interface text lives in one typed dictionary per language. A missing key is a type error.

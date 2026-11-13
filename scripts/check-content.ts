@@ -176,8 +176,8 @@ function checkGerman(
   for (const txt of svgUntranslatable(svg)) P.push({ rule: "i18n", file: `pieces/${dir}/map.svg`, line: 1, msg: `schematic text "${txt}" has no data-t key, so it can't be translated` });
 }
 
-// The homepage in every language (rule i18n, PLAN 1.9a): valid, featuring a real piece, and
-// with the same work links in the same order in every language.
+// The homepage in every language (rule i18n, PLAN 1.9a): valid, featuring a built piece, with
+// work links only to built pieces, and the same work links in the same order in every language.
 function checkHome(root: string, pieceIds: string[], parts: Map<string, unknown>, P: Problem[]): void {
   const dir = join(root, "content", "home");
   if (!existsSync(dir)) return;
@@ -192,10 +192,10 @@ function checkHome(root: string, pieceIds: string[], parts: Map<string, unknown>
     const doc = readYaml(f);
     const h = validate(homeSchema, doc, file, P);
     if (!h) continue;
-    if (!pieceIds.includes(h.featured.piece)) P.push({ rule: "i18n", file, line: lineOf(doc, ["featured", "piece"]), msg: `featured piece "${h.featured.piece}" doesn't exist` });
+    if (!pieceIds.includes(h.featured.piece)) P.push({ rule: "i18n", file, line: lineOf(doc, ["featured", "piece"]), msg: `featured piece "${h.featured.piece}" doesn't exist or isn't built` });
     for (const w of h.work) {
       const [, piece, part] = w.href.split("/");
-      const ok = part ? parts.has(`${piece}/${part}`) : pieceIds.includes(piece ?? "");
+      const ok = pieceIds.includes(piece ?? "") && (!part || parts.has(`${piece}/${part}`));
       if (!ok) P.push({ rule: "i18n", file, line: lineOf(doc, ["work"]), msg: `work link ${w.href} has no page` });
     }
     hrefs.set(l, h.work.map((w) => w.href));
@@ -216,6 +216,8 @@ export function checkContent(root: string): { problems: Problem[]; counts: { pie
   // Pieces and maps.
   const pieceDirs = existsSync(join(root, "pieces")) ? readdirSync(join(root, "pieces")).filter((n) => statSync(join(root, "pieces", n)).isDirectory()) : [];
   const maps: { file: string; doc: Doc; parts: { id: string; page?: string }[] }[] = [];
+  // Only built pieces are published (Patrick, 2026-11-13); the homepage may point only at them.
+  const builtPieces: string[] = [];
   for (const dir of pieceDirs) {
     const pf = join(root, "pieces", dir, "piece.yaml");
     if (!existsSync(pf)) {
@@ -225,6 +227,7 @@ export function checkContent(root: string): { problems: Problem[]; counts: { pie
     const pdoc = readYaml(pf);
     const piece = validate(pieceSchema, pdoc, rel(pf), P);
     if (piece && piece.id !== dir) P.push({ rule: "path", file: rel(pf), line: lineOf(pdoc, ["id"]), msg: `id "${piece.id}" must match the folder "${dir}"` });
+    if (piece?.status === "built") builtPieces.push(dir);
     for (const c of piece?.chips ?? []) {
       for (const src of c.sources) if (!existsSync(join(root, src))) P.push({ rule: "sources", file: rel(pf), line: lineOf(pdoc, ["chips"]), msg: `chip "${c.label}": ${src} doesn't exist` });
     }
@@ -357,7 +360,7 @@ export function checkContent(root: string): { problems: Problem[]; counts: { pie
     }
   }
 
-  checkHome(root, pieceDirs, parts, P);
+  checkHome(root, builtPieces, parts, P);
   return { problems: P, counts: { pieces: pieceDirs.length, parts: parts.size, entries: entries.length } };
 }
 
