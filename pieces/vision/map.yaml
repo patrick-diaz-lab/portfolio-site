@@ -29,6 +29,7 @@ parts:
   - id: run-records
     label: Run records
     hover: "Every piece of work is a run with steps, tokens and costs. Full traces stay 30 days for review, then are deleted unless I flag a run."
+    page: /vision/run-records/
     status: built
     line: core
   - id: litellm-gateway

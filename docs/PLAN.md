@@ -395,6 +395,24 @@ Knowledge core and MCP servers: two part pages, one PR, on the 1.4 template. Sou
 - **Map:** both parts link to their pages; the German map marks them "(Englisch)".
 - **Done when:** as 1.4. `pnpm check`, axe, Lighthouse and `map-check` pass, then Patrick merges and the Cloudflare build's scan is clean.
 
+### Item 1.12 plan (Patrick's OK 2026-11-13)
+
+Run records, a normal page, written in layout 3 from the start (1.15): readouts, a figure, and lessons in case form. Sources: `sources/vision/deep/run-records.md` and its section in `notes.md`, at `8b2a08b…`.
+
+- **Entries (12):**
+
+  | Kind | Entries |
+  |---|---|
+  | Decisions (5) | one shared library and contract, with tool calls as child runs; one step per model request, joining the gateway's log; refused is not failed; counts in the record, content in a store that expires; the database enforces it |
+  | Rejected (2) | the gateway's spend log on its own; chat history with no expiry. The notes give none for the other three decisions. |
+  | Testing (3) | the spend-log match, with the cache read share as a metric; expiry with a fake clock; tests against the real permissions |
+  | Learning (2) | a cancelled step lost its row; my day ended at 1 a.m. Both in case form. |
+- **`evals[]` and readouts:** paid steps matching the spend log, 1.0 (n 158); tokens matching it, 1.0.
+- **Figure:** a run, its steps, the model step joining the spend log by run and step number, a tool call as a child run, the record that is kept and the trace that expires after 30 days. Wide and narrow versions.
+- **Database permissions:** layers and reasons only (D19), with no role, function or table names.
+- **Map:** run records links to its page.
+- **Done when:** as 1.4, plus rules `readouts`, `figures` and `case`, and Patrick approves the lessons and the figure in the PR (1.15).
+
 ### Item 1.11 plan (Patrick's OK 2026-11-12; console hover without the network product, both languages)
 
 The console page, `layers_only`, on the 1.4 template. Sources: `sources/vision/deep/console.md` and its section in `notes.md`, at `8b2a08b…`. The reattach fix being built on the Vision side isn't in the notes and stays out (Patrick).

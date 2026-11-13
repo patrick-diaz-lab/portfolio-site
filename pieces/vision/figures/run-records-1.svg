@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 724 404" class="schematic figure-svg">
+  <!-- FIG. run records (layout 3): a run and its steps; the model step joins the gateway's
+       spend log by run and step number, a tool call becomes a child run, and the run writes
+       counts to its record and content to a trace store that expires. Classes from
+       src/styles/schematic.css; the page adds role="img" and the alt text. -->
+  <circle class="fig-start" cx="6" cy="150" r="5" />
+  <text class="dim-t" x="0" y="128">WORK</text>
+  <path class="wire-static" d="M12 150 H47" />
+  <polygon class="fig-head" points="55,150 47,146 47,154" />
+  <rect class="box" x="56" y="110" width="160" height="80" />
+  <text class="lbl fig-mid" x="136" y="146">RUN</text>
+  <text class="fig-sub fig-mid" x="136" y="168">ONE PER PIECE OF WORK</text>
+
+  <path class="wire-static" d="M216 150 H250 M250 55 V245 M250 55 H291 M250 150 H291 M250 245 H291" />
+  <polygon class="fig-head" points="299,55 291,51 291,59" />
+  <polygon class="fig-head" points="299,150 291,146 291,154" />
+  <polygon class="fig-head" points="299,245 291,241 291,249" />
+  <rect class="box" x="300" y="30" width="180" height="50" />
+  <text class="lbl fig-mid" x="390" y="54">MODEL CALL</text>
+  <text class="fig-sub fig-mid" x="390" y="72">ONE STEP</text>
+  <rect class="box" x="300" y="125" width="180" height="50" />
+  <text class="lbl fig-mid" x="390" y="149">TOOL CALL</text>
+  <text class="fig-sub fig-mid" x="390" y="167">ONE STEP</text>
+  <rect class="box" x="300" y="220" width="180" height="50" />
+  <text class="lbl fig-mid" x="390" y="244">COMMAND</text>
+  <text class="fig-sub fig-mid" x="390" y="262">ONE STEP</text>
+
+  <path class="wire-static" d="M480 55 H551 M480 150 H551" />
+  <polygon class="fig-head" points="559,55 551,51 551,59" />
+  <polygon class="fig-head" points="559,150 551,146 551,154" />
+  <text class="note" x="486" y="22">run + step number</text>
+  <rect class="box" x="560" y="30" width="160" height="50" />
+  <text class="lbl fig-mid" x="640" y="54">SPEND LOG</text>
+  <text class="fig-sub fig-mid" x="640" y="72">GATEWAY</text>
+  <rect class="box" x="560" y="125" width="160" height="50" />
+  <text class="lbl fig-mid" x="640" y="149">CHILD RUN</text>
+  <text class="fig-sub fig-mid" x="640" y="167">MCP SERVER</text>
+
+  <path class="wire-static" d="M136 190 V311 M136 285 H410 V311" />
+  <polygon class="fig-head" points="136,319 132,311 140,311" />
+  <polygon class="fig-head" points="410,319 406,311 414,311" />
+  <rect class="box" x="36" y="320" width="200" height="56" />
+  <text class="lbl fig-mid" x="136" y="345">RUN RECORD</text>
+  <text class="fig-sub fig-mid" x="136" y="364">NAMES · COUNTS · COSTS</text>
+  <rect class="box" x="300" y="320" width="220" height="56" />
+  <text class="lbl fig-mid" x="410" y="345">TRACE STORE</text>
+  <text class="fig-sub fig-mid" x="410" y="364">FULL CONTENT</text>
+  <text class="note" x="532" y="354">deleted after 30 days,</text>
+  <text class="note" x="532" y="376">unless flagged</text>
+</svg>
