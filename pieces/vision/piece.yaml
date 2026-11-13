@@ -24,7 +24,7 @@ chips:
       - sources/vision/notes.md
       - sources/vision/deep/agent-core-routing.md
     as_of: 2026-11-04
-  - label: Injection word repeated
+  - label: Planted instructions followed
     metric: count
     value: 0
     n: 12

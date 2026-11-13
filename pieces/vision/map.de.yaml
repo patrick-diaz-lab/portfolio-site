@@ -20,7 +20,7 @@ parts:
     hover: "Jede Arbeit ist ein Run mit Schritten, Tokens und Kosten. Volle Traces bleiben 30 Tage zur Prüfung, dann gelöscht, ausser ich markiere sie."
   litellm-gateway:
     label: LiteLLM-Gateway
-    hover: "Ein Gateway für jeden Modellaufruf: Aliase statt Modellnamen, pro Ablauf ein Schlüssel und 30-Tage-Budget. Prompt-Caching sparte 65 %."
+    hover: "Ein Gateway für alle Modellaufrufe: Aliase, pro Ablauf Schlüssel und 30-Tage-Budget. Prompt-Caching senkte die Eval-Kosten pro Fall um 65 %."
   mcp-servers:
     label: MCP-Server
     hover: "Eigene Server, nur lesend, für Doku, Notizen, Dateien und Homelab-Status, erreichbar nur übers Gateway, mit Werkzeuglisten pro Schlüssel."

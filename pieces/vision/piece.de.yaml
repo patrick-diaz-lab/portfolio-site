@@ -10,5 +10,5 @@ summary: >-
 # Chip labels, in the order of the chips in piece.yaml.
 chips:
   - Klassifikator-Genauigkeit, Held-out
-  - Injection-Wort wiederholt
+  - Eingeschleuste Anweisungen befolgt
   - Eval-Kosten pro Fall, Prompt-Caching
