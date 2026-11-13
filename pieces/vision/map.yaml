@@ -24,6 +24,7 @@ parts:
   - id: claude-worker
     label: Claude worker tier
     hover: "A Claude Code worker on my subscription, only for my own messages. A filtering proxy lets it reach only the provider API and gateway tools."
+    page: /vision/claude-worker/
     status: built
     line: core
   - id: run-records

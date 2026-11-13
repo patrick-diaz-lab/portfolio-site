@@ -1,0 +1,54 @@
+---
+id: claude-worker
+piece: vision
+title: Claude worker tier, isolated by layers
+summary: One tier runs the official Claude Code tool on my subscription, only for messages I send myself with a command, inside layers that keep it away from everything it doesn't need.
+status: built
+as_of: 2026-11-12
+source_commit: 8b2a08b580419fd5f06330fce3b7e25a982b0150
+sources:
+  - sources/vision/deep/claude-worker.md
+  - sources/vision/notes.md
+evals:
+  - name: benchmark-solved-claude-code
+    metric: rate
+    value: 1.0
+    n: 92
+    date: 2026-11-12
+  - name: benchmark-solved-vision
+    metric: rate
+    value: 1.0
+    n: 92
+    date: 2026-11-12
+  - name: benchmark-cost-per-solved-claude-code
+    metric: cost_usd
+    value: 0.0235
+    n: 92
+    date: 2026-11-12
+  - name: benchmark-cost-per-solved-vision
+    metric: cost_usd
+    value: 0.0131
+    n: 92
+    date: 2026-11-12
+readouts:
+  - eval: benchmark-solved-claude-code
+    label: Benchmark solved, Claude Code
+  - eval: benchmark-cost-per-solved-claude-code
+    label: Cost per solved case, Claude Code
+  - eval: benchmark-cost-per-solved-vision
+    label: Cost per solved case, Vision
+figures:
+  - svg: claude-worker-1.svg
+    svg_narrow: claude-worker-1-narrow.svg
+    alt: "A command from my private chat reaches agent core, then the Claude worker, which sits in its own network, starts each call in a fresh workspace and passes a startup check. A proxy is its only way out, to the provider's API and the gateway's tools; it has no route to the database, the model endpoints, my home network or the internet. Any failure falls back to smart."
+    caption: "The worker answers only my own command, inside its own network, from a fresh workspace, after a startup check, with a proxy as its only way out. Any failure falls back to smart."
+related:
+  - agent-core
+  - litellm-gateway
+  - mcp-servers
+layers_only: true
+---
+
+One tier of Vision runs the official Claude Code tool on my subscription instead of the API. It answers only messages I send myself with an explicit command, and it is the one exception to the rule that every model call passes the [gateway](/vision/litellm-gateway/).
+
+Because it is a full agent tool rather than a single model call, it runs inside several layers: its own network, a fresh workspace for every call, a check of what it actually loaded, and the same read-only tools as the strong model. This page names those layers and why each exists; the exact configuration stays private.

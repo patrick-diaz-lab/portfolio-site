@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 724 368" class="schematic figure-svg">
+  <!-- FIG. Claude worker (layout 3, layers only, D19): a command reaches agent core, then the
+       worker in its own network with a fresh workspace and a startup check; a proxy is the
+       only way out; any failure falls back to smart. Classes from src/styles/schematic.css;
+       the page adds role="img" and the alt text. -->
+  <circle class="fig-start" cx="6" cy="120" r="5" />
+  <text class="dim-t" x="0" y="98">COMMAND</text>
+  <path class="wire-static" d="M12 120 H47" />
+  <polygon class="fig-head" points="55,120 47,116 47,124" />
+  <rect class="box" x="56" y="90" width="150" height="60" />
+  <text class="lbl fig-mid" x="131" y="117">AGENT CORE</text>
+  <text class="fig-sub fig-mid" x="131" y="137">SIGNED SENDER</text>
+
+  <g class="frame"><rect x="250" y="50" width="270" height="200" /></g>
+  <text class="frame-t" x="262" y="72">OWN NETWORK</text>
+  <path class="wire-static" d="M206 120 H281" />
+  <polygon class="fig-head" points="289,120 281,116 281,124" />
+  <rect class="box" x="290" y="90" width="190" height="60" />
+  <text class="lbl fig-mid" x="385" y="117">CLAUDE WORKER</text>
+  <text class="fig-sub fig-mid" x="385" y="137">FRESH WORKSPACE</text>
+  <path class="wire-static" d="M385 150 V171" />
+  <polygon class="fig-head" points="385,179 381,171 389,171" />
+  <rect class="box" x="290" y="180" width="190" height="50" />
+  <text class="lbl fig-mid" x="385" y="203">STARTUP CHECK</text>
+  <text class="fig-sub fig-mid" x="385" y="221">EXACT EXPECTED SET</text>
+
+  <path class="wire-static" d="M480 120 H551" />
+  <polygon class="fig-head" points="559,120 551,116 551,124" />
+  <rect class="box" x="560" y="97" width="160" height="46" />
+  <text class="lbl fig-mid" x="640" y="118">PROXY</text>
+  <text class="fig-sub fig-mid" x="640" y="135">ONLY WAY OUT</text>
+  <path class="wire-static" d="M640 97 V65 M640 143 V181" />
+  <polygon class="fig-head" points="640,57 636,65 644,65" />
+  <polygon class="fig-head" points="640,189 636,181 644,181" />
+  <rect class="box" x="560" y="10" width="160" height="46" />
+  <text class="lbl fig-mid" x="640" y="38">PROVIDER API</text>
+  <rect class="box" x="560" y="190" width="160" height="46" />
+  <text class="lbl fig-mid" x="640" y="218">GATEWAY TOOLS</text>
+
+  <text class="dim-t" x="250" y="276">NO ROUTE TO THE DATABASE, MODEL ENDPOINTS,</text>
+  <text class="dim-t" x="250" y="294">MY HOME NETWORK OR THE INTERNET</text>
+
+  <path class="fig-fallback" d="M290 140 H232 V325 H215" />
+  <polygon class="fig-head-amber" points="207,325 215,321 215,329" />
+  <text class="note" x="240" y="330">any failure</text>
+  <rect class="box" x="56" y="300" width="150" height="50" />
+  <text class="lbl fig-mid" x="131" y="323">SMART</text>
+  <text class="fig-sub fig-mid" x="131" y="341">THROUGH THE GATEWAY</text>
+</svg>

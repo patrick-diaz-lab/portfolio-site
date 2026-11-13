@@ -14,4 +14,4 @@ source_commit: bb4fb3747aa6d7a80666b2d19dd718d1e4bedd98
 
 #### Rejected: the subscription as the default for complex messages
 
-That was my first design. Once I had prepaid API credits, complex messages went to `smart` through the gateway instead, where budgets, chat history and evals apply, and everyday traffic stopped using up the subscription limit my own coding sessions share.
+That was my first design. Once I had prepaid API credits, complex messages went to `smart` through the gateway instead, where budgets, chat history and evals apply.
