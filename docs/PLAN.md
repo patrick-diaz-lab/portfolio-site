@@ -382,9 +382,9 @@ German versions of the ten part pages, written for a Swiss reader (ss, not ß), 
 
 - **1.16a, the template and eval harness and guardrails.** **Done 2026-11-15 (PRs #44, #45).** the German route, `PartPage.astro` shared by both languages, the mirror folders, rule `i18n-part` with tests, German figures FIG. 9.1 and 10.1. Links from German pages go to German part pages where they exist, and to the English page, marked, where not: map, "you are here" sheet, related, previous / next, and the homepage's work list. Guardrails stays layers-only in German, checked like the English page.
 - **1.16b, Claude worker, agent core and LiteLLM gateway.** **Done 2026-11-15 (PR #46).** German figures FIG. 3.1, 6.1 and 4.1; the eval harness intro now links the German agent core page. Claude worker stays layers-only in German.
-- **1.16c, MCP servers, knowledge core and run records** (this PR): German figures FIG. 7.1, 8.1 and 5.1. The spend log is "Kostenlog" on every German page.
-- **1.16d:** console and Telegram adapter.
-- **After each merge,** Patrick adds the new German pages to `published-urls.txt`; sessions never do (D22).
+- **1.16c, MCP servers, knowledge core and run records.** **Done 2026-11-15 (PR #47).** German figures FIG. 7.1, 8.1 and 5.1. The spend log is "Kostenlog" on every German page.
+- **1.16d, console and Telegram adapter** (this PR): German figures FIG. 2.1 and 1.1, both layers-only. With this PR every part page exists in German, and no German page links an English part page any more. The Telegram adapter page still has no readouts, in either language (open point of 1.15).
+- **After each merge,** the new German pages join `published-urls.txt`. Patrick adds them, or asks the session to (2026-11-15: the pages of #44, #46 and #47 were added at his request).
 
 ### Item 1.15 plan (Patrick's OK 2026-11-13)
 

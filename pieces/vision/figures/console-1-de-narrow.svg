@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 324 368" class="schematic figure-svg">
+  <!-- FIG. 2.1 for phones: the same layers, top to bottom (layout 3, Patrick 2026-11-13; German, 2026-11-15). -->
+  <rect class="box" x="0" y="0" width="320" height="56" />
+  <text class="lbl fig-mid" x="160" y="24">MEINE GERÄTE</text>
+  <text class="fig-sub fig-mid" x="160" y="44">GESPERRT · AKTUELL</text>
+  <path class="wire-static" d="M160 56 V71" />
+  <polygon class="fig-head" points="160,79 156,71 164,71" />
+  <rect class="box" x="0" y="80" width="320" height="56" />
+  <text class="lbl fig-mid" x="160" y="104">PRIVATES NETZ</text>
+  <text class="fig-sub fig-mid" x="160" y="124">KEIN OFFENER PORT · LIEFERT IDENTITÄT</text>
+  <path class="wire-static" d="M160 136 V151" />
+  <polygon class="fig-head" points="160,159 156,151 164,151" />
+  <rect class="box" x="0" y="160" width="320" height="56" />
+  <text class="lbl fig-mid" x="160" y="184">KONSOLE</text>
+  <text class="fig-sub fig-mid" x="160" y="204">SIGNIERT JEDE ANFRAGE · EIGENER ZUGANG</text>
+  <path class="wire-static" d="M160 216 V231" />
+  <polygon class="fig-head" points="160,239 156,231 164,231" />
+  <rect class="box" x="0" y="240" width="320" height="56" />
+  <text class="lbl fig-mid" x="160" y="264">AGENT-CORE</text>
+  <text class="fig-sub fig-mid" x="160" y="284">VERTRAUT NUR SIGNIERTEN SENDERN</text>
+
+  <rect class="box" x="0" y="312" width="150" height="52" />
+  <text class="lbl fig-mid" x="75" y="336">CODING-AGENT</text>
+  <text class="fig-sub fig-mid" x="75" y="354">BAUT VISION</text>
+  <text class="note" x="164" y="334">kein Zugriff</text>
+  <text class="note" x="164" y="354">auf die Konsole</text>
+</svg>
