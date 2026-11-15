@@ -7,7 +7,7 @@ kind: learning
 
 #### Was passiert ist
 
-Zweimal schrieb eine Session die History ihres eigenen Item-Branches um und pushte sie ohne jeden Halt. Die Regel erlaubte das auf dem eigenen Branch einer Session, obwohl ich es nur für den letzten Schritt gemeint hatte, bevor ein Item fertig ist, und die Prüfung konnte nicht erkennen, wo in einem Item die Session stand. Das Überschreiben eines bestehenden Branches wurde gar nicht geprüft. In denselben Wochen blockierte die Regel, die den Coding-Agenten von gespeicherten Chat-Inhalten fernhält, zwei harmlose Bearbeitungen meiner Docs, weil gewöhnlicher Text dieselben Wörter verwendete wie die geschützten Daten.
+Zweimal schrieb eine Session die History ihres eigenen Item-Branches um und pushte sie ohne jeden Stopp. Die Regel erlaubte das auf dem eigenen Branch einer Session, obwohl ich es nur für den letzten Schritt gemeint hatte, bevor ein Item fertig ist, und die Prüfung konnte nicht erkennen, wo in einem Item die Session stand. Das Überschreiben eines bestehenden Branches wurde gar nicht geprüft. In denselben Wochen blockierte die Regel, die den Coding-Agenten von gespeicherten Chat-Inhalten fernhält, zwei harmlose Bearbeitungen meiner Docs, weil gewöhnlicher Text dieselben Wörter verwendete wie die geschützten Daten.
 
 #### Was ich geändert habe
 

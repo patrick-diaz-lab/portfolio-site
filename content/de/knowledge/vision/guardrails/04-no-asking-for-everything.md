@@ -5,4 +5,4 @@ kind: rejected
 
 #### Verworfen: bei allem nachfragen
 
-Die meisten Halte nach einem freigegebenen Plan betrafen Routineschritte, die der Plan schon genannt hatte, und jeder davon wartete auf mich. Zu viele Rückfragen gewöhnen einen daran, sie nicht mehr zu lesen.
+Die meisten Stopps nach einem freigegebenen Plan betrafen Routineschritte, die der Plan schon genannt hatte, und jeder davon wartete auf mich. Zu viele Rückfragen gewöhnen einen daran, sie nicht mehr zu lesen.

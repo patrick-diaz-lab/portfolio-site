@@ -10,7 +10,7 @@ figures:
   - svg: guardrails-1-de.svg
     svg_narrow: guardrails-1-de-narrow.svg
     alt: "Eine Session von Claude Code arbeitet in ihrer eigenen Arbeitskopie und auf ihrem eigenen Branch. Vor jedem Befehl antwortet eine Prüfung mit deny, ask oder allow. Wird Arbeit gepusht, schauen eine zweite Prüfung und ein Secret-Scan noch einmal hin. Ich reviewe den Pull Request, und nur ich merge. Alles, was live geht, läuft über eine einzige Deploy-Lane, jeweils eine Session."
-    caption: "Wo die Prüfungen sitzen. Jede Session hat eigene Kopie und Branch, vor jedem Befehl antwortet eine Prüfung mit deny, ask oder allow, eine zweite Prüfung und ein Secret-Scan sehen jeden Push, nur ich merge. Alles Live läuft über eine Deploy-Lane. Nur Schichten und Gründe; die Regeln bleiben privat."
+    caption: "Wo die Prüfungen sitzen. Jede Session hat eigene Kopie und Branch, vor jedem Befehl antwortet eine Prüfung mit deny, ask, allow, eine zweite Prüfung und ein Secret-Scan sehen jeden Push, nur ich merge. Alles, was live geht, läuft über eine Deploy-Lane. Schichten und Gründe, nicht die Regeln."
 eval_labels:
   pre-push-hook-tests-passing: "Push-Prüfung, bestandene Tests"
 ---
