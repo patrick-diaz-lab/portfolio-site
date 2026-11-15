@@ -1,0 +1,22 @@
+---
+id: run-records
+piece: vision
+title: "Laufprotokolle: was lief und was es kostete"
+summary: "Jeder Dienst schreibt dieselben Protokolle, einen Lauf pro Arbeit und einen Schritt pro Aufruf. Sie zeigen, was passierte, was es kostete und warum es scheiterte, während der Inhalt selbst verfällt."
+as_of: 2026-11-12
+readouts:
+  - label: "Bezahlte Schritte passend zum Kostenlog"
+  - label: "Tokens passend zum Kostenlog"
+figures:
+  - svg: run-records-1-de.svg
+    svg_narrow: run-records-1-de-narrow.svg
+    alt: "Eine Arbeit öffnet einen Lauf. Jeder Modell- und Werkzeugaufruf und jeder Befehl ist ein Schritt darin. Ein Modellschritt passt über Lauf- und Schrittnummer zum Kostenlog des Gateways; ein Werkzeugaufruf wird zum Unterlauf auf dem MCP-Server. Der Lauf schreibt Namen, Zahlen und Kosten ins Protokoll, den vollen Inhalt in einen Trace-Store, der ihn nach 30 Tagen löscht, ausser bei markierten Läufen."
+    caption: "Ein Lauf pro Arbeit, ein Schritt pro Aufruf. Modellschritte passen über Lauf- und Schrittnummer zum Kostenlog des Gateways; das Protokoll behält Zahlen und Kosten, und der Inhalt verfällt mit dem Trace nach 30 Tagen, ausser ich markiere den Lauf."
+eval_labels:
+  paid-steps-matching-spend-log: "Bezahlte Schritte passend zum Kostenlog"
+  tokens-matching-spend-log: "Tokens passend zum Kostenlog"
+---
+
+Jeder Dienst in Vision, der Arbeit verrichtet, schreibt dieselbe Art von Protokoll: der Chat-Agent, der Indexer, die [MCP-Server](/de/vision/mcp-servers/), der Eval-Harness und die Aufräumjobs. Ein Lauf steht für eine Arbeit, und jeder Modellaufruf, Werkzeugaufruf oder Befehl darin ist ein Schritt mit seinen Tokens, Kosten und seiner Dauer. Eine einzige Abfrage beantwortet dann, was gestern lief, was es kostete und was scheiterte, über alles hinweg.
+
+Die Protokolle enthalten Namen, Zahlen und Kosten. Die Wörter selbst, die Frage, was jeder Schritt sah, und die Antwort, liegen in einem getrennten Trace-Store für die [Konsole](/vision/console/) (auf Englisch), und dieser Store vergisst sie nach 30 Tagen.
