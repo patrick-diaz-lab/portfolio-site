@@ -54,6 +54,8 @@ pieces/<piece>/map.svg           annotated schematic; element ids = map.yaml ids
 pieces/<piece>/figures/*.svg     part page figures in the map's style (FIG. <part>.<n>)
 content/parts/<piece>/<part>.mdx frontmatter + fixed sections (below)
 content/knowledge/<piece>/*.md   one entry per decision / rejected option / testing note / lesson
+content/de/parts/<piece>/<part>.mdx           German text of a part page (D23)
+content/de/knowledge/<piece>/<part>/*.md      German text of its entries, same file names
 content/starters/<piece>/*.md    pre-written answers to the starter chips
 redaction/exceptions.yaml        the only place for scan exceptions (changes via reviewed merge)
 evals/retrieval.yaml             public retrieval eval (questions → expected entry ids)
@@ -93,6 +95,7 @@ A starter whose cited entry changed after the starter's `as_of` gives a warning.
 - The homepage text is in `content/home/<locale>.yaml`.
 - `pnpm check` (rule `i18n`) holds every German file to its English base.
 - Pages that exist in both languages carry `hreflang` alternates and a language switch. Links from German pages to English-only part pages are marked.
+- **German part pages (D23):** `src/components/PartPage.astro` renders both `/<piece>/<part>/` and `/de/<piece>/<part>/`. A German part (`content/de/parts/…`) holds `id, piece, title, summary, as_of, readouts[] {label, note?}, figures[] {svg, svg_narrow?, alt, caption}, eval_labels {eval: label}` and its MDX body; each entry (`content/de/knowledge/<piece>/<part>/<same file name>.md`) holds `id, kind` and its German body. Everything else (evals, sources, order, `lost_to`, `metric`) comes from the English files. German case steps are *Was passiert ist*, *Was ich geändert habe*, *Ergebnis*. Rule `i18n-part` holds each German part to its English one: the same readouts, notes and figures, a label for every eval, one German file per English entry with the same id and kind, the same lesson form, the figure rules for German figures, and layers-only where the English part is.
 
 ## 4. Content and redaction pipeline
 

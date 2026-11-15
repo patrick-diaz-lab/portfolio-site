@@ -457,3 +457,97 @@ test("a figure that's missing, scripted or linked fails", () => {
   assert.match(bad.output, /figures\s+pieces\/demo\/figures\/gateway-1\.svg:\d+\s+the figure holds a script/);
   assert.match(bad.output, /figures\s+pieces\/demo\/figures\/gateway-1\.svg:\d+\s+the figure holds a link/);
 });
+
+// German part pages (Patrick, 2026-11-15): text only, held to the English part and entries.
+const DE_PART = `---
+id: gateway
+piece: demo
+title: Demo-Gateway
+summary: Ein Teil nur für Tests.
+as_of: 2026-11-10
+eval_labels:
+  classifier-local-heldout: Klassifikator, held-out
+---
+
+Was es tut.
+`;
+const deEntry = (id: string, kind: string, body = "Eintragstext.\n") => `---\nid: ${id}\nkind: ${kind}\n---\n\n${body}`;
+/** The fixture with its entries in a part folder, plus a full German mirror. */
+function german(change: (files: Record<string, string>) => void = () => {}) {
+  return fixture((f) => {
+    for (const n of ["why-gateway", "no-sdk-keys", "budget-test", "price-lesson"]) {
+      f[`content/knowledge/demo/gateway/${n}.md`] = f[`content/knowledge/demo/${n}.md`]!;
+      delete f[`content/knowledge/demo/${n}.md`];
+    }
+    f["content/de/parts/demo/gateway.mdx"] = DE_PART;
+    f["content/de/knowledge/demo/gateway/why-gateway.md"] = deEntry("why-gateway", "decision");
+    f["content/de/knowledge/demo/gateway/no-sdk-keys.md"] = deEntry("no-sdk-keys", "rejected");
+    f["content/de/knowledge/demo/gateway/budget-test.md"] = deEntry("budget-test", "testing");
+    f["content/de/knowledge/demo/gateway/price-lesson.md"] = deEntry("price-lesson", "learning");
+    change(f);
+  });
+}
+
+test("a German part that mirrors its English part passes", () => {
+  const { status, output } = german();
+  assert.equal(status, 0, output);
+});
+
+test("a German part without an English part, or with an entry missing, extra or changed, fails", () => {
+  const lone = german((f) => {
+    f["content/de/parts/demo/other.mdx"] = DE_PART.replace("id: gateway", "id: other");
+  });
+  assert.equal(lone.status, 1, lone.output);
+  assert.match(lone.output, /i18n-part\s+content\/de\/parts\/demo\/other\.mdx:\d+\s+there's no English part/);
+  const entries = german((f) => {
+    delete f["content/de/knowledge/demo/gateway/budget-test.md"];
+    f["content/de/knowledge/demo/gateway/extra.md"] = deEntry("extra", "testing");
+    f["content/de/knowledge/demo/gateway/why-gateway.md"] = deEntry("why-other", "testing");
+  });
+  assert.equal(entries.status, 1, entries.output);
+  assert.match(entries.output, /content\/knowledge\/demo\/gateway\/budget-test\.md has no German version/);
+  assert.match(entries.output, /extra\.md:1\s+there's no English entry/);
+  assert.match(entries.output, /why-gateway\.md:\d+\s+id "why-other" must be the English entry's id "why-gateway"/);
+  assert.match(entries.output, /why-gateway\.md:\d+\s+kind "testing" must be the English entry's kind "decision"/);
+});
+
+test("German readouts, figures and eval labels must match the English part", () => {
+  const { status, output } = german((f) => {
+    f["content/parts/demo/gateway.mdx"] = PART.replace("related: []", "readouts:\n  - eval: classifier-local-heldout\n    label: Classifier, held-out\nrelated: []");
+    f["content/de/parts/demo/gateway.mdx"] = DE_PART.replace("eval_labels:\n  classifier-local-heldout: Klassifikator, held-out", "eval_labels:\n  nowhere: Nirgends\nfigures:\n  - svg: gateway-1-de.svg\n    alt: Eine Abbildung.\n    caption: Eine Legende.");
+  });
+  assert.equal(status, 1, output);
+  assert.match(output, /i18n-part\s+content\/de\/parts\/demo\/gateway\.mdx:\d+\s+0 readout\(s\), the English part has 1/);
+  assert.match(output, /1 figure\(s\), the English part has 0/);
+  assert.match(output, /no German label for eval\(s\) classifier-local-heldout/);
+  assert.match(output, /eval_labels names eval\(s\) the part doesn't have: nowhere/);
+  assert.match(output, /figures\s+content\/de\/parts\/demo\/gateway\.mdx:\d+\s+pieces\/demo\/figures\/gateway-1-de\.svg doesn't exist/);
+});
+
+test("a German lesson keeps the English form, with German case steps", () => {
+  const ok = german((f) => {
+    f["content/knowledge/demo/gateway/price-lesson.md"] = withBody(entry("price-lesson", "learning"), CASE(["What happened", "What I changed", "Result"]));
+    f["content/de/knowledge/demo/gateway/price-lesson.md"] = deEntry("price-lesson", "learning", CASE(["Was passiert ist", "Was ich geändert habe", "Ergebnis"]));
+  });
+  assert.equal(ok.status, 0, ok.output);
+  const prose = german((f) => {
+    f["content/knowledge/demo/gateway/price-lesson.md"] = withBody(entry("price-lesson", "learning"), CASE(["What happened", "What I changed", "Result"]));
+  });
+  assert.equal(prose.status, 1, prose.output);
+  assert.match(prose.output, /the English lesson is a case; this one needs the case form too/);
+  const english = german((f) => {
+    f["content/knowledge/demo/gateway/price-lesson.md"] = withBody(entry("price-lesson", "learning"), CASE(["What happened", "What I changed", "Result"]));
+    f["content/de/knowledge/demo/gateway/price-lesson.md"] = deEntry("price-lesson", "learning", CASE(["What happened", "What I changed", "Result"]));
+  });
+  assert.equal(english.status, 1, english.output);
+  assert.match(english.output, /case\s+content\/de\/knowledge\/demo\/gateway\/price-lesson\.md:\d+\s+a lesson in case form has exactly the subheadings "Was passiert ist"/);
+});
+
+test("a German version of a layers-only part is held to layers only", () => {
+  const { status, output } = german((f) => {
+    f["content/parts/demo/gateway.mdx"] = PART.replace("related: []", "related: []\nlayers_only: true");
+    f["content/de/knowledge/demo/gateway/why-gateway.md"] = deEntry("why-gateway", "decision", "Die Prüfung liest `config.yaml`.\n");
+  });
+  assert.equal(status, 1, output);
+  assert.match(output, /layers-only\s+content\/de\/knowledge\/demo\/gateway\/why-gateway\.md:\d+/);
+});

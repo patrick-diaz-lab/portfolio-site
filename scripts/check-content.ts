@@ -22,6 +22,12 @@
 //   i18n           a German piece overlay or homepage doesn't match its English base: part
 //                  ids, chip count, schematic texts, label length, line names, work links
 //                  (PLAN 1.9a)
+//   i18n-part      a German part page (content/de/parts, content/de/knowledge, Patrick
+//                  2026-11-15) doesn't match its English part: no English part, a different
+//                  number of readouts, notes or figures, eval labels that don't cover the
+//                  part's evals exactly, a missing or extra entry, an entry whose id or kind
+//                  differs, or a lesson whose form (case or prose) differs. German figures get
+//                  the figure rules, and a layers-only part's German text the layers-only rule
 //   map            map.yaml points at a page that doesn't exist, or repeats a part id
 //   svg            a built map.yaml part has no <g id class="part"> in the piece's SVG, the
 //                  SVG has a part map.yaml doesn't list or that isn't built (only built
@@ -31,7 +37,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { basename, join, relative, resolve } from "node:path";
 import { parse } from "yaml";
 import type { z } from "astro/zod";
-import { REQUIRED_KINDS, homeSchema, knowledgeSchema, mapOverlaySchema, mapSchema, partSchema, pieceOverlaySchema, pieceSchema } from "../src/content/schemas.ts";
+import { REQUIRED_KINDS, homeSchema, knowledgeDeSchema, knowledgeSchema, mapOverlaySchema, mapSchema, partDeSchema, partSchema, pieceOverlaySchema, pieceSchema } from "../src/content/schemas.ts";
 import { LOCALES, ui } from "../src/i18n/ui.ts";
 import { svgNestedParts, svgPartIds, svgTextKeys, svgUntranslatable } from "../src/lib/map-svg.ts";
 
@@ -214,26 +220,32 @@ function checkPartExtras(root: string, file: string, doc: Doc, part: z.infer<typ
   for (const r of part.readouts) {
     if (!names.has(r.eval)) P.push({ rule: "readouts", file, line: lineOf(doc, ["readouts"]), msg: `readout "${r.eval}" isn't an eval of this part` });
   }
-  for (const f of part.figures) {
+  checkFigures(root, file, doc, part.piece, part.figures, part.layers_only === true, P);
+}
+
+type Figure = { svg: string; svg_narrow?: string; alt: string; caption: string };
+
+function checkFigures(root: string, file: string, doc: Doc, piece: string, figures: Figure[], layersOnly: boolean, P: Problem[]): void {
+  for (const f of figures) {
     for (const name of [f.svg, f.svg_narrow].filter((x): x is string => !!x)) {
-      const path = join(root, "pieces", part.piece, "figures", name);
+      const path = join(root, "pieces", piece, "figures", name);
       if (!existsSync(path)) {
-        P.push({ rule: "figures", file, line: lineOf(doc, ["figures"]), msg: `pieces/${part.piece}/figures/${name} doesn't exist` });
+        P.push({ rule: "figures", file, line: lineOf(doc, ["figures"]), msg: `pieces/${piece}/figures/${name} doesn't exist` });
         continue;
       }
       const svg = readFileSync(path, "utf8");
-      const where = `pieces/${part.piece}/figures/${name}`;
+      const where = `pieces/${piece}/figures/${name}`;
       if (!/<svg\b[^>]*\bviewBox="[^"]+"/.test(svg)) P.push({ rule: "figures", file: where, line: 1, msg: "the figure needs a viewBox, so it scales to its frame" });
       if (!/<svg\b[^>]*\bclass="schematic figure-svg"/.test(svg)) P.push({ rule: "figures", file: where, line: 1, msg: 'the <svg> needs class="schematic figure-svg", the map\'s style' });
       for (const [re, what] of [[/<script\b/i, "a script"], [/\son\w+\s*=/i, "an event handler"], [/\bhref\s*=/i, "a link"], [/\sid\s*=/i, "an id (two figures on a page would clash)"], [/<(?:image|foreignObject|style)\b/i, "an embedded image, HTML or style"]] as [RegExp, string][]) {
         if (re.test(svg)) P.push({ rule: "figures", file: where, line: svg.slice(0, svg.search(re)).split("\n").length, msg: `the figure holds ${what}` });
       }
-      if (part.layers_only) {
+      if (layersOnly) {
         const texts = [...svg.matchAll(/<text\b[^>]*>([^<]*)<\/text>/g)].map((m) => m[1]!).join("\n");
         for (const hit of layersOnlyHits(texts)) P.push({ rule: "layers-only", file: where, line: 1, msg: hit.msg });
       }
     }
-    if (part.layers_only) {
+    if (layersOnly) {
       for (const hit of layersOnlyHits(`${f.alt}\n${f.caption}`)) P.push({ rule: "layers-only", file, line: lineOf(doc, ["figures"]), msg: hit.msg });
     }
   }
@@ -241,9 +253,12 @@ function checkPartExtras(root: string, file: string, doc: Doc, part: z.infer<typ
 
 const CASE_HEAD = /^#### What happened\s*$/m;
 const CASE_STEPS = ["What happened", "What I changed", "Result"];
+/** The same three steps on a German page (Patrick, 2026-11-15). */
+export const CASE_STEPS_DE = ["Was passiert ist", "Was ich geändert habe", "Ergebnis"];
 
 /** A lesson in case form has its title, then exactly the three steps, each one paragraph. */
-export function caseProblem(text: string): { line: number; msg: string } | undefined {
+export function caseProblem(text: string, steps: string[] = CASE_STEPS): { line: number; msg: string } | undefined {
+  const CASE_STEPS = steps;
   const lines = text.split(/\r?\n/);
   let start = 0;
   if (lines[0] === "---") start = lines.indexOf("---", 1) + 1;
@@ -337,7 +352,7 @@ export function checkContent(root: string): { problems: Problem[]; counts: { pie
   }
 
   // Part pages.
-  const parts = new Map<string, { file: string; doc: Doc; status: string; related: string[]; sources: string[]; layersOnly: boolean; evals: Set<string> }>();
+  const parts = new Map<string, { file: string; doc: Doc; status: string; related: string[]; sources: string[]; layersOnly: boolean; evals: Set<string>; data: z.infer<typeof partSchema> }>();
   for (const f of walk(join(root, "content", "parts"), ".mdx")) {
     const file = rel(f);
     const doc = readFrontmatter(f);
@@ -347,7 +362,7 @@ export function checkContent(root: string): { problems: Problem[]; counts: { pie
     const name = basename(f, ".mdx");
     if (part.id !== name) P.push({ rule: "path", file, line: lineOf(doc, ["id"]), msg: `id "${part.id}" must match the file name "${name}"` });
     if (part.piece !== pieceDir) P.push({ rule: "path", file, line: lineOf(doc, ["piece"]), msg: `piece "${part.piece}" must match the folder "${pieceDir}"` });
-    parts.set(`${part.piece}/${part.id}`, { file, doc, status: part.status, related: part.related, sources: part.sources, layersOnly: part.layers_only === true, evals: new Set(part.evals.map((e) => e.name)) });
+    parts.set(`${part.piece}/${part.id}`, { file, doc, status: part.status, related: part.related, sources: part.sources, layersOnly: part.layers_only === true, evals: new Set(part.evals.map((e) => e.name)), data: part });
     checkPartExtras(root, file, doc, part, P);
   }
 
@@ -357,12 +372,15 @@ export function checkContent(root: string): { problems: Problem[]; counts: { pie
   const entries: { file: string; doc: Doc; sources: string[]; partKey: string }[] = [];
   const learningEntries: { file: string; doc: Doc; metric?: string; partKey: string }[] = [];
   const byId = new Map<string, { file: string; doc: Doc; kind: string; part: string; lost_to?: string }>();
+  // English entries by their path under content/knowledge/, for the German mirror.
+  const enEntries = new Map<string, { id: string; kind: string; isCase: boolean }>();
   for (const f of walk(join(root, "content", "knowledge"), ".md")) {
     const file = rel(f);
     const doc = readFrontmatter(f);
     const e = validate(knowledgeSchema, doc, file, P);
     if (!e) continue;
     entries.push({ file, doc, sources: e.sources, partKey: `${e.piece}/${e.part}` });
+    enEntries.set(relative(join(root, "content", "knowledge"), f).split("\\").join("/"), { id: e.id, kind: e.kind, isCase: CASE_HEAD.test(readFileSync(f, "utf8")) });
     if (e.kind === "learning") learningEntries.push({ file, doc, metric: e.metric, partKey: `${e.piece}/${e.part}` });
     else if (e.metric) P.push({ rule: "case", file, line: lineOf(doc, ["metric"]), msg: `only learning entries have a headline metric (this one is ${e.kind})` });
     const idKey = `${e.piece}/${e.id}`;
@@ -436,8 +454,87 @@ export function checkContent(root: string): { problems: Problem[]; counts: { pie
     }
   }
 
+  checkGermanParts(root, rel, parts, enEntries, P);
   checkHome(root, builtPieces, parts, P);
   return { problems: P, counts: { pieces: pieceDirs.length, parts: parts.size, entries: entries.length } };
+}
+
+// German part pages (Patrick, 2026-11-15): content/de/parts/<piece>/<part>.mdx holds the text
+// of an English part, and content/de/knowledge/<piece>/<part>/ one file per English entry,
+// under the same file name. Numbers, sources and structure stay in the English files.
+function checkGermanParts(
+  root: string,
+  rel: (f: string) => string,
+  parts: Map<string, { file: string; layersOnly: boolean; evals: Set<string>; data: z.infer<typeof partSchema> }>,
+  enEntries: Map<string, { id: string; kind: string; isCase: boolean }>,
+  P: Problem[],
+): void {
+  const deRoot = join(root, "content", "de");
+  const deParts = new Map<string, { layersOnly: boolean }>();
+  for (const f of walk(join(deRoot, "parts"), ".mdx")) {
+    const file = rel(f);
+    const doc = readFrontmatter(f);
+    const de = validate(partDeSchema, doc, file, P);
+    if (!de) continue;
+    const pieceDir = basename(join(f, ".."));
+    const name = basename(f, ".mdx");
+    if (de.id !== name) P.push({ rule: "path", file, line: lineOf(doc, ["id"]), msg: `id "${de.id}" must match the file name "${name}"` });
+    if (de.piece !== pieceDir) P.push({ rule: "path", file, line: lineOf(doc, ["piece"]), msg: `piece "${de.piece}" must match the folder "${pieceDir}"` });
+    const en = parts.get(`${de.piece}/${de.id}`);
+    if (!en) {
+      P.push({ rule: "i18n-part", file, line: lineOf(doc, ["id"]), msg: `there's no English part content/parts/${de.piece}/${de.id}.mdx` });
+      continue;
+    }
+    deParts.set(`${de.piece}/${de.id}`, { layersOnly: en.layersOnly });
+    const at = (k: string) => ({ rule: "i18n-part", file, line: lineOf(doc, [k]) });
+    const enR = en.data.readouts;
+    if (de.readouts.length !== enR.length) P.push({ ...at("readouts"), msg: `${de.readouts.length} readout(s), the English part has ${enR.length} (same order)` });
+    else de.readouts.forEach((r, i) => {
+      if (!!r.note !== !!enR[i]!.note) P.push({ ...at("readouts"), msg: `readout ${i + 1} ${r.note ? "has a note the English one doesn't" : "needs a note, like the English one"}` });
+    });
+    if (de.figures.length !== en.data.figures.length) P.push({ ...at("figures"), msg: `${de.figures.length} figure(s), the English part has ${en.data.figures.length}` });
+    const labels = new Set(Object.keys(de.eval_labels));
+    const missing = [...en.evals].filter((n) => !labels.has(n));
+    const extra = [...labels].filter((n) => !en.evals.has(n));
+    if (missing.length) P.push({ ...at("eval_labels"), msg: `no German label for eval(s) ${missing.join(", ")}` });
+    if (extra.length) P.push({ ...at("eval_labels"), msg: `eval_labels names eval(s) the part doesn't have: ${extra.join(", ")}` });
+    checkFigures(root, file, doc, de.piece, de.figures, en.layersOnly, P);
+    if (en.layersOnly) for (const hit of layersOnlyHits(readFileSync(f, "utf8"))) P.push({ rule: "layers-only", file, line: hit.line, msg: hit.msg });
+    // Every English entry has its German file.
+    const prefix = `${de.piece}/${de.id}/`;
+    for (const k of enEntries.keys()) {
+      if (k.startsWith(prefix) && !existsSync(join(deRoot, "knowledge", k))) P.push({ rule: "i18n-part", file, line: 1, msg: `content/knowledge/${k} has no German version content/de/knowledge/${k}` });
+    }
+  }
+  for (const f of walk(join(deRoot, "knowledge"), ".md")) {
+    const file = rel(f);
+    const key = relative(join(deRoot, "knowledge"), f).split("\\").join("/");
+    const doc = readFrontmatter(f);
+    const de = validate(knowledgeDeSchema, doc, file, P);
+    if (!de) continue;
+    const [piece, part] = key.split("/");
+    const owner = deParts.get(`${piece}/${part}`);
+    if (!owner) {
+      P.push({ rule: "i18n-part", file, line: 1, msg: `there's no German part content/de/parts/${piece}/${part}.mdx for this entry` });
+      continue;
+    }
+    const en = enEntries.get(key);
+    if (!en) {
+      P.push({ rule: "i18n-part", file, line: 1, msg: `there's no English entry content/knowledge/${key}` });
+      continue;
+    }
+    if (de.id !== en.id) P.push({ rule: "i18n-part", file, line: lineOf(doc, ["id"]), msg: `id "${de.id}" must be the English entry's id "${en.id}"` });
+    if (de.kind !== en.kind) P.push({ rule: "i18n-part", file, line: lineOf(doc, ["kind"]), msg: `kind "${de.kind}" must be the English entry's kind "${en.kind}"` });
+    const text = readFileSync(f, "utf8");
+    if (de.kind === "learning") {
+      const offset = text.split(/\r?\n/).findIndex((x, i) => i > 0 && x === "---") + 1;
+      const problem = caseProblem(text, CASE_STEPS_DE);
+      const isCase = new RegExp(`^#### ${CASE_STEPS_DE[0]}\\s*$`, "m").test(text);
+      if (problem) P.push({ rule: "case", file, line: offset + problem.line, msg: problem.msg });
+      else if (isCase !== en.isCase) P.push({ rule: "i18n-part", file, line: 1, msg: en.isCase ? "the English lesson is a case; this one needs the case form too" : "the English lesson is prose; this one is too" });
+    }
+    if (owner.layersOnly) for (const hit of layersOnlyHits(text)) P.push({ rule: "layers-only", file, line: hit.line, msg: hit.msg });
+  }
 }
 
 if (import.meta.main) {

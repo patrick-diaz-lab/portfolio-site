@@ -1,0 +1,20 @@
+---
+id: guardrails
+piece: vision
+title: "Guardrails für den Coding-Agenten"
+summary: "Claude Code baut den Grossteil von Vision selbständig. Regeln halten meistens; Prüfschichten fangen den Rest ab, und jeder Merge bleibt bei mir. Die Schichten und Gründe, nicht die Regeln."
+as_of: 2026-11-12
+readouts:
+  - label: "Push-Prüfung, bestandene Tests"
+figures:
+  - svg: guardrails-1-de.svg
+    svg_narrow: guardrails-1-de-narrow.svg
+    alt: "Eine Session von Claude Code arbeitet in ihrer eigenen Arbeitskopie und auf ihrem eigenen Branch. Vor jedem Befehl antwortet eine Prüfung mit deny, ask oder allow. Wird Arbeit gepusht, schauen eine zweite Prüfung und ein Secret-Scan noch einmal hin. Ich reviewe den Pull Request, und nur ich merge. Alles, was live geht, läuft über eine einzige Deploy-Lane, jeweils eine Session."
+    caption: "Wo die Prüfungen sitzen. Jede Session hat eigene Kopie und Branch, vor jedem Befehl antwortet eine Prüfung mit deny, ask oder allow, eine zweite Prüfung und ein Secret-Scan sehen jeden Push, nur ich merge. Alles Live läuft über eine Deploy-Lane. Nur Schichten und Gründe; die Regeln bleiben privat."
+eval_labels:
+  pre-push-hook-tests-passing: "Push-Prüfung, bestandene Tests"
+---
+
+Den grössten Teil von Vision schreibt Claude Code, selbständig und innerhalb von Plänen, die ich freigebe. Es hält sich meistens an die geschriebenen Projektregeln, aber nicht jedes Mal, und das eine Mal, in dem es das nicht tut, ist meist das teure. Deshalb stützen sich die Regeln nicht allein auf gutes Verhalten: Es gibt Prüfungen, bevor ein Befehl läuft, Prüfungen, wenn Arbeit ins gemeinsame Repository geht, und einen Merge, den nur ich ausführe.
+
+Diese Seite beschreibt die Schichten und warum es jede davon gibt. Die genauen Regeln bleiben privat: Eine Liste dessen, was blockiert wird und wie, würde vor allem jemandem helfen, sie zu umgehen.

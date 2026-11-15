@@ -181,5 +181,27 @@ export const knowledgeSchema = z.strictObject({
   source_commit: sha,
 });
 
+/** A German part page (Patrick, 2026-11-15): content/de/parts/<piece>/<part>.mdx, next to
+ *  its English part. Text only: numbers, evals, ids and anchors stay in the English files.
+ *  `readouts` and `figures` follow the English ones in count and order; `eval_labels` names
+ *  every English eval for the table. `as_of` is the date of the translation. */
+export const partDeSchema = z.strictObject({
+  id: slug,
+  piece: slug,
+  title: text(80),
+  summary: text(200),
+  as_of: isoDate,
+  readouts: z.array(z.strictObject({ label: text(48), note: text(60).optional() })).default([]),
+  figures: z.array(figureSchema).default([]),
+  eval_labels: z.record(z.string().regex(SLUG), text(60)).default({}),
+});
+
+/** A German knowledge entry: content/de/knowledge/<piece>/<part>/<same file name as English>.
+ *  Text only; kind, anchor, sources and metric come from the English entry with this id. */
+export const knowledgeDeSchema = z.strictObject({
+  id: slug,
+  kind: z.enum(KINDS),
+});
+
 export type Part = z.infer<typeof partSchema>;
 export type Knowledge = z.infer<typeof knowledgeSchema>;

@@ -14,7 +14,7 @@ import Chips from "./Chips.astro";
 import { homeSchema } from "../content/schemas.ts";
 import { localePath, t, type Locale } from "../i18n/ui.ts";
 import { chipValue } from "../lib/chips.ts";
-import { loadPieces, type Piece } from "../lib/pieces.ts";
+import { loadPieces, partPath, type Piece } from "../lib/pieces.ts";
 import { SITE } from "../site.ts";
 
 interface Props {
@@ -33,6 +33,12 @@ const pieces = loadPieces("en").map((en) => {
 const featured = pieces.find((p) => p.piece.id === home.featured.piece);
 const num = (p: Piece) => String(p.order).padStart(2, "0");
 
+// Work links name English part pages (the same list in both languages, `pnpm check`); a German
+// homepage links the German version where one exists (Patrick, 2026-11-15).
+const workHref = (href: string) => {
+  const [, pid, partId] = href.split("/");
+  return pid && partId ? partPath(locale, pid, partId, href).href : href;
+};
 // A link to a page that exists only in English is marked on German pages.
 const englishOnly = (href: string) => locale !== "en" && !href.startsWith(`/${locale}/`);
 // Each work line names its piece and part, from the link: /<piece>/<part>/.
@@ -112,8 +118,8 @@ const cvHref = `mailto:${SITE.email}?subject=${encodeURIComponent(home.cv)}`;
         {home.work.map((w) => (
           <li class="work-item">
             {workTag(w.href) && <p class="label">{workTag(w.href)}</p>}
-            <a href={w.href} hreflang={englishOnly(w.href) ? "en" : undefined}>{w.title}</a>
-            {englishOnly(w.href) && <span class="label"> {t(locale, "map.englishPage")}</span>}
+            <a href={workHref(w.href)} hreflang={englishOnly(workHref(w.href)) ? "en" : undefined}>{w.title}</a>
+            {englishOnly(workHref(w.href)) && <span class="label"> {t(locale, "map.englishPage")}</span>}
             <p>{w.text}</p>
           </li>
         ))}

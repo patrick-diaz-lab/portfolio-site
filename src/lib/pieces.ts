@@ -14,6 +14,15 @@ import type { MapPart, SvgText } from "./map-svg.ts";
 
 const ROOT = join(process.cwd(), "pieces");
 
+/** Whether a part has a German page (content/de/parts/<piece>/<part>.mdx, Patrick 2026-11-15). */
+export const hasDePart = (piece: string, part: string) => existsSync(join(process.cwd(), "content", "de", "parts", piece, `${part}.mdx`));
+
+/** A part page's path in a locale: the German page where it exists, else the English one. */
+export function partPath(locale: Locale, piece: string, part: string, page: string): { href: string; lang?: string } {
+  if (locale === "en") return { href: page };
+  return hasDePart(piece, part) ? { href: `/de${page}` } : { href: page, lang: "en" };
+}
+
 export type Piece = ReturnType<typeof pieceSchema.parse> & {
   parts: MapPart[];
   svg: string;
@@ -42,10 +51,13 @@ function readPiece(dir: string, locale: Locale): Piece | null {
     tagline: po.tagline,
     summary: po.summary,
     chips: base.chips.map((c, i) => ({ ...c, label: po.chips[i] ?? c.label })),
-    parts: built.map((p) => ({ ...p, label: mo.parts[p.id]?.label ?? p.label, hover: mo.parts[p.id]?.hover ?? p.hover })),
+    // A part page with a German version links there; one only in English is marked (PLAN 1.9a).
+    parts: built.map((p) => {
+      const where = p.page ? partPath("de", base.id, p.id, p.page) : undefined;
+      return { ...p, label: mo.parts[p.id]?.label ?? p.label, hover: mo.parts[p.id]?.hover ?? p.hover, page: where?.href, pageLang: where?.lang };
+    }),
     svg,
-    // Part pages exist in English only for now; links to them are marked (PLAN 1.9a).
-    svgText: { ariaLabel: mo.aria_label, text: mo.svg_text, pageLang: "en" },
+    svgText: { ariaLabel: mo.aria_label, text: mo.svg_text },
     locales,
   };
 }

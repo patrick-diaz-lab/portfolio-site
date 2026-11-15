@@ -1,0 +1,459 @@
+---
+// Part page (PLAN 1.4, D19), layout 3 (Patrick, 2026-11-13), in English at /<piece>/<part>/
+// and in German at /de/<piece>/<part>/ (Patrick, 2026-11-15). Top to bottom:
+//   - the header and a "you are here" sheet of the piece's map, with the neighbours as links
+//   - up to 5 readouts (the part's `readouts`), before → after where an eval has a baseline
+//   - the four fixed sections, with a sticky rail beside them (a strip on phones)
+//       What it does     the overview, then the figures (FIG. <part>.<n>, the map's style)
+//       Why this way     each decision as a card, the options it beat beside it (`lost_to`)
+//       How it's tested  the testing entries, and the evals that aren't readouts in a table
+//       What I learned   learning entries; one in case form renders as a case card
+//   - previous / next part with a page, in map order, and the way back to the map
+// The English part and its entries carry the structure: ids, anchors, kinds, `lost_to`,
+// evals and metrics. A German page takes only its text from content/de/ (`de`), entry by id;
+// `pnpm check` holds the German files to the English ones. Not indexed until launch.
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { render, type CollectionEntry } from "astro:content";
+import Base from "../layouts/Base.astro";
+import { hasDePart, loadPieces, partPath } from "../lib/pieces.ts";
+import { evalBefore, evalName, evalShares, evalValue, type Eval } from "../lib/evals.ts";
+import { esc, locator } from "../lib/map-svg.ts";
+import { localePath, t, type Locale } from "../i18n/ui.ts";
+import "../styles/schematic.css";
+
+type K = CollectionEntry<"knowledge">;
+interface Props {
+  locale: Locale;
+  part: CollectionEntry<"parts">;
+  entries: K[];
+  de?: { part: CollectionEntry<"partsDe">; entries: Map<string, CollectionEntry<"knowledgeDe">> };
+}
+const { locale, part, entries, de } = Astro.props;
+const L = (key: Parameters<typeof t>[1]) => t(locale, key);
+
+// Text: the English files, or on a German page the German ones, entry by id.
+const text = de?.part.data;
+const { Content } = await render(de ? de.part : part);
+const rendered = new Map<string, Awaited<ReturnType<typeof render>>["Content"]>();
+const bodies = new Map<string, string>();
+for (const e of entries) {
+  const d = de?.entries.get(e.data.id);
+  rendered.set(e.data.id, (await render(d ?? e)).Content);
+  bodies.set(e.data.id, (d ?? e).body ?? "");
+}
+
+const ofKind = (kind: K["data"]["kind"]) => entries.filter((e) => e.data.kind === kind);
+const decisions = ofKind("decision");
+const rejected = ofKind("rejected");
+const rejectedFor = (id: string) => rejected.filter((r) => r.data.lost_to === id);
+const decisionIds = new Set(decisions.map((d) => d.data.id));
+const looseRejected = rejected.filter((r) => !r.data.lost_to || !decisionIds.has(r.data.lost_to));
+const testing = ofKind("testing");
+const learning = ofKind("learning");
+const evals = part.data.evals;
+const evalBy = new Map(evals.map((e) => [e.name, e]));
+const evalLabel = (name: string) => text?.eval_labels[name] ?? evalName(name);
+const of = L("part.of");
+
+// The piece: map order numbers the parts, gives previous / next and the "you are here" sheet.
+const pieceId = part.data.piece;
+const piece = loadPieces(locale).find((p) => p.id === pieceId);
+const back = localePath(locale, `/${pieceId}/`);
+const pieceTitle = piece?.title ?? pieceId;
+const order = piece?.parts ?? [];
+const at = order.findIndex((p) => p.id === part.data.id);
+const num = at < 0 ? "" : String(at + 1).padStart(2, "0");
+const withPage = order.filter((p) => p.page);
+const pageAt = withPage.findIndex((p) => p.id === part.data.id);
+const prev = pageAt > 0 ? withPage[pageAt - 1] : undefined;
+const next = pageAt >= 0 && pageAt < withPage.length - 1 ? withPage[pageAt + 1] : undefined;
+const numOf = (id: string) => String(order.findIndex((p) => p.id === id) + 1).padStart(2, "0");
+const labelOf = (id: string) => order.find((p) => p.id === id)?.label ?? id;
+// Links to other parts: their page in this language where it exists (the German map's
+// parts already carry it), else their entry on the map's list.
+const linkTo = (id: string) => {
+  const p = order.find((x) => x.id === id);
+  return { href: p?.page ?? `${back}#part-${id}`, lang: p?.pageLang };
+};
+const here = piece ? locator(piece.svg, part.data.id, labelOf) : undefined;
+const neighbours = (here?.neighbours ?? []).map((id) => ({ id, label: labelOf(id) }));
+const ownLabel = labelOf(part.data.id);
+
+// Both languages, once the German page exists: the switch and the hreflang alternates.
+const page = `/${pieceId}/${part.data.id}/`;
+const bilingual = hasDePart(pieceId, part.data.id);
+
+// Figures: hand-drawn SVGs next to the piece's map, each with the text a screen reader gets.
+const figureSvg = (file: string, alt: string, cls: string) =>
+  readFileSync(join(process.cwd(), "pieces", pieceId, "figures", file), "utf8")
+    .replace(/<!--[\s\S]*?-->/g, "")
+    .replace(/<svg\b/, `<svg role="img" aria-label="${esc(alt)}" data-figure="${cls}"`)
+    .replace(/class="schematic figure-svg"/, `class="schematic figure-svg ${cls}"`);
+const figures = (text?.figures ?? part.data.figures).map((f, i) => ({
+  n: `${Number(num) || 0}.${i + 1}`,
+  caption: f.caption,
+  wide: figureSvg(f.svg, f.alt, f.svg_narrow ? "is-wide" : "is-only"),
+  narrow: f.svg_narrow ? figureSvg(f.svg_narrow, f.alt, "is-narrow") : undefined,
+}));
+
+// Readouts: the part's chosen evals; a baseline on a 0–1 scale gets a before → after track.
+const pct = (v: number) => `${(Math.min(1, Math.max(0, v)) * 100).toFixed(1)}%`;
+const readouts = part.data.readouts.flatMap((r, i) => {
+  const e = evalBy.get(r.eval);
+  if (!e) return [];
+  const shares = evalShares(e);
+  const own = text?.readouts[i];
+  return [{
+    label: own?.label ?? r.label,
+    caveat: own ? own.note : r.note,
+    value: evalValue(e.metric, e.value, e.n, undefined, of),
+    before: evalBefore(e, of),
+    track: shares && { before: pct(shares.before), after: pct(shares.after), lo: pct(Math.min(shares.before, shares.after)), span: pct(Math.abs(shares.after - shares.before)) },
+    note: [e.n !== undefined && e.metric !== "count" ? `n = ${e.n}` : "", `${L("chip.asOf")} ${e.date}`].filter(Boolean).join(" · "),
+  }];
+});
+// The table under "How it's tested" lists only the values that aren't readouts (Patrick,
+// 2026-11-13, after #33): a number appears once on the page.
+const readoutNames = new Set(part.data.readouts.map((r) => r.eval));
+const tableEvals = evals.filter((e) => !readoutNames.has(e.name));
+
+// Case form: a learning entry with the three fixed subheadings renders as a case card.
+const isCase = (e: K) => /^#### (?:What happened|Was passiert ist)\s*$/m.test(bodies.get(e.data.id) ?? "");
+const caseMetric = (e: K) => {
+  const v = e.data.metric ? evalBy.get(e.data.metric) : undefined;
+  return v && { value: `${evalBefore(v, of) ?? "—"} → ${evalValue(v.metric, v.value, v.n, undefined, of)}`, label: evalLabel(v.name) };
+};
+let caseNo = 0;
+
+// The rail: the sections this page has, with what each holds.
+const COUNT = {
+  en: { figure: ["figure", "figures"], decision: ["decision", "decisions"], rejected: ["rejected", "rejected"], test: ["test", "tests"], value: ["value", "values"], more: ["more value", "more values"], lesson: ["lesson", "lessons"] },
+  de: { figure: ["Abbildung", "Abbildungen"], decision: ["Entscheid", "Entscheide"], rejected: ["verworfen", "verworfen"], test: ["Test", "Tests"], value: ["Wert", "Werte"], more: ["weiterer Wert", "weitere Werte"], lesson: ["Erkenntnis", "Erkenntnisse"] },
+}[locale];
+const count = (n: number, k: keyof typeof COUNT) => `${n} ${COUNT[k][n === 1 ? 0 : 1]}`;
+const stations = [
+  { id: "what-it-does", name: L("part.does"), count: figures.length ? count(figures.length, "figure") : "", show: true },
+  { id: "why-this-way", name: L("part.why"), count: [count(decisions.length, "decision"), rejected.length ? count(rejected.length, "rejected") : ""].filter(Boolean).join(" · "), show: decisions.length + rejected.length > 0 },
+  { id: "how-its-tested", name: L("part.tested"), count: [testing.length ? count(testing.length, "test") : "", tableEvals.length ? count(tableEvals.length, readouts.length ? "more" : "value") : ""].filter(Boolean).join(" · "), show: testing.length + tableEvals.length > 0 },
+  { id: "what-i-learned", name: L("part.learned"), count: count(learning.length, "lesson"), show: learning.length > 0 },
+].filter((s) => s.show);
+const tableValue = (v: Eval) => evalValue(v.metric, v.value, v.n, undefined, of);
+const title = text?.title ?? part.data.title;
+const summary = text?.summary ?? part.data.summary;
+const asOf = text?.as_of ?? part.data.as_of;
+const withPiece = (key: Parameters<typeof t>[1]) => L(key).replace("{piece}", pieceTitle);
+---
+<Base title={`${title} — ${pieceTitle} — Patrick Diaz`} description={summary} noindex lang={locale} path={bilingual ? page : undefined}>
+  <main class="page part-page">
+    <div class="part-top">
+      <header class="part-head">
+        <p class="label"><a href={back}>{pieceTitle}</a> · {L("part.label")} {num}</p>
+        <h1>{title}</h1>
+        <p class="part-summary">{summary}</p>
+        <p class="label">{L("piece.asOf")} {asOf}</p>
+      </header>
+      {here && (
+        <figure class="part-where">
+          <p class="part-where-head label"><span class="part-where-here">{L("part.here")}</span><span>{pieceTitle} · {L("part.map")}</span></p>
+          <Fragment set:html={here.svg} />
+          {neighbours.length > 0 && (
+            <figcaption class="part-where-links">
+              {L("part.nextTo")} {neighbours.map((n, i) => {
+                const l = linkTo(n.id);
+                return <>{i > 0 && (i === neighbours.length - 1 ? ` ${L("part.and")} ` : ", ")}<a href={l.href} hreflang={l.lang}>{n.label}</a>{l.lang && ` ${L("map.englishPage")}`}</>;
+              })} <a href={back}>{withPiece("part.onMap")}</a>.
+            </figcaption>
+          )}
+        </figure>
+      )}
+    </div>
+
+    {readouts.length > 0 && (
+      <section class="readouts" aria-labelledby="h-measured">
+        <h2 id="h-measured" class="label">{L("part.measured")}</h2>
+        <ul>
+          {readouts.map((r) => (
+            <li class="readout">
+              <span class="readout-value">{r.value}</span>
+              <span class="readout-label">{r.label}</span>
+              {r.track ? (
+                <>
+                  <span class="readout-track" aria-hidden="true">
+                    <span class="readout-rail"></span>
+                    <span class="readout-span" style={`left:${r.track.lo};width:${r.track.span}`}></span>
+                    <span class="readout-dot is-before" style={`left:${r.track.before}`}></span>
+                    <span class="readout-dot is-after" style={`left:${r.track.after}`}></span>
+                  </span>
+                  <span class="readout-scale" aria-hidden="true"><span>0</span><span>1</span></span>
+                  <span class="readout-note"><span class="key is-before" aria-hidden="true"></span>{L("part.before")} {r.before} <span class="key is-after" aria-hidden="true"></span>{L("part.after")} {r.value}</span>
+                </>
+              ) : (
+                <span class="readout-note">{r.before ? `${L("part.before")} ${r.before} · ` : ""}{r.note}</span>
+              )}
+              {r.caveat && <span class="readout-caveat">{r.caveat}</span>}
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    <div class="part-body">
+      <nav class="rail" aria-label={L("part.onPage")} data-rail>
+        <p class="label rail-label">{L("part.onPage")}</p>
+        <ol>
+          {stations.map((s) => (
+            <li><a href={`#${s.id}`}><span class="rail-name">{s.name}</span>{s.count && <span class="rail-count">{s.count}</span>}</a></li>
+          ))}
+        </ol>
+        <p class="rail-more">
+          {part.data.related.length > 0 && (
+            <>
+              <span class="label">{L("part.related")}</span>
+              {part.data.related.map((r) => {
+                const l = linkTo(r);
+                return <a href={l.href} hreflang={l.lang}>{labelOf(r)}{l.lang && ` ${L("map.englishPage")}`} →</a>;
+              })}
+            </>
+          )}
+          <a href={back}>{withPiece("part.back")}</a>
+        </p>
+      </nav>
+
+      <article class="part-article">
+        <section aria-labelledby="what-it-does" class="part-sec" data-station>
+          <h2 id="what-it-does">{L("part.does")}</h2>
+          <div class="prose"><Content /></div>
+          {ofKind("overview").map((e) => {
+            const C = rendered.get(e.data.id)!;
+            return <section id={e.data.anchor} class="entry prose"><C /></section>;
+          })}
+          {figures.map((f) => (
+            <figure class="part-figure">
+              <p class="part-figure-head label" aria-hidden="true"><span>{L("part.fig")} {f.n}</span><span>{pieceTitle} · {ownLabel}</span></p>
+              <Fragment set:html={f.wide} />
+              {f.narrow && <Fragment set:html={f.narrow} />}
+              <figcaption><span class="part-figure-n">{L("part.fig")} {f.n}</span> {f.caption}</figcaption>
+            </figure>
+          ))}
+        </section>
+
+        {(decisions.length > 0 || rejected.length > 0) && (
+          <section aria-labelledby="why-this-way" class="part-sec" data-station>
+            <h2 id="why-this-way">{L("part.why")}</h2>
+            {decisions.map((d, i) => {
+              const C = rendered.get(d.data.id)!;
+              const lost = rejectedFor(d.data.id);
+              return (
+                <div class="decision-card">
+                  <section id={d.data.anchor} class="decision-main prose">
+                    <p class="label">{L("part.decision")} {String(i + 1).padStart(2, "0")}</p>
+                    <C />
+                  </section>
+                  {lost.length > 0 && (
+                    <div class="decision-lost">
+                      {lost.map((r) => {
+                        const R = rendered.get(r.data.id)!;
+                        return <section id={r.data.anchor} class="rejected prose"><R /></section>;
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+            {looseRejected.map((r) => {
+              const R = rendered.get(r.data.id)!;
+              return <section id={r.data.anchor} class="rejected rejected-loose prose"><R /></section>;
+            })}
+          </section>
+        )}
+
+        {(testing.length > 0 || tableEvals.length > 0) && (
+          <section aria-labelledby="how-its-tested" class="part-sec" data-station>
+            <h2 id="how-its-tested">{L("part.tested")}</h2>
+            {testing.map((e) => {
+              const C = rendered.get(e.data.id)!;
+              return <section id={e.data.anchor} class="entry prose"><C /></section>;
+            })}
+            {tableEvals.length > 0 && (
+              <div class="evals-wrap">
+                <table class="evals">
+                  <caption class="label">{readouts.length ? L("part.tableMore") : L("part.table")}</caption>
+                  <thead><tr><th scope="col">{L("part.colWhat")}</th><th scope="col">{L("part.colValue")}</th><th scope="col">n</th><th scope="col">{L("part.colDate")}</th></tr></thead>
+                  <tbody>
+                    {tableEvals.map((v) => (
+                      <tr>
+                        <th scope="row">{evalLabel(v.name)}</th>
+                        <td>{tableValue(v)}{v.baseline !== undefined && <span class="label"> ({L("part.beforeParen")}: {evalBefore(v, of)})</span>}</td>
+                        <td>{v.n ?? "—"}</td>
+                        <td>{v.date}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
+        )}
+
+        {learning.length > 0 && (
+          <section aria-labelledby="what-i-learned" class="part-sec" data-station>
+            <h2 id="what-i-learned">{L("part.learned")}</h2>
+            {learning.map((e) => {
+              const C = rendered.get(e.data.id)!;
+              if (!isCase(e)) return <section id={e.data.anchor} class="entry prose"><C /></section>;
+              const m = caseMetric(e);
+              caseNo++;
+              return (
+                <section id={e.data.anchor} class="case">
+                  <p class="label case-no">{L("part.case")} {String(caseNo).padStart(2, "0")}</p>
+                  <C />
+                  {m && <p class="case-metric"><span class="case-metric-value">{m.value}</span> <span class="label">{m.label}</span></p>}
+                </section>
+              );
+            })}
+          </section>
+        )}
+
+        <nav class="part-steps" aria-label={L("part.steps")}>
+          {prev ? (
+            <a class="part-step" href={linkTo(prev.id).href} hreflang={linkTo(prev.id).lang} rel="prev"><span class="label">{L("part.prev")} · {L("part.label")} {numOf(prev.id)}</span><span class="part-step-name">{prev.label}{linkTo(prev.id).lang && <span class="label"> {L("map.englishPage")}</span>}</span></a>
+          ) : <span class="part-step is-empty"></span>}
+          {next ? (
+            <a class="part-step is-next" href={linkTo(next.id).href} hreflang={linkTo(next.id).lang} rel="next"><span class="label">{L("part.next")} · {L("part.label")} {numOf(next.id)}</span><span class="part-step-name">{next.label}{linkTo(next.id).lang && <span class="label"> {L("map.englishPage")}</span>}</span></a>
+          ) : <span class="part-step is-empty"></span>}
+          <a class="part-back" href={back}>{withPiece("part.back")}</a>
+        </nav>
+      </article>
+    </div>
+  </main>
+</Base>
+
+<script>
+  import { initRail } from "../scripts/part-rail.ts";
+  const rail = document.querySelector<HTMLElement>("[data-rail]");
+  if (rail) initRail(rail);
+</script>
+
+<style>
+  .part-page { gap: var(--space-12); }
+  .part-head a, .part-where a { color: inherit; }
+
+  /* Header and "you are here", side by side; stacked on a phone. */
+  .part-top { display: flex; flex-wrap: wrap; gap: var(--space-8) var(--space-12); align-items: start; }
+  .part-head { flex: 3 1 24rem; min-width: 0; display: grid; gap: var(--space-4); }
+  .part-head h1 { font-size: clamp(var(--step-3), 5vw, 3rem); line-height: 1.05; }
+  .part-summary { font-size: var(--step-1); line-height: 1.45; max-width: 46ch; }
+  .part-where { flex: 2 1 18rem; min-width: 0; margin: 0; border: var(--line-thin) solid var(--color-silk-dim); border-radius: var(--radius); padding: var(--space-3); display: grid; gap: var(--space-2); }
+  .part-where-head { display: flex; justify-content: space-between; gap: var(--space-2); font-size: 0.6875rem; max-width: none; }
+  .part-where-here { color: var(--color-amber); }
+  .part-where :global(.locator) { display: block; max-width: 100%; height: auto; justify-self: center; }
+  .part-where-links { font-size: var(--step--1); line-height: 1.5; color: var(--color-silk-dim); }
+  .part-where-links a { color: var(--color-silk); }
+
+  /* Readouts: joined cells, as the chips on the overview page. */
+  .readouts { display: grid; gap: var(--space-2); }
+  .readouts ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--line-thin); background: var(--color-silk-dim); border: var(--line-thin) solid var(--color-silk-dim); }
+  .readout { flex: 1 1 12rem; min-width: 0; background: var(--color-panel-raised); padding: var(--space-4); display: grid; gap: var(--space-2); align-content: start; }
+  /* A value stays on one line and scales with its tile, so five readouts fit a row. */
+  .readout { container-type: inline-size; }
+  .readout-value { font: 400 min(var(--step-3), 12cqi) / 1 var(--font-mono); white-space: nowrap; }
+  .readout-label { font-size: var(--step--1); line-height: 1.35; }
+  .readout-caveat { font: 400 0.6875rem / 1.5 var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-amber); }
+  .readout-note { font: 400 0.6875rem / 1.5 var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-silk-dim); }
+  .readout-track { position: relative; height: 16px; margin: var(--space-1) 6px 0; }
+  .readout-rail, .readout-span { position: absolute; top: 7px; height: 2px; }
+  .readout-rail { left: 0; right: 0; background: var(--color-panel); }
+  .readout-span { background: var(--color-silk-dim); }
+  .readout-dot { position: absolute; top: 2px; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; }
+  .readout-dot.is-before, .key.is-before { border: var(--focus-width) solid var(--color-silk-dim); background: var(--color-panel-raised); }
+  .readout-dot.is-after, .key.is-after { background: var(--color-amber); }
+  .readout-scale { display: flex; justify-content: space-between; font: 400 0.6875rem var(--font-mono); color: var(--color-silk-dim); }
+  .key { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: var(--space-1); vertical-align: 0.05em; }
+  .key.is-after { margin-left: var(--space-2); }
+
+  /* The body: the sections, and the rail beside them (first in the source, so it comes first
+     when the row wraps on a phone). */
+  .part-body { display: flex; flex-direction: row-reverse; flex-wrap: wrap; gap: var(--space-8) var(--space-12); align-items: flex-start; }
+  .part-article { flex: 999 1 35rem; min-width: 0; max-width: 48rem; display: grid; gap: var(--space-16); }
+  .rail { flex: 1 1 13rem; min-width: 0; position: sticky; top: var(--space-6); display: grid; gap: var(--space-4); }
+  .rail ol { list-style: none; margin: 0 0 0 6px; padding: 0 0 0 var(--space-6); border-left: var(--focus-width) solid var(--color-silk-dim); display: grid; gap: var(--space-3); }
+  .rail li { position: relative; }
+  .rail li::before { content: ""; position: absolute; left: calc(-1 * var(--space-6) - 8px); top: 0.55rem; width: 14px; height: 14px; box-sizing: border-box; border-radius: 50%; border: var(--focus-width) solid var(--color-silk-dim); background: var(--color-panel); }
+  .rail li:has(a[aria-current])::before { border-color: var(--color-amber); background: var(--color-amber); }
+  .rail a { display: grid; text-decoration: none; padding-block: var(--space-1); }
+  .rail a[aria-current] { color: var(--color-amber); }
+  .rail-name { font: 600 var(--step-0) / 1.3 var(--font-panel); letter-spacing: var(--tracking-panel); text-transform: uppercase; }
+  .rail a:hover .rail-name { text-decoration: underline; }
+  .rail-count { font: 400 0.6875rem / 1.4 var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-silk-dim); }
+  .rail-more { display: grid; gap: var(--space-1); border-top: var(--line-thin) solid var(--color-silk-dim); padding-top: var(--space-3); font-size: var(--step--1); }
+  .rail-more a { padding-block: var(--space-1); }
+
+  .part-sec { display: grid; gap: var(--space-6); scroll-margin-top: var(--space-8); }
+  .part-sec > h2 { scroll-margin-top: var(--space-8); }
+  .entry { display: grid; gap: var(--space-3); scroll-margin-top: var(--space-8); }
+  .entry + .entry { border-top: var(--line-thin) solid var(--color-silk-dim); padding-top: var(--space-6); }
+  .prose :global(h3) { font-size: var(--step-1); }
+  .prose :global(h4) { font: 600 var(--step-0) / var(--leading-tight) var(--font-panel); letter-spacing: var(--tracking-panel); text-transform: uppercase; color: var(--color-silk-dim); }
+  .prose :global(p) { line-height: var(--leading-body); }
+  .prose { display: grid; gap: var(--space-3); }
+
+  /* Figures: framed like a drawing sheet; the narrow version replaces the wide one on phones. */
+  .part-figure { margin: var(--space-2) 0 0; border: var(--line-thin) solid var(--color-silk-dim); border-radius: var(--radius); padding: var(--space-4) var(--space-3); display: grid; gap: var(--space-4); }
+  .part-figure-head { display: flex; justify-content: space-between; gap: var(--space-2); font-size: 0.6875rem; max-width: none; }
+  .part-figure :global(.figure-svg.is-narrow) { display: none; max-width: 22rem; justify-self: center; }
+  .part-figure figcaption { font-size: var(--step--1); line-height: 1.5; border-top: var(--line-thin) solid var(--color-silk-dim); padding-top: var(--space-3); }
+  .part-figure-n { font: 400 var(--step--1) var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-amber); margin-right: var(--space-1); }
+
+  /* Decisions: the choice on the left, the options it beat on the right. */
+  .decision-card { display: flex; flex-wrap: wrap; border: var(--line-module) solid var(--color-silk); border-radius: var(--radius); overflow: hidden; }
+  .decision-main { flex: 3 1 18rem; min-width: 0; background: var(--color-panel-raised); padding: var(--space-6); align-content: start; scroll-margin-top: var(--space-8); }
+  .decision-lost { flex: 2 1 14rem; min-width: 0; background: var(--color-panel); padding: var(--space-6); display: grid; gap: var(--space-4); align-content: start; }
+  .rejected { display: grid; gap: var(--space-2); padding-left: var(--space-3); border-left: var(--focus-width) dashed var(--color-silk-dim); scroll-margin-top: var(--space-8); }
+  .rejected-loose { background: var(--color-panel-raised); padding: var(--space-3) var(--space-4); }
+  .rejected :global(p) { font-size: var(--step--1); }
+
+  /* Case cards: a learning entry in case form. The entry's own h3 is the title; each h4 and
+     its paragraph form one row. */
+  .case { display: grid; grid-template-columns: 9rem minmax(0, 1fr); border: var(--line-module) solid var(--color-silk); border-radius: var(--radius); background: var(--color-panel-raised); scroll-margin-top: var(--space-8); }
+  .case > :global(*) { margin: 0; max-width: none; }
+  .case-no { grid-column: 1 / -1; order: 0; padding: var(--space-4) var(--space-6) 0; }
+  .case :global(h3) { grid-column: 1 / -1; order: 1; font-size: var(--step-1); padding: var(--space-1) var(--space-6) var(--space-4); }
+  .case-metric { grid-column: 1 / -1; order: 2; max-width: none; padding: 0 var(--space-6) var(--space-4); display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-3); align-items: baseline; }
+  .case-metric-value { font: 400 var(--step-1) var(--font-mono); color: var(--color-amber); }
+  .case :global(h4), .case :global(h4 + p) { order: 3; border-top: var(--line-thin) solid var(--color-panel); padding: var(--space-3) var(--space-6); }
+  .case :global(h4) { font: 400 0.6875rem / 1.9 var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-silk-dim); padding-right: 0; }
+  .case :global(h4 + p) { font-size: var(--step--1); line-height: 1.55; padding-left: var(--space-3); }
+  .case :global(h4:last-of-type) { color: var(--color-amber); }
+
+  .evals-wrap { overflow-x: auto; }
+  .evals { border-collapse: collapse; width: 100%; font-size: var(--step--1); }
+  .evals caption { text-align: left; padding-bottom: var(--space-2); }
+  .evals :is(th, td) { text-align: left; padding: var(--space-2) var(--space-3); border-bottom: var(--line-thin) solid var(--color-silk-dim); }
+  .evals thead th { font: 400 var(--step--1) var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-silk-dim); }
+  .evals td { font-family: var(--font-mono); }
+  .evals tbody th { font-weight: 400; }
+
+  /* Previous / next, then the way back to the map. */
+  .part-steps { display: flex; flex-wrap: wrap; gap: var(--space-3); border-top: var(--line-module) solid var(--color-silk); padding-top: var(--space-6); }
+  .part-step { flex: 1 1 12rem; display: grid; gap: var(--space-1); padding: var(--space-3) var(--space-4); border: var(--line-thin) solid var(--color-silk-dim); border-radius: var(--radius); text-decoration: none; }
+  .part-step:hover { border-color: var(--color-amber); }
+  .part-step.is-next { text-align: right; }
+  .part-step.is-empty { border: 0; padding: 0; }
+  .part-step-name { font: 600 var(--step-1) / 1.2 var(--font-panel); letter-spacing: var(--tracking-panel); text-transform: uppercase; }
+  .part-back { flex: 1 1 100%; text-align: center; font: 400 var(--step--1) var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; padding-block: var(--space-3); }
+
+  @media (max-width: 47.99rem) {
+    .part-figure :global(.figure-svg.is-wide) { display: none; }
+    .part-figure :global(.figure-svg.is-narrow) { display: block; }
+    .case { grid-template-columns: minmax(0, 1fr); }
+    .case :global(h4) { padding-bottom: 0; }
+    .case :global(h4 + p) { border-top: 0; padding-left: var(--space-6); padding-top: var(--space-1); }
+    /* The rail becomes a strip of section links that stays at the top while reading. */
+    .rail { flex-basis: 100%; top: 0; z-index: 3; gap: 0; background: var(--color-panel); border-bottom: var(--line-thin) solid var(--color-silk-dim); }
+    .rail-label, .rail-count, .rail-more { display: none; }
+    .rail ol { display: flex; gap: var(--space-4); margin: 0; padding: 0; border-left: 0; overflow-x: auto; white-space: nowrap; }
+    .rail li::before { display: none; }
+    .rail a { min-height: 2.75rem; align-items: center; }
+  }
+</style>

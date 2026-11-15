@@ -20,7 +20,7 @@ interface Props {
 }
 const { svg, parts, locale = "en", svgText = {} } = Astro.props;
 const drawing = linkParts(svg, parts, svgText);
-const pageLang = svgText.pageLang;
+const anyEnglish = parts.some((p) => p.page && p.pageLang);
 const groups: { line: string; parts: MapPart[] }[] = [];
 for (const p of parts) {
   const line = p.line ?? "parts";
@@ -42,7 +42,7 @@ for (const p of parts) {
         <p class="map-card-text" data-card-text></p>
         <p class="map-card-links">
           <a class="map-card-open" data-card-open href="#h-parts">{t(locale, "map.readPage")} →</a>
-          {pageLang && <span class="label" data-card-english>{t(locale, "map.englishPage")}</span>}
+          {anyEnglish && <span class="label" data-card-english>{t(locale, "map.englishPage")}</span>}
         </p>
         <div class="map-card-nav">
           <button type="button" data-card-prev>← {t(locale, "map.prev")}</button>
@@ -64,8 +64,8 @@ for (const p of parts) {
           <ol>
             {g.parts.map((p) => (
               <li class="module wire-item" id={`part-${p.id}`}>
-                <a class="wire-name" href={partHref(p)} hreflang={p.page && pageLang ? pageLang : undefined}>{p.label}</a>
-                {p.page && pageLang && <span class="label">{t(locale, "map.englishPage")}</span>}
+                <a class="wire-name" href={partHref(p)} hreflang={p.page && p.pageLang ? p.pageLang : undefined}>{p.label}</a>
+                {p.page && p.pageLang && <span class="label">{t(locale, "map.englishPage")}</span>}
                 <p id={`desc-${p.id}`}>{p.hover}</p>
               </li>
             ))}
