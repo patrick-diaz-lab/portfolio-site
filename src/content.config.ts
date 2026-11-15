@@ -2,7 +2,7 @@
 // module `pnpm check` uses (scripts/check-content.ts), so build and check can't disagree.
 import { defineCollection } from "astro:content";
 import { glob } from "astro/loaders";
-import { knowledgeSchema, partSchema } from "./content/schemas.ts";
+import { knowledgeDeSchema, knowledgeSchema, partDeSchema, partSchema } from "./content/schemas.ts";
 
 const parts = defineCollection({
   loader: glob({ base: "./content/parts", pattern: "**/*.mdx" }),
@@ -14,4 +14,15 @@ const knowledge = defineCollection({
   schema: knowledgeSchema,
 });
 
-export const collections = { parts, knowledge };
+// German part pages (Patrick, 2026-11-15): text only, mirroring the English files.
+const partsDe = defineCollection({
+  loader: glob({ base: "./content/de/parts", pattern: "**/*.mdx" }),
+  schema: partDeSchema,
+});
+
+const knowledgeDe = defineCollection({
+  loader: glob({ base: "./content/de/knowledge", pattern: "**/*.md" }),
+  schema: knowledgeDeSchema,
+});
+
+export const collections = { parts, knowledge, partsDe, knowledgeDe };

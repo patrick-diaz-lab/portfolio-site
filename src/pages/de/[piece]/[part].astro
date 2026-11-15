@@ -1,0 +1,31 @@
+---
+// Part page, German (Patrick, 2026-11-15): one page per content/de/parts/<piece>/<part>.mdx
+// whose English part exists in a built piece. Structure and numbers come from the English
+// part and its entries; the German files give the text, entry by id (`pnpm check`, rule
+// i18n, holds them to the English ones).
+import { getCollection } from "astro:content";
+import PartPage from "../../../components/PartPage.astro";
+import { loadPieces } from "../../../lib/pieces.ts";
+
+export async function getStaticPaths() {
+  const built = new Set(loadPieces("de").map((p) => p.id));
+  const parts = await getCollection("parts");
+  const knowledge = await getCollection("knowledge");
+  const knowledgeDe = await getCollection("knowledgeDe");
+  return (await getCollection("partsDe"))
+    .filter((d) => built.has(d.data.piece))
+    .flatMap((d) => {
+      const part = parts.find((p) => p.data.piece === d.data.piece && p.data.id === d.data.id);
+      if (!part) return [];
+      const entries = knowledge
+        .filter((k) => k.data.piece === part.data.piece && k.data.part === part.data.id)
+        .sort((a, b) => a.id.localeCompare(b.id));
+      const prefix = `${d.data.piece}/${d.data.id}/`;
+      const deEntries = new Map(knowledgeDe.filter((k) => k.id.startsWith(prefix)).map((k) => [k.data.id, k]));
+      return [{ params: { piece: d.data.piece, part: d.data.id }, props: { part, entries, de: { part: d, entries: deEntries } } }];
+    });
+}
+
+const { part, entries, de } = Astro.props;
+---
+<PartPage locale="de" part={part} entries={entries} de={de} />

@@ -38,6 +38,8 @@ export type MapPart = {
   page?: string;
   status: keyof typeof STATUS_TEXT;
   line?: string;
+  /** Set on a German map when the part's page exists only in this language ("en"). */
+  pageLang?: string;
 };
 
 export const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -45,12 +47,12 @@ export const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;")
 /** Where a part links: its page, or its entry in the list under the map. */
 export const partHref = (p: MapPart) => p.page ?? `#part-${p.id}`;
 
-export type SvgText = { ariaLabel?: string; text?: Record<string, string>; pageLang?: string };
+export type SvgText = { ariaLabel?: string; text?: Record<string, string> };
 
 /** The SVG with each part group turned into a named link. Unknown groups are left as drawn.
  *  Box labels come from the parts (upper case); keyed texts and the SVG's name from `t`, so
- *  one drawing serves every language (PLAN 1.9a). `pageLang` marks links to part pages
- *  that exist only in another language. */
+ *  one drawing serves every language (PLAN 1.9a). A part's `pageLang` marks a link to a part
+ *  page that exists only in another language. */
 export function linkParts(svg: string, parts: MapPart[], t: SvgText = {}): string {
   const byId = new Map(parts.map((p) => [p.id, p]));
   let out = svg.replace(/^\s*<\?xml[^>]*>\s*/, "").replace(/<!--[\s\S]*?-->/g, "");
@@ -72,7 +74,7 @@ export function linkParts(svg: string, parts: MapPart[], t: SvgText = {}): strin
         `href="${esc(partHref(p))}"`,
         `aria-label="${esc(p.label)}"`,
         `aria-describedby="desc-${esc(id)}"`,
-        ...(p.page && t.pageLang ? [`hreflang="${esc(t.pageLang)}"`] : []),
+        ...(p.page && p.pageLang ? [`hreflang="${esc(p.pageLang)}"`] : []),
         `data-label="${esc(p.label)}"`,
         `data-hover="${esc(p.hover)}"`,
       ];

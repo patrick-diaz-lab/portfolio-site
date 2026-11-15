@@ -43,6 +43,7 @@ Portfolio site for Patrick's work as an AI/LLM engineer. The first piece is **Vi
 | 1.13 | Detail page: Claude worker tier | Same as 1.4; layers only (D19); built after the sync. **Done 2026-11-13 (PR #36),** in layout 3 |
 | 1.14 | Detail page: Telegram adapter | Same as 1.4; layers only (D19); built after the sync. **Done 2026-11-13 (PR #38),** in layout 3; open point: no readouts yet (below) |
 | 1.15 | Part page layout 3 (D19, Patrick 2026-11-13): "you are here" sheet, readouts, section rail, decision cards, case cards, previous / next, and a figure on every part page. Plan below | Every part page has at least one figure and its lessons in case form; `pnpm check` (rules `readouts`, `figures`, `case`) and every gate pass; Patrick approves each page's reworded lessons and figure in its PR **Done 2026-11-13** (PRs #31, #32, #34, #35, #37; pages 1.12–1.14 built in layout 3). Four lessons stay prose by the rule below. Open point: the Telegram adapter page has no readouts |
+| 1.16 | German part pages (D23, Patrick 2026-11-15): all ten Vision part pages under `/de/vision/…`, same layout, figures and readouts, with the language switch per page. Two or three pages per PR. Plan below | Each German page passes `pnpm check` (rule `i18n-part`) and every gate; Patrick approves the text and figures in its PR and adds the page to `published-urls.txt` after the merge |
 
 **Order (Patrick, 2026-11-12):** 1.9a, then the post-sync PR, then 1.10–1.14, then 1.9b (domain and launch switch). Nothing in 1.10–1.14 is built before the sync PR with their notes is merged.
 
@@ -374,6 +375,16 @@ More part pages before launch (Patrick). Their notes are being written on the Vi
 - **1.14, Telegram adapter:** `layers_only`, because sender identity is a security layer. The signed sender identity is told at layer level, once the notes say it's built.
 - **Before 1.10:** the small post-sync PR below, so the existing pages match the corrected notes first.
 - **Cost:** build sessions on the subscription; no API spend.
+
+### Item 1.16 plan (Patrick, 2026-11-15)
+
+German versions of the ten part pages, written for a Swiss reader (ss, not ß), in the neutral tone of the German homepage. Technical terms stay in English where German developers keep them (hook, eval, held-out, MCP); names follow the German map (Agent-Core, Wissenskern, Laufprotokolle). Numbers, sources, evals and structure stay in the English files; the German files hold only text (D23).
+
+- **1.16a, the template and eval harness and guardrails** (this PR): the German route, `PartPage.astro` shared by both languages, the mirror folders, rule `i18n-part` with tests, German figures FIG. 9.1 and 10.1. Links from German pages go to German part pages where they exist, and to the English page, marked, where not: map, "you are here" sheet, related, previous / next, and the homepage's work list. Guardrails stays layers-only in German, checked like the English page.
+- **1.16b:** Claude worker, agent core and LiteLLM gateway.
+- **1.16c:** MCP servers, knowledge core and run records.
+- **1.16d:** console and Telegram adapter.
+- **After each merge,** Patrick adds the new German pages to `published-urls.txt`; sessions never do (D22).
 
 ### Item 1.15 plan (Patrick's OK 2026-11-13)
 
