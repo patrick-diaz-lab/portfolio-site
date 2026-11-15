@@ -7,3 +7,8 @@
 /vision/guardrails/
 /vision/eval-harness/
 /vision/claude-worker/
+/de/vision/eval-harness/
+/de/vision/guardrails/
+/de/vision/agent-core/
+/de/vision/litellm-gateway/
+/de/vision/claude-worker/
