@@ -380,8 +380,8 @@ More part pages before launch (Patrick). Their notes are being written on the Vi
 
 German versions of the ten part pages, written for a Swiss reader (ss, not ß), in the neutral tone of the German homepage. Technical terms stay in English where German developers keep them (hook, eval, held-out, MCP); names follow the German map (Agent-Core, Wissenskern, Laufprotokolle). Numbers, sources, evals and structure stay in the English files; the German files hold only text (D23).
 
-- **1.16a, the template and eval harness and guardrails** (this PR): the German route, `PartPage.astro` shared by both languages, the mirror folders, rule `i18n-part` with tests, German figures FIG. 9.1 and 10.1. Links from German pages go to German part pages where they exist, and to the English page, marked, where not: map, "you are here" sheet, related, previous / next, and the homepage's work list. Guardrails stays layers-only in German, checked like the English page.
-- **1.16b:** Claude worker, agent core and LiteLLM gateway.
+- **1.16a, the template and eval harness and guardrails.** **Done 2026-11-15 (PRs #44, #45).** the German route, `PartPage.astro` shared by both languages, the mirror folders, rule `i18n-part` with tests, German figures FIG. 9.1 and 10.1. Links from German pages go to German part pages where they exist, and to the English page, marked, where not: map, "you are here" sheet, related, previous / next, and the homepage's work list. Guardrails stays layers-only in German, checked like the English page.
+- **1.16b, Claude worker, agent core and LiteLLM gateway** (this PR): German figures FIG. 3.1, 6.1 and 4.1; the eval harness intro now links the German agent core page. Claude worker stays layers-only in German.
 - **1.16c:** MCP servers, knowledge core and run records.
 - **1.16d:** console and Telegram adapter.
 - **After each merge,** Patrick adds the new German pages to `published-urls.txt`; sessions never do (D22).
