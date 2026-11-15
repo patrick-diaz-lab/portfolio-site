@@ -11,7 +11,7 @@ Ein paar Tage lang teilten sich mehrere Sessions von Claude eine Arbeitskopie. U
 
 #### Was ich geändert habe
 
-Jetzt bekommt jede Session automatisch ihre eigene Arbeitskopie und ihren eigenen Branch; eine gesperrte Lane hält alles Live; ein Board zeigt, was auf mich wartet; Arbeit wird auf den neuesten Stand gebracht, bevor sie als fertig gilt; und jede Session führt ein kurzes Protokoll, aus dem sie sich wiederherstellen kann.
+Jetzt bekommt jede Session automatisch ihre eigene Arbeitskopie und ihren eigenen Branch; alles, was live geht, läuft über eine gesperrte Lane; ein Board zeigt, was auf mich wartet; Arbeit wird auf den neuesten Stand gebracht, bevor sie als fertig gilt; und jede Session führt ein kurzes Protokoll, aus dem sie sich wiederherstellen kann.
 
 #### Ergebnis
 
