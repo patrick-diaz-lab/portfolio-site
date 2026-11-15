@@ -1,0 +1,18 @@
+---
+id: telegram-adapter
+piece: vision
+title: "Telegram-Adapter und signierter Absender"
+summary: "Ein dünner Adapter zwischen meinem Handy und Vision. Er lässt nur meine eigenen Nachrichten aus meinem privaten Chat durch, signiert jede davon, und der Agent-Core vertraut nichts Unsigniertem."
+as_of: 2026-11-12
+readouts: []
+figures:
+  - svg: telegram-adapter-1-de.svg
+    svg_narrow: telegram-adapter-1-de-narrow.svg
+    alt: "Eine Nachricht von meinem Handy geht über meinen privaten Chat an den Adapter. Der Adapter verwirft Nachrichten von allen anderen und veraltete, und er signiert jede Nachricht, die er weitergibt. Der Agent-Core prüft die Signatur und lehnt alles andere ab, bevor ein Lauf beginnt. Jede angenommene Nachricht wird zu einem Lauf mit seinem Herkunftsnachweis."
+    caption: "Nur meine eigenen Nachrichten aus meinem privaten Chat kommen durch, jede vom Adapter signiert. Der Agent-Core prüft, bevor ein Lauf beginnt, und jeder angenommene Lauf behält einen Nachweis, woher er kam."
+eval_labels: {}
+---
+
+Telegram war der erste Weg, mit Vision zu sprechen, und ist auf meinem Handy noch immer der Weg. Der Adapter dazwischen ist bewusst dünn: Er gibt meine Nachrichten an den [Agent-Core](/de/vision/agent-core/) weiter und die Antworten zurück, ohne Modell, ohne Datenbank und ohne eigene Protokolle.
+
+Er ist auch der Ort, an dem Vision erfährt, wer mit ihm spricht. Jede Nachricht, die der Adapter weitergibt, ist signiert, und der Agent-Core nimmt nichts anderes an. Diese Seite nennt diese Schichten und warum es jede gibt; die Details bleiben privat.

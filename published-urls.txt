@@ -12,3 +12,6 @@
 /de/vision/agent-core/
 /de/vision/litellm-gateway/
 /de/vision/claude-worker/
+/de/vision/mcp-servers/
+/de/vision/knowledge-core/
+/de/vision/run-records/

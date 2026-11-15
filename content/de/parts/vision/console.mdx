@@ -1,0 +1,20 @@
+---
+id: console
+piece: vision
+title: "Konsole, Live-Traces und Review"
+summary: "Meine eigene Web-App für Vision. Chat-Sessions mit gestreamten Antworten, ein Live-Trace jedes Modell- und Werkzeugaufrufs, ein Lauf-Explorer und eine Review-Liste, nur im privaten Netz erreichbar."
+as_of: 2026-11-12
+readouts:
+  - label: "Bezahlte Schritte passend zum Kostenlog"
+figures:
+  - svg: console-1-de.svg
+    svg_narrow: console-1-de-narrow.svg
+    alt: "Meine Geräte, gesperrt und aktuell, erreichen die Konsole nur in meinem privaten Netz, das keinen offenen Port hat und der Konsole meine Identität liefert. Der Server der Konsole signiert jede Anfrage, die er weitergibt, mit eigenen Zugangsdaten, und der Agent-Core vertraut nur signierten Absendern. Der Coding-Agent, der Vision baut, hat keinen Zugriff auf die Konsole."
+    caption: "Die Zugangsschichten der Konsole. Sie ist nur in meinem privaten Netz erreichbar, das ihr meine Identität liefert; ihr Server signiert jede weitergegebene Anfrage, und der Agent-Core vertraut nur signierten Absendern. Der Coding-Agent hat keinen Zugriff. Wie jede Schicht funktioniert, bleibt privat."
+eval_labels:
+  paid-steps-matching-spend-log: "Bezahlte Schritte passend zum Kostenlog"
+---
+
+Meine Chat-App hat mir immer nur Antworten gezeigt. Die Konsole zeigt, was unterwegs passiert ist: an welches Modell eine Nachricht ging, jeden Modell- und Werkzeugaufruf mit dem, was er sah und zurückgab, was er kostete und wie lange jeder Schritt dauerte. Sie hat Chat-Sessions mit gestreamten Antworten und ihren Quellen, einen Live-Trace, einen Explorer für frühere Läufe und Markierungen, die Läufe in eine Review-Liste bringen.
+
+Die erste Version ist gebaut. Benachrichtigungen und das Abschalten des alten Chat-Kanals kommen als Nächstes. Diese Seite nennt die Zugangsschichten und warum es jede gibt; wie sie funktionieren, bleibt privat.
