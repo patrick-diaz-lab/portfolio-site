@@ -1,0 +1,25 @@
+---
+id: claude-worker
+piece: vision
+title: "Claude-Worker, durch Schichten abgeschirmt"
+summary: "Eine Stufe nutzt das offizielle Claude Code auf meinem Abo, nur für meine eigenen Befehle, in Schichten, die es von allem fernhalten, was es nicht braucht."
+as_of: 2026-11-12
+readouts:
+  - label: "Benchmark gelöst, Claude Code"
+  - label: "Kosten pro gelöstem Fall, Claude Code"
+  - label: "Kosten pro gelöstem Fall, Vision"
+figures:
+  - svg: claude-worker-1-de.svg
+    svg_narrow: claude-worker-1-de-narrow.svg
+    alt: "Ein Befehl aus meinem privaten Chat erreicht den Agent-Core, dann den Claude-Worker: eigenes Netz, frischer Workspace für jeden Aufruf, eine Startprüfung. Ein Proxy ist sein einziger Weg nach aussen, zur API des Anbieters und zu den Werkzeugen des Gateways; zu Datenbank, Modell-Endpunkten, Heimnetz oder Internet hat er keinen Weg. Jeder Fehler fällt auf smart zurück."
+    caption: "Der Worker beantwortet nur meinen eigenen Befehl, in seinem eigenen Netz, aus einem frischen Workspace, nach einer Startprüfung, mit einem Proxy als einzigem Weg nach aussen. Jeder Fehler fällt auf smart zurück."
+eval_labels:
+  benchmark-solved-claude-code: "Benchmark gelöst, Claude Code"
+  benchmark-solved-vision: "Benchmark gelöst, Vision"
+  benchmark-cost-per-solved-claude-code: "Kosten pro gelöstem Fall, Claude Code"
+  benchmark-cost-per-solved-vision: "Kosten pro gelöstem Fall, Vision"
+---
+
+Eine Stufe von Vision nutzt das offizielle Claude Code auf meinem Abo statt über die API. Sie beantwortet nur Nachrichten, die ich selbst mit einem ausdrücklichen Befehl schicke, und sie ist die einzige Ausnahme von der Regel, dass jeder Modellaufruf über das [Gateway](/de/vision/litellm-gateway/) läuft.
+
+Weil sie ein vollständiges Agent-Werkzeug ist und nicht ein einzelner Modellaufruf, läuft sie innerhalb mehrerer Schichten: ein eigenes Netz, ein frischer Workspace für jeden Aufruf, eine Prüfung dessen, was tatsächlich geladen wurde, und dieselben lesenden Werkzeuge wie das starke Modell. Diese Seite nennt diese Schichten und warum es jede gibt; die genaue Konfiguration bleibt privat.
