@@ -13,7 +13,7 @@ figures:
   - svg: eval-harness-1-de.svg
     svg_narrow: eval-harness-1-de-narrow.svg
     alt: "Pro Eval gehen zwei Sets in den Harness: ein Dev-Set, das Claude entwirft und ich prüfe, und ein Held-out-Set, das ich selbst schreibe. Der Harness führt den Produktionscode aus und bewertet die Ergebnisse mit Code. Dev-Läufe behalten jeden Fall; Held-out-Läufe behalten nur Summen, ohne Falltexte oder IDs. Ein Lauf stoppt bei 2 Dollar."
-    caption: "Wie der Harness eine Änderung misst. Er führt denselben Code aus wie der Chat, auf zwei Sets pro Eval: Dev-Sets, die Claude entwirft und ich prüfe, und Held-out-Sets, die ich selbst schreibe. Code bewertet jedes Ergebnis, Held-out-Läufe hinterlassen nur Summen, und ein Lauf stoppt nach $2."
+    caption: "Wie der Harness eine Änderung misst. Er führt denselben Code aus, der auch meine Nachrichten im Chat beantwortet, auf zwei Sets pro Eval: Dev-Sets, die Claude entwirft und ich prüfe, und Held-out-Sets von mir. Code bewertet alles, Held-out-Läufe hinterlassen nur Summen, ein Lauf stoppt nach $2."
 eval_labels:
   docs-retrieval-hit-at-5-held-out: "Docs-Retrieval hit@5, held-out"
   docs-retrieval-hit-at-5-held-out-now: "Docs-Retrieval hit@5, held-out, grösserer Korpus"
@@ -23,6 +23,6 @@ eval_labels:
   agent-eval-cost-per-case: "Agent-Eval-Kosten pro Fall"
 ---
 
-Vor und nach jeder Änderung an einem Prompt, einem Modell oder einem Werkzeug will ich eine Zahl, gemessen an Fällen, die das zu verbessernde System nie gesehen hat. Genau das liefert der Harness. Er führt denselben Code aus wie der Chat, gegen zwei Arten von Sets pro Eval: Dev-Sets, die Claude entwirft und ich prüfe, und Held-out-Sets, die ich selbst schreibe und die Agenten nicht anfassen können.
+Vor und nach jeder Änderung an einem Prompt, einem Modell oder einem Werkzeug will ich eine Zahl, gemessen an Fällen, die das zu verbessernde System nie gesehen hat. Genau das liefert der Harness. Er führt denselben Code aus, der auch meine Nachrichten im Chat beantwortet, gegen zwei Arten von Sets pro Eval: Dev-Sets, die Claude entwirft und ich prüfe, und Held-out-Sets, die ich selbst schreibe und die Agenten nicht anfassen können.
 
 Er deckt das Routing ab, das Retrieval über meine Docs, Notizen und Dateien sowie ganze Agent-Antworten. Die Ergebnisse des Klassifikators stehen auf der [Seite zum Agent-Core](/de/vision/agent-core/); das Retrieval folgt weiter unten.

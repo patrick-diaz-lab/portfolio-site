@@ -18,3 +18,5 @@
 /de/vision/run-records/
 /de/vision/console/
 /de/vision/telegram-adapter/
+/vision/litellm-gateway/
+/vision/run-records/
