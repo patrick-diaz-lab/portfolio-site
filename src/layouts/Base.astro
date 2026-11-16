@@ -42,6 +42,9 @@ const home = localePath(lang, "/");
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='2' fill='%231e2225'/%3E%3Ccircle cx='8' cy='8' r='4' fill='%23f2b23e'/%3E%3C/svg%3E" />
     {description && <meta name="description" content={description} />}
     {noindex && <meta name="robots" content="noindex" />}
+    <!-- Indexed pages name their address on the domain, so the workers.dev fallback host
+         isn't indexed as a copy (PLAN 1.9b); scripts/sitemap.ts checks it. -->
+    {!noindex && <link rel="canonical" href={SITE.origin + Astro.url.pathname} />}
     <title>{title}</title>
     {path && (["en", "de"] as const).map((l) => <link rel="alternate" hreflang={l} href={SITE.origin + localePath(l, path)} />)}
     {path && <link rel="alternate" hreflang="x-default" href={SITE.origin + path} />}

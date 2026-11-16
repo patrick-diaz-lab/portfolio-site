@@ -87,6 +87,10 @@ The repo is public in `patrick-diaz-lab` on GitHub Free (D20). Settings come **b
         5. Test: from another address, write to `hello@patrickdiaz.dev`; it should arrive in your inbox within a minute (check spam once).
     4. **Before replying to a recruiter:** Email Routing only receives. A reply from your inbox goes out from your personal address, not from `hello@`. If that matters for the application, reply from the address you're happy to share; sending as `hello@` needs a separate sending service (a later step, not part of 1.9b).
     5. **Tell the session "domain live".** It then runs `pnpm link-check -- --live https://patrickdiaz.dev`, or you run it yourself from a local clone.
+    6. **Search Console, after the indexing PR is merged** (PLAN 1.9b, indexing):
+        1. Check that `https://patrickdiaz.dev/robots.txt` and `https://patrickdiaz.dev/sitemap.xml` load.
+        2. In Google Search Console, add `patrickdiaz.dev` as a property and verify it. A domain property is verified with a DNS TXT record, added in Cloudflare under **DNS** → **Records**.
+        3. **Sitemaps** → submit `https://patrickdiaz.dev/sitemap.xml`. Indexing takes days.
 22. **Write your bio** (3–4 sentences; generic background, no employer name) for the About page (D18).
 23. **Bring the visual inspiration** (palette, lettering, texture) before item 1.1 (D13).
 24. **Review and merge every content PR** with the checklist in [ARCHITECTURE](ARCHITECTURE.md#4-content-and-redaction-pipeline). Your merge is the approval.

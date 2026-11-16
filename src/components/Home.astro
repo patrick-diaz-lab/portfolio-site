@@ -1,7 +1,7 @@
 ---
 // Homepage (PLAN 1.9a, D18), English at / and German at /de/. Text from content/home/<locale>.yaml,
 // which Patrick edits; contact facts from src/site.ts. No photo, no CV download, no
-// personal email; the employer only generically. Not indexed until launch (PLAN 1.9b).
+// personal email; the employer only generically. Indexed since PLAN 1.9b.
 //
 // Layout "A2" (Patrick, 2026-11-13): intro and featured piece side by side, "All pieces" once
 // there is more than one built piece, work lines tagged with their piece and part, then
@@ -50,7 +50,7 @@ const workTag = (href: string) => {
 };
 const cvHref = `mailto:${SITE.email}?subject=${encodeURIComponent(home.cv)}`;
 ---
-<Base title={home.title} description={home.description} noindex lang={locale} path="/">
+<Base title={home.title} description={home.description} lang={locale} path="/">
   <main class="page home">
     <div class="top">
       <header class="intro">

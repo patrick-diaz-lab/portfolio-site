@@ -6,8 +6,9 @@
 //   node scripts/lighthouse.ts [--min 95] [path ...]     default: those pages
 //
 // Lighthouse 13.6.0 is a pinned dev dependency. The browser is the pinned Playwright's
-// Chromium (scripts/lib/browser.ts), never a system Chrome. `is-crawlable` is skipped while
-// pages carry noindex until launch (PLAN 1.9). The Node API sends nothing anywhere.
+// Chromium (scripts/lib/browser.ts), never a system Chrome. `is-crawlable` runs on every
+// page except the few that carry noindex on purpose (scripts/sitemap.ts, PLAN 1.9b). The
+// Node API sends nothing anywhere.
 import { spawn } from "node:child_process";
 import { mkdtempSync, readdirSync, rmSync, statSync } from "node:fs";
 import { createServer } from "node:net";
@@ -16,6 +17,7 @@ import { join } from "node:path";
 import lighthouse from "lighthouse";
 import { chromiumPath } from "./lib/browser.ts";
 import { DIST, serveDist } from "./lib/serve.ts";
+import { NOINDEX } from "./sitemap.ts";
 
 const args = process.argv.slice(2);
 const mi = args.indexOf("--min");
@@ -85,7 +87,7 @@ try {
   for (const path of paths) {
     const result = await lighthouse(`${origin}${path}`, { port, output: "json", logLevel: "error", onlyCategories: CATEGORIES }, {
       extends: "lighthouse:default",
-      settings: { formFactor: "mobile", skipAudits: ["is-crawlable"] },
+      settings: { formFactor: "mobile", skipAudits: NOINDEX.has(path) ? ["is-crawlable"] : [] },
     });
     if (!result) throw new Error(`no Lighthouse result for ${path}`);
     const scores = CATEGORIES.map((c) => [c, Math.round((result.lhr.categories[c]?.score ?? 0) * 100)] as const);
