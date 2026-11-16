@@ -6,7 +6,7 @@ import { extname, join, resolve } from "node:path";
 export const ROOT = resolve(import.meta.dirname, "..", "..");
 export const DIST = join(ROOT, "dist");
 
-const TYPES: Record<string, string> = { ".html": "text/html; charset=utf-8", ".css": "text/css", ".js": "text/javascript", ".woff2": "font/woff2", ".woff": "font/woff", ".svg": "image/svg+xml", ".png": "image/png", ".json": "application/json" };
+const TYPES: Record<string, string> = { ".html": "text/html; charset=utf-8", ".css": "text/css", ".js": "text/javascript", ".woff2": "font/woff2", ".woff": "font/woff", ".svg": "image/svg+xml", ".png": "image/png", ".json": "application/json", ".xml": "application/xml", ".txt": "text/plain; charset=utf-8" };
 
 export async function serveDist(): Promise<{ origin: string; server: Server }> {
   if (!existsSync(join(DIST, "index.html"))) throw new Error("dist/ is missing; run pnpm build first");

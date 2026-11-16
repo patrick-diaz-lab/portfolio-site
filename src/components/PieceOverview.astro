@@ -16,7 +16,7 @@ const { piece, locale } = Astro.props;
 const n = String(piece.order).padStart(2, "0");
 const both = piece.locales.includes("de");
 ---
-<Base title={`${piece.title} — Patrick Diaz`} description={piece.tagline} noindex lang={locale} path={both ? `/${piece.id}/` : undefined}>
+<Base title={`${piece.title} — Patrick Diaz`} description={piece.tagline} lang={locale} path={both ? `/${piece.id}/` : undefined}>
   <main class="page">
     <header class="piece-head">
       <div class="piece-intro">

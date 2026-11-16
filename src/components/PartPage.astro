@@ -144,7 +144,7 @@ const summary = text?.summary ?? part.data.summary;
 const asOf = text?.as_of ?? part.data.as_of;
 const withPiece = (key: Parameters<typeof t>[1]) => L(key).replace("{piece}", pieceTitle);
 ---
-<Base title={`${title} — ${pieceTitle} — Patrick Diaz`} description={summary} noindex lang={locale} path={bilingual ? page : undefined}>
+<Base title={`${title} — ${pieceTitle} — Patrick Diaz`} description={summary} lang={locale} path={bilingual ? page : undefined}>
   <main class="page part-page">
     <div class="part-top">
       <header class="part-head">
