@@ -15,7 +15,7 @@ This repo is **public** (D20). Start with [docs/PLAN.md](docs/PLAN.md).
 
 The site is live at `patrickdiaz.dev` and linked in Patrick's job applications at all times.
 
-- **Published URLs are stable.** Every path in `published-urls.txt` must keep resolving: a page (200), or a 301 to its new home in `public/_redirects`, added in the same PR. Never remove a line from that file; only Patrick adds lines. `pnpm build` checks it (`scripts/published-check.ts`), so a broken published URL fails CI and never deploys.
+- **Published URLs are stable.** Every path in `published-urls.txt` must keep resolving: a page (200), or a 301 to its new home in `public/_redirects`, added in the same PR. Never remove a line from that file. Lines are added by Patrick, or by a session when he asks for it, and only for pages already merged to `main`. `pnpm build` checks it (`scripts/published-check.ts`), so a broken published URL fails CI and never deploys.
 - **`main` always deploys live, so merge only finished work.** Unfinished pages and redesigns stay on the branch and are reviewed on the preview URL, once branch previews run behind access protection (D3); until then, from the session's desktop and phone screenshots.
 - **Every PR that changes rendered content ends its description with a "check live after merge" list:** the pages Patrick should open on his phone, as full `https://patrickdiaz.dev/…` links.
 

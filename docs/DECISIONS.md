@@ -338,7 +338,7 @@ Decided 2026-11-09 by Patrick. Replaces D12, and the paid-plan part of D8.
 
 Decided 2026-11-13 by Patrick. The site is linked in job applications at all times.
 
-- **Published URLs are stable.** `published-urls.txt` at the repo root lists them, one path per line. Each must keep resolving: a page (200), or a 301 to its new home in `public/_redirects`, added in the same PR. Lines are never removed; only Patrick adds them. The first list: `/`, `/de/`, and the guardrails, eval harness and Claude worker part pages. Their German versions join once they exist (German part pages: PLAN 1.16, D23).
+- **Published URLs are stable.** `published-urls.txt` at the repo root lists them, one path per line. Each must keep resolving: a page (200), or a 301 to its new home in `public/_redirects`, added in the same PR. Lines are never removed. Patrick adds them, or a session does when he asks for it, and only for pages already merged to `main` (changed 2026-11-16). The first list: `/`, `/de/`, and the guardrails, eval harness and Claude worker part pages. Their German versions join once they exist (German part pages: PLAN 1.16, D23).
 - **Checked in the build:** `scripts/published-check.ts` runs at the end of `pnpm build`, so CI and the Cloudflare build fail on a broken published URL. A test removes a page and expects the check to fail.
 - **`main` always deploys live, so only finished work is merged.** Unfinished pages and redesigns stay on their branch. They are reviewed on the preview URL once branch previews run behind access protection (D3 keeps public previews off); until then from the session's screenshots.
 - **A "check live after merge" list** ends every PR that changes rendered content: the pages Patrick opens on his phone after the merge.
@@ -374,6 +374,6 @@ Decided 2026-11-15 by Patrick: German versions of all ten Vision part pages, sam
 - **Text only:** a German part and its entries are mirror files under `content/de/` (ARCHITECTURE §3). Numbers, evals, sources and structure stay in the English files, so a number can't differ between the languages and a sync of `sources/vision/` touches English files first.
 - **Checked:** `pnpm check` (rule `i18n-part`) fails a German page that drifts from its English page. Layers-only applies to the German text of a layers-only part, the same way (D19).
 - **Links:** a German page links German part pages where they exist and marks links to English-only ones.
-- **Published only after review:** each German page joins `published-urls.txt` after Patrick merges it, added by him (D22).
+- **Published only after review:** each German page joins `published-urls.txt` after Patrick merges it, added by him or, at his request, by a session (D22).
 - **Rejected:** machine translation at build time (no review, and a security page could slip past the layers-only check); a full copy of each part file in German (numbers would drift).
 

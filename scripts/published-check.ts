@@ -1,8 +1,8 @@
 // `pnpm published-check` (live site rules, D22, Patrick 2026-11-13): every path in
 // published-urls.txt must keep resolving in the built site: a page (200), or a 301 in
 // `_redirects` to a path that is itself a page. Runs at the end of `pnpm build`, so a broken
-// published URL fails CI and never deploys. Only Patrick adds lines to the list; none is
-// ever removed.
+// published URL fails CI and never deploys. Lines are added by Patrick, or by a session at his
+// request, and only for merged pages; none is ever removed.
 //
 //   node scripts/published-check.ts [--dist <dir>] [--list <file>]
 import { existsSync, readFileSync, statSync } from "node:fs";
