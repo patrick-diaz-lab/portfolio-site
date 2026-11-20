@@ -6,11 +6,13 @@ import { t, type Locale } from "../i18n/ui.ts";
 import { chipNote, chipValue } from "../lib/chips.ts";
 
 interface Props {
-  chips: { label: string; metric: string; value: number; n?: number; baseline?: number; as_of: string }[];
+  chips: { label: string; metric: string; value: number; n?: number; baseline?: number; note?: string; as_of: string }[];
   locale: Locale;
   variant?: "cards" | "panel";
+  /** One line under the chips: what the numbers were measured on (2026-11-20). */
+  footnote?: string;
 }
-const { chips, locale, variant = "cards" } = Astro.props;
+const { chips, locale, variant = "cards", footnote } = Astro.props;
 ---
 {chips.length > 0 && (
   <ul class:list={["chips", variant]} aria-label={t(locale, "piece.measured")}>
@@ -18,11 +20,12 @@ const { chips, locale, variant = "cards" } = Astro.props;
       <li class="chip">
         <span class:list={["chip-value", { change: c.baseline !== undefined }]}>{chipValue(c, locale)}</span>
         <span class="chip-label">{c.label}</span>
-        <span class="label">{chipNote(c, locale)}</span>
+        <span class="label">{chipNote(c, locale).slice(0, -c.as_of.length)}<span class="chip-date">{c.as_of}</span></span>
       </li>
     ))}
   </ul>
 )}
+{chips.length > 0 && footnote && <p class="chips-footnote">{footnote}</p>}
 
 <style>
   .chips { list-style: none; margin: var(--space-2) 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-3); }
@@ -35,5 +38,8 @@ const { chips, locale, variant = "cards" } = Astro.props;
   .chips.panel { gap: var(--line-thin); background: var(--color-silk-dim); border: var(--line-thin) solid var(--color-silk-dim); }
   .panel .chip { flex: 1 1 9.5rem; min-width: 0; border: 0; border-radius: 0; padding: var(--space-3); align-content: start; }
   .panel .chip-value.change { color: var(--color-amber); }
-  .panel .label { font-size: 0.6875rem; line-height: 1.4; }
+  .panel .label { font-size: 0.75rem; line-height: 1.4; }
+  /* A date never breaks at its hyphens. */
+  .chip-date { white-space: nowrap; }
+  .chips-footnote { margin-top: var(--space-2); font-size: var(--step--1); line-height: 1.45; color: var(--color-silk-dim); max-width: none; }
 </style>

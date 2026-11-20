@@ -26,7 +26,7 @@
   <rect class="box" x="564" y="60" width="156" height="84" />
   <text class="lbl fig-mid" x="642" y="90">AGENT-CORE</text>
   <text class="fig-sub fig-mid" x="642" y="112">VERTRAUT NUR</text>
-  <text class="fig-sub fig-mid" x="642" y="128">SIGNIERTEN SENDERN</text>
+  <text class="fig-sub fig-mid" x="642" y="128">SIGNIERTEN ABSENDERN</text>
 
   <rect class="box" x="376" y="208" width="156" height="52" />
   <text class="lbl fig-mid" x="454" y="232">CODING-AGENT</text>

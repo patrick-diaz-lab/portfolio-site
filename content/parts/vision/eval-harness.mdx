@@ -2,13 +2,16 @@
 id: eval-harness
 piece: vision
 title: Eval harness and held-out sets
-summary: A small harness that measures the code Vision really runs, before and after every prompt, model or tool change, on held-out sets that only I can write and only totals leave.
+summary: A small harness that measures the code Vision really runs, before and after every prompt, model or tool change, on held-out sets that only I can change and of which only totals are kept.
 status: built
 as_of: 2026-11-12
 source_commit: 8b2a08b580419fd5f06330fce3b7e25a982b0150
 sources:
   - sources/vision/deep/eval-harness.md
   - sources/vision/notes.md
+  - sources/patrick/2026-11-20.md
+# Values whose case count isn't in the notes (files and notes retrieval, cost per case) are
+# out until it is (PLAN 1.17). A share with n shows as "k of n".
 evals:
   - name: docs-retrieval-hit-at-5-held-out
     metric: hit_at_5
@@ -20,42 +23,25 @@ evals:
     value: 0.75
     n: 16
     date: 2026-11-12
-  - name: files-retrieval-hit-at-5-held-out
-    metric: hit_at_5
-    value: 1.0
-    date: 2026-11-04
-  - name: vault-retrieval-chunk-search
-    metric: hit_at_5
-    value: 0.909
-    date: 2026-11-04
-  - name: vault-retrieval-note-search
-    metric: hit_at_5
-    value: 0.591
-    date: 2026-11-04
-  - name: agent-eval-cost-per-case
-    metric: cost_usd
-    value: 0.014
-    baseline: 0.040
-    date: 2026-11-12
 readouts:
+  - eval: docs-retrieval-hit-at-5-held-out
+    label: Docs retrieval hit@5, held-out, first baseline
   - eval: docs-retrieval-hit-at-5-held-out-now
-    label: Docs retrieval hit@5, held-out, grown corpus
-  - eval: files-retrieval-hit-at-5-held-out
-    label: Files retrieval hit@5, held-out
-  - eval: vault-retrieval-chunk-search
-    label: Vault retrieval hit@5, chunk search
-  - eval: agent-eval-cost-per-case
-    label: Agent eval cost per case, prompt caching
+    label: Docs retrieval hit@5, held-out, larger corpus
+    note: Cause under investigation
+eval_labels:
+  docs-retrieval-hit-at-5-held-out: Docs retrieval hit@5, held-out, first baseline
+  docs-retrieval-hit-at-5-held-out-now: Docs retrieval hit@5, held-out, larger corpus
 figures:
   - svg: eval-harness-1.svg
     svg_narrow: eval-harness-1-narrow.svg
-    alt: "Two sets per eval go into the harness: a dev set that Claude drafts and I review, and a held-out set written by me. The harness runs the production code and scores the results with code. Dev runs keep every case; held-out runs keep totals only, with no case text or IDs. A run stops at 2 dollars."
-    caption: "How the harness measures a change. It runs the code the chat runs on two sets per eval: dev sets that Claude drafts and I review, and held-out sets I write myself. Code scores every result, held-out runs leave only totals, and a run stops once it has spent $2."
+    alt: "Two sets per eval go into the harness: a dev set that Claude drafts and I review, and a held-out set that is mine and locked against agents. The harness runs the production code and scores the results with code. Dev runs keep every case; held-out runs keep totals only, with no case text or IDs. A run stops at 2 dollars."
+    caption: "How the harness measures a change. It runs the code the chat runs on two sets per eval: dev sets that Claude drafts and I review, and held-out sets that are mine and that agents can't write to. Code scores every result, held-out runs leave only totals, and a run stops once it has spent $2."
 related:
   - agent-core
   - litellm-gateway
 ---
 
-I want a number before and after every change to a prompt, a model or a tool, measured on cases the thing being improved has never seen. The harness gives me that. It runs the same code the chat runs, against two kinds of sets per eval: dev sets that Claude drafts and I review, and held-out sets that I write myself and agents can't touch.
+I want a number before and after every change to a prompt, a model or a tool, measured on cases the thing being improved has never seen. The harness gives me that. It runs the same code the chat runs, against two kinds of sets per eval: dev sets that Claude drafts and I review, and held-out sets that are mine: agents can't write to them.
 
-It covers routing, retrieval over my docs, notes and files, and whole agent answers. The classifier results it produced are on the [agent core page](/vision/agent-core/); retrieval is below.
+It covers routing, retrieval over my docs, notes and files, and whole agent answers. The classifier results it produced are on the [agent core page](/vision/agent-core/); retrieval is below, scored as hit@5: the right document is among the first five results. Model names on this page are gateway aliases: `cheap` and `smart` are the cheap and the strong model at the provider, and `local` is the small model on my GPU PC.

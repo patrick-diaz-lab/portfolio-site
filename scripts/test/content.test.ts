@@ -29,6 +29,8 @@ evals:
     value: 0.95
     n: 20
     date: 2026-11-04
+eval_labels:
+  classifier-local-heldout: Routing classifier, held-out set
 related: []
 ---
 
@@ -550,4 +552,92 @@ test("a German version of a layers-only part is held to layers only", () => {
   });
   assert.equal(status, 1, output);
   assert.match(output, /layers-only\s+content\/de\/knowledge\/demo\/gateway\/why-gateway\.md:\d+/);
+});
+
+// Review fixes (2026-11-20): written labels for every eval, a second source folder for
+// Patrick's dated notes, one start part on a map, chip notes and the hero's second line in
+// both languages.
+test("an eval without a written label fails, and so does a label for no eval", () => {
+  const none = fixture((f) => {
+    f["content/parts/demo/gateway.mdx"] = PART.replace("eval_labels:\n  classifier-local-heldout: Routing classifier, held-out set\n", "");
+  });
+  assert.equal(none.status, 1, none.output);
+  assert.match(none.output, /eval-labels\s+content\/parts\/demo\/gateway\.mdx:\d+\s+no label for eval\(s\) classifier-local-heldout/);
+  const stray = fixture((f) => {
+    f["content/parts/demo/gateway.mdx"] = PART.replace("eval_labels:\n", "eval_labels:\n  nowhere: Nothing\n");
+  });
+  assert.equal(stray.status, 1, stray.output);
+  assert.match(stray.output, /eval-labels\s+.*eval_labels names eval\(s\) the part doesn't have: nowhere/);
+});
+
+test("a total is a plain number; a source may be a dated note from Patrick, nothing else", () => {
+  const ok = fixture((f) => {
+    f["sources/patrick/2026-11-20.md"] = "# Notes from Patrick\n";
+    f["content/parts/demo/gateway.mdx"] = PART.replace("  - name: classifier-local-heldout", "  - name: rule-tests\n    metric: total\n    value: 1528\n    date: 2026-11-19\n  - name: classifier-local-heldout").replace("eval_labels:\n", "eval_labels:\n  rule-tests: Unit tests for the check\n");
+    f["content/knowledge/demo/budget-test.md"] = entry("budget-test", "testing").replace("  - sources/vision/notes.md", "  - sources/vision/notes.md\n  - sources/patrick/2026-11-20.md");
+  });
+  assert.equal(ok.status, 0, ok.output);
+  const gone = fixture((f) => {
+    f["content/knowledge/demo/budget-test.md"] = entry("budget-test", "testing").replace("sources/vision/notes.md", "sources/patrick/2026-11-20.md");
+  });
+  assert.equal(gone.status, 1, gone.output);
+  assert.match(gone.output, /sources\s+.*sources\/patrick\/2026-11-20\.md doesn't exist/);
+  const elsewhere = fixture((f) => {
+    f["content/knowledge/demo/budget-test.md"] = entry("budget-test", "testing").replace("sources/vision/notes.md", "docs/PLAN.md");
+  });
+  assert.equal(elsewhere.status, 1, elsewhere.output);
+  assert.match(elsewhere.output, /schema\s+.*sources\.0: must be a Markdown file under sources\/vision\/ or sources\/patrick\//);
+});
+
+test("a map opens its panel on one built part", () => {
+  const one = fixture((f) => {
+    withPiece(f);
+    f["pieces/demo/map.yaml"] = MAP.replace("    hover: Built, no page yet.\n    status: built\n", "    hover: Built, no page yet.\n    status: built\n    start: true\n");
+  });
+  assert.equal(one.status, 0, one.output);
+  const two = fixture((f) => {
+    withPiece(f);
+    f["pieces/demo/map.yaml"] = MAP.replace(/    status: (built|planned)\n/g, "    status: $1\n    start: true\n");
+  });
+  assert.equal(two.status, 1, two.output);
+  assert.match(two.output, /map\s+pieces\/demo\/map\.yaml:\d+\s+part "router" is a second start/);
+  assert.match(two.output, /map\s+pieces\/demo\/map\.yaml:\d+\s+part "sandbox" is the start but isn't built/);
+});
+
+test("a chip's note and the line under the chips exist in both languages or in neither", () => {
+  const chips = (note: string) => `chips:\n  - label: A chip\n    metric: count\n    value: 2\n    n: 2\n${note}    sources:\n      - sources/vision/notes.md\n    as_of: 2026-11-12\n`;
+  const ok = fixture((f) => {
+    withPiece(f);
+    f["pieces/demo/piece.yaml"] = PIECE + chips("    note: run twice\n") + "chips_note: What the numbers stand on.\n";
+    f["pieces/demo/piece.de.yaml"] = PIECE_DE + "chips:\n  - label: Ein Chip\n    note: zweimal\nchips_note: Worauf die Zahlen stehen.\n";
+    f["pieces/demo/map.de.yaml"] = MAP_DE;
+  });
+  assert.equal(ok.status, 0, ok.output);
+  const bad = fixture((f) => {
+    withPiece(f);
+    f["pieces/demo/piece.yaml"] = PIECE + chips("    note: run twice\n") + "chips_note: What the numbers stand on.\n";
+    f["pieces/demo/piece.de.yaml"] = PIECE_DE + "chips:\n  - Ein Chip\n";
+    f["pieces/demo/map.de.yaml"] = MAP_DE;
+  });
+  assert.equal(bad.status, 1, bad.output);
+  assert.match(bad.output, /i18n\s+pieces\/demo\/piece\.de\.yaml:\d+\s+chip 1 needs a note, like the English chip/);
+  assert.match(bad.output, /i18n\s+pieces\/demo\/piece\.de\.yaml:\d+\s+piece\.yaml has a chips_note; the German piece needs one too/);
+});
+
+test("the hero's second line is in every language or in none", () => {
+  const good = ["/demo/gateway/", "/demo/", "/demo/gateway/"];
+  const line = (h: string) => h.replace("positioning: A demo line.\n", "positioning: A demo line.\nlooking_for: Looking for demo roles.\n");
+  const ok = fixture((f) => {
+    withPiece(f);
+    f["content/home/en.yaml"] = line(HOME(good));
+    f["content/home/de.yaml"] = line(HOME(good));
+  });
+  assert.equal(ok.status, 0, ok.output);
+  const bad = fixture((f) => {
+    withPiece(f);
+    f["content/home/en.yaml"] = line(HOME(good));
+    f["content/home/de.yaml"] = HOME(good);
+  });
+  assert.equal(bad.status, 1, bad.output);
+  assert.match(bad.output, /i18n\s+content\/home\/de\.yaml:1\s+the other language has looking_for/);
 });

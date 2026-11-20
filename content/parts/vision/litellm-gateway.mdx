@@ -20,26 +20,27 @@ evals:
     value: 0.0023
     n: 40
     date: 2026-11-04
-  - name: agent-eval-cost-per-case
-    metric: cost_usd
-    value: 0.014
-    baseline: 0.040
-    date: 2026-11-12
+# The eval cost per case, before and after prompt caching, is out until its case count is in
+# the notes (PLAN 1.17).
 readouts:
-  - eval: agent-eval-cost-per-case
-    label: Agent eval cost per case, prompt caching
   - eval: first-chat-runs-total-cost
     label: First 31 chat runs, in total
   - eval: classifier-cases-on-cheap-cost
     label: 40 classifier cases on cheap
+eval_labels:
+  first-chat-runs-total-cost: First 31 chat runs, total cost
+  classifier-cases-on-cheap-cost: 40 classifier cases on cheap, cost
 figures:
   - svg: litellm-gateway-1.svg
     svg_narrow: litellm-gateway-1-narrow.svg
-    alt: "The indexer, the eval harness and the chat agent each call the gateway with their own key and 30-day budget. The gateway, under a 24-dollar global cap, maps roles to models at prices I set. smart and cheap go to the provider, limited to 30 dollars a month; local and embed go to my GPU PC. When money runs out, the chat gets a reply that says what ran out."
+    alt: "The indexer, the eval harness and the chat agent each call the gateway with their own key and 30-day budget. The gateway, under a 24-dollar global cap, maps aliases to models at prices I set. smart and cheap go to the provider, limited to 30 dollars a month; local and embed go to my GPU PC. When money runs out, the chat gets a reply that says what ran out."
     caption: "How a model call is paid for. Each service spends from its own key and 30-day budget, under a global cap of $24 and the provider's $30 monthly limit. local and embed run on my GPU PC, outside the credits. When money runs out, the chat is told what ran out, and nothing retries."
-related: []
+related:
+  - agent-core
+  - run-records
+  - claude-worker
 ---
 
-Several services in Vision talk to language models: the chat agent, the eval harness, the indexer. None of them holds a provider key or names a model. They all send their requests to one LiteLLM gateway that I host myself, and ask for a role instead of a model: `smart`, `cheap`, `local` or `embed`.
+Several services in Vision talk to language models: the chat agent, the eval harness, the indexer. None of them holds a provider key or names a model. They all send their requests to one LiteLLM gateway that I host myself, and ask for an alias instead of a model: `smart` (the strong model), `cheap` (the cheap one), `local` (a small model on my GPU PC) or `embed` (the embedding model).
 
-The gateway decides which concrete model sits behind each role, knows what every call costs, and stops a flow that has spent its share. That gives me one place to switch providers, one place to read the bill, and one place where a runaway loop hits a wall.
+The gateway decides which concrete model sits behind each alias, knows what every call costs, and stops a flow that has spent its share. That gives me one place to switch providers, one place to read the bill, and one place where a runaway loop hits a wall.

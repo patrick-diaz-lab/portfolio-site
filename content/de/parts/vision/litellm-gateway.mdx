@@ -5,20 +5,18 @@ title: "LiteLLM-Gateway, Aliase und Budgets"
 summary: "Jeder Modellaufruf in Vision läuft über ein selbst gehostetes Gateway. Dienste fragen nach einem Alias, jeder Ablauf hat Schlüssel und Budget, und kein Geld mehr ist eine Antwort, kein Absturz."
 as_of: 2026-11-12
 readouts:
-  - label: "Agent-Eval-Kosten pro Fall, Prompt-Caching"
   - label: "Erste 31 Chat-Läufe, gesamt"
   - label: "40 Klassifikator-Fälle auf cheap"
 figures:
   - svg: litellm-gateway-1-de.svg
     svg_narrow: litellm-gateway-1-de-narrow.svg
-    alt: "Der Indexer, der Eval-Harness und der Chat-Agent rufen das Gateway je mit eigenem Schlüssel und 30-Tage-Budget auf. Das Gateway, mit 24 Dollar Gesamtlimit, ordnet Rollen Modellen zu, zu Preisen, die ich festlege. smart und cheap gehen an den Anbieter, begrenzt auf 30 Dollar im Monat; local und embed an meinen GPU-PC. Geht das Geld aus, bekommt der Chat eine Antwort, die sagt, was fehlt."
+    alt: "Der Indexer, der Eval-Harness und der Chat-Agent rufen das Gateway je mit eigenem Schlüssel und 30-Tage-Budget auf. Das Gateway, mit 24 Dollar Gesamtlimit, ordnet Aliase Modellen zu, zu Preisen, die ich festlege. smart und cheap gehen an den Anbieter, begrenzt auf 30 Dollar im Monat; local und embed an meinen GPU-PC. Geht das Geld aus, bekommt der Chat eine Antwort, die sagt, was fehlt."
     caption: "Wie ein Modellaufruf bezahlt wird. Jeder Dienst zahlt aus eigenem Schlüssel und 30-Tage-Budget, unter $24 Gesamtlimit und $30 Monatslimit beim Anbieter. local und embed laufen auf meinem GPU-PC, ausserhalb des Guthabens. Geht das Geld aus, erfährt der Chat, was fehlt; nichts wird wiederholt."
 eval_labels:
   first-chat-runs-total-cost: "Erste 31 Chat-Läufe, Gesamtkosten"
   classifier-cases-on-cheap-cost: "40 Klassifikator-Fälle auf cheap, Kosten"
-  agent-eval-cost-per-case: "Agent-Eval-Kosten pro Fall"
 ---
 
-Mehrere Dienste in Vision sprechen mit Sprachmodellen: der Chat-Agent, der Eval-Harness, der Indexer. Keiner von ihnen hat einen Schlüssel eines Anbieters oder nennt ein Modell. Alle schicken ihre Anfragen an ein einziges LiteLLM-Gateway, das ich selbst betreibe, und fragen nach einer Rolle statt nach einem Modell: `smart`, `cheap`, `local` oder `embed`.
+Mehrere Dienste in Vision sprechen mit Sprachmodellen: der Chat-Agent, der Eval-Harness, der Indexer. Keiner von ihnen hat einen Schlüssel eines Anbieters oder nennt ein Modell. Alle schicken ihre Anfragen an ein einziges LiteLLM-Gateway, das ich selbst betreibe, und fragen nach einem Alias statt nach einem Modell: `smart` (das starke Modell), `cheap` (das günstige), `local` (ein kleines Modell auf meinem GPU-PC) oder `embed` (das Embedding-Modell).
 
-Das Gateway entscheidet, welches konkrete Modell hinter jeder Rolle steht, weiss, was jeder Aufruf kostet, und stoppt einen Ablauf, der seinen Anteil ausgegeben hat. So habe ich einen Ort, um den Anbieter zu wechseln, einen Ort, um die Rechnung zu lesen, und einen Ort, an dem eine ausser Kontrolle geratene Schleife an eine Wand stösst.
+Das Gateway entscheidet, welches konkrete Modell hinter jedem Alias steht, weiss, was jeder Aufruf kostet, und stoppt einen Ablauf, der seinen Anteil ausgegeben hat. So habe ich einen Ort, um den Anbieter zu wechseln, einen Ort, um die Rechnung zu lesen, und einen Ort, an dem eine ausser Kontrolle geratene Schleife an eine Wand stösst.

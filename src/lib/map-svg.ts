@@ -40,6 +40,8 @@ export type MapPart = {
   line?: string;
   /** Set on a German map when the part's page exists only in this language ("en"). */
   pageLang?: string;
+  /** The part the map's panel shows on load (map.yaml `start`). */
+  start?: true;
 };
 
 export const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -49,6 +51,15 @@ export const partHref = (p: MapPart) => p.page ?? `#part-${p.id}`;
 
 export type SvgText = { ariaLabel?: string; text?: Record<string, string> };
 
+/** The drawing with its keyed texts (data-t) in a language; without `text`, as drawn. Used by
+ *  the map and by a part page's "you are here" sheet, so both read the same words. */
+export function keyedTexts(svg: string, text?: Record<string, string>): string {
+  if (!text) return svg;
+  return svg.replace(/(<text\b[^>]*\bdata-t="([^"]+)"[^>]*>)[^<]*(<\/text>)/g, (whole, open: string, key: string, close: string) =>
+    text[key] === undefined ? whole : `${open}${esc(text[key]!)}${close}`,
+  );
+}
+
 /** The SVG with each part group turned into a named link. Unknown groups are left as drawn.
  *  Box labels come from the parts (upper case); keyed texts and the SVG's name from `t`, so
  *  one drawing serves every language (PLAN 1.9a). A part's `pageLang` marks a link to a part
@@ -57,11 +68,7 @@ export function linkParts(svg: string, parts: MapPart[], t: SvgText = {}): strin
   const byId = new Map(parts.map((p) => [p.id, p]));
   let out = svg.replace(/^\s*<\?xml[^>]*>\s*/, "").replace(/<!--[\s\S]*?-->/g, "");
   if (t.ariaLabel) out = out.replace(/(<svg\b[^>]*\baria-label=")[^"]*(")/, `$1${esc(t.ariaLabel)}$2`);
-  if (t.text) {
-    out = out.replace(/(<text\b[^>]*\bdata-t="([^"]+)"[^>]*>)[^<]*(<\/text>)/g, (whole, open: string, key: string, close: string) =>
-      t.text![key] === undefined ? whole : `${open}${esc(t.text![key]!)}${close}`,
-    );
-  }
+  out = keyedTexts(out, t.text);
   return out
     .replace(PART, (whole, id: string, body: string) => {
       const p = byId.get(id);
@@ -188,7 +195,10 @@ export function locator(svg: string, partId: string, labelOf: (id: string) => st
   parts.push(`<g class="part is-here"><rect class="box" x="${BX}" y="${yc - BH / 2}" width="${BW}" height="${BH}" /><text class="lbl loc-mid" x="${BX + BW / 2}" y="${yc + 6}">${esc(labelOf(partId).toUpperCase())}</text></g>`);
 
   const x0 = left.length ? 0 : BX - 16;
-  const x1 = right.length || outside.length ? R.start + 178 : BX + BW + 16;
+  // Room for the longest label on the right: 9 px a character (14 px mono with its letter
+  // spacing), so a longer text in another language isn't cut off at the sheet's edge.
+  const rightText = Math.max(178, ...[...right.map((id) => labelOf(id)), ...outside].map((t) => t.length * 9 + 2));
+  const x1 = right.length || outside.length ? R.start + rightText : BX + BW + 16;
   return {
     svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${x0} 0 ${x1 - x0} ${H}" width="${Math.round((x1 - x0) * SCALE)}" height="${Math.round(H * SCALE)}" class="schematic locator" aria-hidden="true" focusable="false">${parts.join("")}</svg>`,
     neighbours,

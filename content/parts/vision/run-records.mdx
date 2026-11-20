@@ -15,15 +15,11 @@ evals:
     value: 1.0
     n: 158
     date: 2026-11-12
-  - name: tokens-matching-spend-log
-    metric: rate
-    value: 1.0
-    date: 2026-11-12
 readouts:
   - eval: paid-steps-matching-spend-log
     label: Paid steps matching the spend log
-  - eval: tokens-matching-spend-log
-    label: Tokens matching the spend log
+eval_labels:
+  paid-steps-matching-spend-log: Paid steps matching the spend log
 figures:
   - svg: run-records-1.svg
     svg_narrow: run-records-1-narrow.svg

@@ -9,8 +9,9 @@ export const STATUSES = ["built", "in-progress", "planned"] as const;
 export const KINDS = ["overview", "decision", "rejected", "testing", "learning"] as const;
 /** The four kinds a `built` part with a page must have at least one of each (D19). */
 export const REQUIRED_KINDS = ["decision", "rejected", "testing", "learning"] as const;
-/** evals[] metrics (Patrick, 2026-11-10). Aggregates only, never cases (D19). */
-export const METRICS = ["accuracy", "hit_at_5", "mrr", "rate", "count", "cost_usd", "seconds"] as const;
+/** evals[] metrics (Patrick, 2026-11-10). Aggregates only, never cases (D19). `total` is a
+ *  plain number of things (tests, servers, tools), where `count` is k of n (2026-11-20). */
+export const METRICS = ["accuracy", "hit_at_5", "mrr", "rate", "count", "total", "cost_usd", "seconds"] as const;
 
 const slug = z.string().regex(SLUG, "must be a lowercase slug (a-z, 0-9, hyphens)");
 const text = (max: number) => z.string().trim().min(1).max(max);
@@ -24,9 +25,10 @@ const isoDate = z.preprocess(
     .refine((s) => !Number.isNaN(Date.parse(`${s}T00:00:00Z`)) && new Date(`${s}T00:00:00Z`).toISOString().startsWith(s), "must be a real date"),
 );
 const sha = z.string().regex(SHA, "must be a full 40-character commit hash");
+// A source is a file of the Vision mirror (D21) or a dated note from Patrick (D21, 2026-11-20).
 const sourcePath = z
   .string()
-  .regex(/^sources\/vision\/[\w./-]+\.md$/, "must be a Markdown file under sources/vision/")
+  .regex(/^sources\/(?:vision|patrick)\/[\w./-]+\.md$/, "must be a Markdown file under sources/vision/ or sources/patrick/")
   .refine((p) => !p.includes(".."), "must not contain ..");
 
 /** One measured number. Aggregates only: no case text, ids or examples (D19).
@@ -77,6 +79,8 @@ export const chipSchema = z
     n: z.number().int().positive().optional(),
     /** The value before a change: the chip then shows the change in percent (Patrick, 2026-11-12). */
     baseline: z.number().finite().positive().optional(),
+    /** A short note in front of the date, where n alone would mislead ("46 cases, run twice"). */
+    note: text(40).optional(),
     sources: z.array(sourcePath).min(1),
     as_of: isoDate,
   })
@@ -86,7 +90,8 @@ export const pieceSchema = z.strictObject({
   id: slug,
   title: text(80),
   tagline: text(120),
-  summary: text(300),
+  /** Up to 360 characters since 2026-11-20: the summary also says who builds what. */
+  summary: text(360),
   status: z.enum(STATUSES),
   as_of: isoDate,
   source_commit: sha,
@@ -94,6 +99,8 @@ export const pieceSchema = z.strictObject({
   map_svg: z.string().regex(/^[\w-]+\.svg$/, "must be an .svg file name in the piece folder"),
   chat_enabled: z.boolean(),
   chips: z.array(chipSchema).max(4, "at most 4 chips").default([]),
+  /** One line under the chips: what the numbers were measured on (2026-11-20). */
+  chips_note: text(160).optional(),
 });
 
 export const mapSchema = z.strictObject({
@@ -106,6 +113,8 @@ export const mapSchema = z.strictObject({
         page: z.string().regex(/^\/[a-z0-9-]+\/[a-z0-9-]+\/$/, "must be a part page path like /vision/litellm-gateway/").optional(),
         status: z.enum(STATUSES),
         line: slug.optional(),
+        /** The part the map's panel shows on load; the first part where none is marked. */
+        start: z.literal(true).optional(),
       }),
     )
     .min(1),
@@ -117,8 +126,10 @@ export const mapSchema = z.strictObject({
 export const pieceOverlaySchema = z.strictObject({
   title: text(80),
   tagline: text(120),
-  summary: text(300),
-  chips: z.array(text(40)).max(4).default([]),
+  summary: text(360),
+  /** In the order of piece.yaml: a label, or a label with the chip's note. */
+  chips: z.array(z.union([text(40), z.strictObject({ label: text(40), note: text(40).optional() })])).max(4).default([]),
+  chips_note: text(160).optional(),
 });
 
 export const mapOverlaySchema = z.strictObject({
@@ -132,6 +143,8 @@ export const homeSchema = z.strictObject({
   title: text(80),
   description: text(160),
   positioning: text(140),
+  /** The second line of the hero: the roles Patrick is looking for (2026-11-20). */
+  looking_for: text(140).optional(),
   background: z.array(text(400)).min(1).max(3),
   featured: z.strictObject({ piece: slug, cta: text(40) }),
   work_heading: text(40),
@@ -157,6 +170,9 @@ export const partSchema = z.strictObject({
   /** Up to 5 evals shown as readouts under the page's header (layout 3). */
   readouts: z.array(readoutSchema).max(5, "at most 5 readouts").default([]),
   figures: z.array(figureSchema).default([]),
+  /** A written label for every eval: the table and the case cards never print an eval's
+   *  internal name (2026-11-20). `pnpm check` holds it to the part's evals. */
+  eval_labels: z.record(z.string().regex(SLUG), text(60)).default({}),
   related: z.array(slug).default([]),
   /** Security pages (item 1.7): the page and its entries may name layers and reasons only.
    *  `pnpm check` then refuses code, paths, command-line flags and file names in them. */

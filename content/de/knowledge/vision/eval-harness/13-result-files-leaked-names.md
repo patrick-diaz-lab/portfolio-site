@@ -7,7 +7,7 @@ kind: learning
 
 #### Was passiert ist
 
-Vor einem Merge bemerkte ich, dass eine Ergebnisdatei des Docs-Retrievals die echten Pfade von Notizen in meinem Vault auflistete. Das Docs-Set durchsucht den ganzen Wissensbereich, und geschwärzt worden war nur die Ausgabe des Vault-Sets. Es gelangte kein Notiztext nach aussen, aber die Namen standen in Dateien, die zur Veröffentlichung bestimmt waren.
+Vor einem Merge bemerkte ich, dass eine Ergebnisdatei des Docs-Retrievals die echten Pfade meiner Notizen auflistete. Das Docs-Set durchsucht den ganzen Wissensbereich, und geschwärzt worden war nur die Ausgabe des Notizen-Sets. Es gelangte kein Notiztext nach aussen, aber die Namen standen in Dateien, die zur Veröffentlichung bestimmt waren.
 
 #### Was ich geändert habe
 

@@ -7,7 +7,7 @@ kind: learning
 
 #### Was passiert ist
 
-Ein Probelauf der fixierten Werkzeugversion zeigte in ihrer Startmeldung zwei eingebaute Plugins, geladen trotz der Einstellungen, die sie fernhalten sollten, und eines davon hätte Anweisungsdateien aus den Ordnern rund um den Workspace gelesen. Als ich später Skills einschaltete, erschienen 15 mitgelieferte Skills neben meinen.
+Ein Probelauf der festgelegten Werkzeugversion zeigte in ihrer Startmeldung zwei eingebaute Plugins, geladen trotz der Einstellungen, die sie fernhalten sollten, und eines davon hätte Anweisungsdateien aus den Ordnern rund um den Workspace gelesen. Als ich später Skills einschaltete, erschienen 15 mitgelieferte Skills neben meinen.
 
 #### Was ich geändert habe
 

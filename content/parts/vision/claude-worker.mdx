@@ -30,18 +30,27 @@ evals:
     value: 0.0131
     n: 92
     date: 2026-11-12
+# The benchmark is 46 cases, each run twice: 92 counts runs, so every readout says so.
 readouts:
-  - eval: benchmark-solved-claude-code
-    label: Benchmark solved, Claude Code
-  - eval: benchmark-cost-per-solved-claude-code
-    label: Cost per solved case, Claude Code
+  - eval: benchmark-solved-vision
+    label: Benchmark solved, Vision and Claude Code
+    note: 46 cases × 2 runs
   - eval: benchmark-cost-per-solved-vision
     label: Cost per solved case, Vision
+    note: 46 cases × 2 runs
+  - eval: benchmark-cost-per-solved-claude-code
+    label: Cost per solved case, Claude Code
+    note: 46 cases × 2 runs
+eval_labels:
+  benchmark-solved-claude-code: Benchmark solved, Claude Code recipe
+  benchmark-solved-vision: Benchmark solved, Vision's own harness
+  benchmark-cost-per-solved-claude-code: Cost per solved case, Claude Code
+  benchmark-cost-per-solved-vision: Cost per solved case, Vision
 figures:
   - svg: claude-worker-1.svg
     svg_narrow: claude-worker-1-narrow.svg
     alt: "A command from my private chat reaches agent core, then the Claude worker, which sits in its own network, starts each call in a fresh workspace and passes a startup check. A proxy is its only way out, to the provider's API and the gateway's tools; it has no route to the database, the model endpoints, my home network or the internet. Any failure falls back to smart."
-    caption: "The worker answers only my own command, inside its own network, from a fresh workspace, after a startup check, with a proxy as its only way out. Any failure falls back to smart."
+    caption: "The worker answers only my own command, inside its own network, from a fresh workspace, after a startup check, with a proxy as its only way out. Any failure falls back to smart, the strong model."
 related:
   - agent-core
   - litellm-gateway

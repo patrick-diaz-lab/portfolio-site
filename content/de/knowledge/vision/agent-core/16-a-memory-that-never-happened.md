@@ -15,4 +15,4 @@ Daraus entstanden drei Regeln: Nur Züge aus den letzten 6 Stunden zählen als K
 
 #### Ergebnis
 
-Ich habe zuerst das alte Verhalten gemessen, und die Sprache ging von 0.8 auf 1.0. Mein synthetischer Verlauf hat die falsche Erinnerung selbst nie nachgestellt; die Korrektur stützt sich also auf den echten Fall, und das sage ich auch so.
+Ich habe zuerst das alte Verhalten gemessen und dann die Korrektur, und im Eval war das Sprachproblem weg. Mein synthetischer Verlauf hat die falsche Erinnerung selbst nie nachgestellt; die Korrektur stützt sich also auf den echten Fall, und das sage ich auch so.

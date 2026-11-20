@@ -9,7 +9,7 @@
   <polygon class="fig-head" points="55,120 47,116 47,124" />
   <rect class="box" x="56" y="90" width="150" height="60" />
   <text class="lbl fig-mid" x="131" y="117">AGENT-CORE</text>
-  <text class="fig-sub fig-mid" x="131" y="137">SIGNIERTER SENDER</text>
+  <text class="fig-sub fig-mid" x="131" y="137">SIGNIERTER ABSENDER</text>
 
   <g class="frame"><rect x="250" y="50" width="270" height="200" /></g>
   <text class="frame-t" x="262" y="72">EIGENES NETZ</text>

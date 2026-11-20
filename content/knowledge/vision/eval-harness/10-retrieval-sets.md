@@ -12,6 +12,6 @@ as_of: 2026-11-12
 source_commit: 8b2a08b580419fd5f06330fce3b7e25a982b0150
 ---
 
-### Retrieval, measured three ways
+### Retrieval on docs and notes
 
-Docs retrieval reached a hit@5 of 0.967 on the dev set and 0.875 on my held-out set of 16 questions. As the corpus grew, the held-out score fell to 0.75; a ranking fix brought dev back to 1.0, and no held-out set got worse. Files retrieval scored 1.0 on both. On my vault set, searching chunks scored 0.909 and searching notes by title and summary only 0.591, so agents now search chunks first and use note search for an overview.
+Retrieval is scored as hit@5: the right document is among the first five results. On my held-out set of 16 questions, docs retrieval managed that for 14. As the corpus grew, it fell to 12 of 16; a ranking fix recovered the dev set, while held-out stayed at 12 of 16. On my notes set, searching chunks did better than searching notes by title and summary, so agents now search chunks first and use note search for an overview.

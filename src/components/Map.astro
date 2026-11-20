@@ -29,7 +29,7 @@ for (const p of parts) {
   else groups.push({ line, parts: [p] });
 }
 ---
-<div class="piece-map" data-map>
+<div class="piece-map" data-map data-start={parts.find((p) => p.start)?.id}>
   <section class="map" aria-labelledby="h-map">
     <h2 id="h-map" class="label">{t(locale, "map.schematic")}</h2>
     <div class="map-body">

@@ -2,30 +2,24 @@
 id: knowledge-core
 piece: vision
 title: "Wissenskern, Index und Retrieval"
-summary: "Macht meine Projekt-Docs, Notizen und PDFs für die Modelle durchsuchbar, mit hybrider Suche und einem Embedding-Modell; meine Notizen bleiben nur lesbar, private verlassen nie meine Geräte."
+summary: "Macht meine Projekt-Docs, Notizen und PDFs für die Modelle durchsuchbar, mit hybrider Suche und einem Embedding-Modell; Notizen bleiben nur lesbar, mein privater Ordner verlässt nie meine Geräte."
 as_of: 2026-11-12
 readouts:
-  - label: "Docs-Retrieval hit@5, Dev, Ranking-Korrektur"
-  - label: "Docs-Retrieval hit@5, held-out"
+  - label: "Docs-Retrieval hit@5, Held-out"
     note: "Ursache wird untersucht"
-  - label: "Notizen, Chunk-Suche hit@5, held-out"
   - label: "Benannte Dokumente, richtige Quelle"
-  - label: "Gemergtes Doc durchsuchbar nach"
+  - label: "Benannte Dokumente, Lesewerkzeug genutzt"
 figures:
   - svg: knowledge-core-1-de.svg
     svg_narrow: knowledge-core-1-de-narrow.svg
-    alt: "Meine gemergten Docs, meine in eine Richtung synchronisierten Notizen und meine PDFs gehen in den Indexer, der sie ohne Modell nach Überschriften aufteilt. Der Index hält für jeden Chunk einen Vektor und Keywords, und die Suche vereint beide Rankings. Das Embedding versucht zuerst den GPU-PC, dann die CPU mit demselben Modell, dann nur Keywords. Private Notizen verlassen nie meine Geräte."
-    caption: "Wie mein Material durchsuchbar wird. Der Indexer teilt Docs, Notizen und PDFs ohne Modell nach Überschriften auf; die Suche vereint Vektor- und Keyword-Ranking. Das Embedding fällt von der GPU auf die CPU mit demselben Modell zurück, dann auf Keywords. Private Notizen verlassen nie meine Geräte."
+    alt: "Meine gemergten Docs, meine in eine Richtung synchronisierten Notizen und meine PDFs gehen in den Indexer, der sie ohne Modell nach Überschriften aufteilt. Der Index hält für jeden Chunk einen Vektor und Keywords, und die Suche vereint beide Rankings. Das Embedding versucht zuerst den GPU-PC, dann die CPU mit demselben Modell, dann nur Keywords. Mein privater Ordner verlässt nie meine Geräte."
+    caption: "Wie mein Material durchsuchbar wird. Der Indexer teilt Docs, Notizen und PDFs ohne Modell nach Überschriften auf; die Suche vereint Vektor- und Keyword-Ranking. Das Embedding fällt von der GPU auf die CPU mit demselben Modell zurück, dann auf Keywords. Mein privater Ordner verlässt nie meine Geräte."
 eval_labels:
-  docs-hit-at-5-held-out: "Docs-Retrieval hit@5, held-out"
+  docs-hit-at-5-held-out: "Docs-Retrieval hit@5, Held-out"
   named-document-right-source: "Benannte Dokumente, richtige Quelle"
   named-document-read-tool-used: "Benannte Dokumente, Lesewerkzeug genutzt"
-  docs-hit-at-5-dev: "Docs-Retrieval hit@5, Dev, Ranking-Korrektur"
-  notes-chunk-search-hit-at-5-held-out: "Notizen, Chunk-Suche hit@5, held-out"
-  notes-note-search-hit-at-5-held-out: "Notizen, Notiz-Suche hit@5, held-out"
-  merged-doc-searchable-after: "Gemergtes Doc durchsuchbar nach"
 ---
 
 Die Modelle in Vision antworten aus meinem eigenen Material: den Docs des Projekts, meinen Notizen und meinen PDFs. Der Wissenskern macht dieses Material durchsuchbar. Ein Indexer teilt jedes Dokument an seinen Überschriften auf, speichert für jeden Chunk einen Vektor und die Keywords und hält den Index aktuell, wenn sich Dokumente ändern. Die Suche führt beide Rankings aus und kombiniert sie.
 
-Nichts davon kann eine Notiz ändern. Meine Notizen erreichen den Server nur in eine Richtung, private erreichen ihn gar nicht, und die Modelle kommen nur über lesende Werkzeuge auf den [MCP-Servern](/de/vision/mcp-servers/) an den Index. Wie gut er findet, misst der [Eval-Harness](/de/vision/eval-harness/).
+Nichts davon kann eine Notiz ändern. Meine Notizen erreichen den Server nur in eine Richtung, mein privater Ordner erreicht ihn gar nicht, und eine als privat markierte Notiz wird ohne Titel und Text indexiert. Die Modelle kommen nur über lesende Werkzeuge auf den [MCP-Servern](/de/vision/mcp-servers/) an den Index. Wie gut er findet, misst der [Eval-Harness](/de/vision/eval-harness/), als hit@5: Das richtige Dokument ist unter den ersten fünf Treffern.

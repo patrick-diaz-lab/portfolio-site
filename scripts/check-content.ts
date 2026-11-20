@@ -14,21 +14,25 @@
 //   built-entries  a `built` part page without at least one decision, rejected, testing
 //                  and learning entry
 //   related        related[] names a part that doesn't exist
-//   sources        a source file under sources/vision/ doesn't exist (parts, entries, chips)
+//   sources        a source file under sources/vision/ or sources/patrick/ doesn't exist
+//                  (parts, entries, chips)
 //   lost-to        a rejected entry's lost_to doesn't name a decision on the same part, a
 //                  non-rejected entry has lost_to, or two entries share an id (item 1.4)
 //   layers-only    a part with layers_only: true (or one of its entries) holds code, a path, a
 //                  command-line flag or a file name (item 1.7)
 //   i18n           a German piece overlay or homepage doesn't match its English base: part
-//                  ids, chip count, schematic texts, label length, line names, work links
-//                  (PLAN 1.9a)
+//                  ids, chip count, chip notes, the line under the chips, schematic texts,
+//                  label length, line names, work links, the hero's second line (PLAN 1.9a)
+//   eval-labels    a part's eval_labels don't cover its evals exactly: every eval has a
+//                  written label, so a page never prints an eval's internal name (2026-11-20)
 //   i18n-part      a German part page (content/de/parts, content/de/knowledge, Patrick
 //                  2026-11-15) doesn't match its English part: no English part, a different
 //                  number of readouts, notes or figures, eval labels that don't cover the
 //                  part's evals exactly, a missing or extra entry, an entry whose id or kind
 //                  differs, or a lesson whose form (case or prose) differs. German figures get
 //                  the figure rules, and a layers-only part's German text the layers-only rule
-//   map            map.yaml points at a page that doesn't exist, or repeats a part id
+//   map            map.yaml points at a page that doesn't exist, repeats a part id, or marks
+//                  more than one part as the panel's start
 //   svg            a built map.yaml part has no <g id class="part"> in the piece's SVG, the
 //                  SVG has a part map.yaml doesn't list or that isn't built (only built
 //                  parts render), the SVG file is missing, or a part group holds a nested <g>
@@ -145,7 +149,7 @@ export function layersOnlyHits(text: string): { line: number; msg: string }[] {
 // text without a key; box labels fit; every map line has a name in every language.
 function checkGerman(
   dir: string,
-  piece: { chips: unknown[] },
+  piece: { chips: { note?: string }[]; chips_note?: string },
   parts: { id: string; status: string; line?: string }[],
   svg: string,
   P: Problem[],
@@ -167,6 +171,14 @@ function checkGerman(
   const pdoc = readYaml(pf);
   const po = validate(pieceOverlaySchema, pdoc, rel(pf), P);
   if (po && po.chips.length !== piece.chips.length) P.push({ rule: "i18n", file: rel(pf), line: lineOf(pdoc, ["chips"]), msg: `${po.chips.length} chip label(s) for ${piece.chips.length} chip(s) in piece.yaml` });
+  else if (po) {
+    // A note on an English chip is text, so the German chip needs its own, and only then.
+    po.chips.forEach((c, i) => {
+      const deNote = typeof c === "string" ? undefined : c.note;
+      if (!!deNote !== !!piece.chips[i]!.note) P.push({ rule: "i18n", file: rel(pf), line: lineOf(pdoc, ["chips"]), msg: `chip ${i + 1} ${deNote ? "has a note the English chip doesn't" : "needs a note, like the English chip"}` });
+    });
+  }
+  if (po && !!po.chips_note !== !!piece.chips_note) P.push({ rule: "i18n", file: rel(pf), line: lineOf(pdoc, ["chips_note"]), msg: po.chips_note ? "chips_note has no English line in piece.yaml" : "piece.yaml has a chips_note; the German piece needs one too" });
   const mdoc = readYaml(mf);
   const mo = validate(mapOverlaySchema, mdoc, rel(mf), P);
   if (!mo) return;
@@ -188,6 +200,7 @@ function checkHome(root: string, pieceIds: string[], parts: Map<string, unknown>
   const dir = join(root, "content", "home");
   if (!existsSync(dir)) return;
   const hrefs = new Map<string, string[]>();
+  const looking = new Map<string, boolean>();
   for (const l of LOCALES) {
     const f = join(dir, `${l}.yaml`);
     const file = relative(root, f).split("\\").join("/");
@@ -205,6 +218,10 @@ function checkHome(root: string, pieceIds: string[], parts: Map<string, unknown>
       if (!ok) P.push({ rule: "i18n", file, line: lineOf(doc, ["work"]), msg: `work link ${w.href} has no page` });
     }
     hrefs.set(l, h.work.map((w) => w.href));
+    looking.set(l, !!h.looking_for);
+  }
+  if (new Set(looking.values()).size > 1) {
+    for (const [l, has] of looking) if (!has) P.push({ rule: "i18n", file: `content/home/${l}.yaml`, line: 1, msg: "the other language has looking_for; this homepage needs the line too" });
   }
   const [first, ...rest] = [...hrefs.entries()];
   for (const [l, list] of rest) {
@@ -220,6 +237,12 @@ function checkPartExtras(root: string, file: string, doc: Doc, part: z.infer<typ
   for (const r of part.readouts) {
     if (!names.has(r.eval)) P.push({ rule: "readouts", file, line: lineOf(doc, ["readouts"]), msg: `readout "${r.eval}" isn't an eval of this part` });
   }
+  // Every eval has a written label; a page never prints an eval's internal name (2026-11-20).
+  const labelled = new Set(Object.keys(part.eval_labels));
+  const unlabelled = [...names].filter((n) => !labelled.has(n));
+  const stray = [...labelled].filter((n) => !names.has(n));
+  if (unlabelled.length) P.push({ rule: "eval-labels", file, line: lineOf(doc, ["eval_labels"]), msg: `no label for eval(s) ${unlabelled.join(", ")}` });
+  if (stray.length) P.push({ rule: "eval-labels", file, line: lineOf(doc, ["eval_labels"]), msg: `eval_labels names eval(s) the part doesn't have: ${stray.join(", ")}` });
   checkFigures(root, file, doc, part.piece, part.figures, part.layers_only === true, P);
 }
 
@@ -320,6 +343,9 @@ export function checkContent(root: string): { problems: Problem[]; counts: { pie
           if (seen.has(p.id)) P.push({ rule: "map", file: rel(mf), line: lineOfId(p.id), msg: `part "${p.id}" is listed twice` });
           seen.add(p.id);
         }
+        const starts = map.parts.filter((p) => p.start);
+        for (const p of starts.slice(1)) P.push({ rule: "map", file: rel(mf), line: lineOfId(p.id), msg: `part "${p.id}" is a second start; the panel opens on one part` });
+        for (const p of starts.filter((x) => x.status !== "built")) P.push({ rule: "map", file: rel(mf), line: lineOfId(p.id), msg: `part "${p.id}" is the start but isn't built, so it isn't drawn` });
         if (piece) {
           const sf = join(root, "pieces", dir, piece.map_svg);
           if (!existsSync(sf)) {

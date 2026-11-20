@@ -24,7 +24,8 @@ export function initMap(root: HTMLElement): void {
   // The panel and the index only act while the drawing is shown (not on phones).
   const wide = () => frame.offsetParent !== null;
 
-  let current = parts[0]!;
+  // The panel opens on the part the map marks (map.yaml `start`), else on the first.
+  let current = parts.find((a) => a.id === root.dataset.start) ?? parts[0]!;
   let pointer = "mouse";
   let tapped: Element | null = null;
 

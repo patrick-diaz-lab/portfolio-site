@@ -1,0 +1,86 @@
+---
+// A part page's readouts (layout 3, Patrick 2026-11-13): its headline numbers, joined like the
+// chips on the overview page; before → after on one track where both sides have enough cases.
+// The part page renders them twice (2026-11-20): above the body on wide screens, and under
+// the first text of "What it does" on phones, so a phone reader meets the meaning before the
+// numbers. CSS shows one of the two, so a screen reader meets them once as well.
+interface Props {
+  readouts: {
+    label: string;
+    value: string;
+    before?: string;
+    note: string;
+    caveat?: string;
+    track?: { before: string; after: string; lo: string; span: string };
+  }[];
+  heading: string;
+  /** One line under the readouts: what kind of numbers these are; empty for plain counts. */
+  lead: string;
+  before: string;
+  after: string;
+  /** "top" (wide screens, an h2) or "inline" (phones, an h3 inside "What it does"). */
+  place: "top" | "inline";
+}
+const { readouts, heading, lead, before, after, place } = Astro.props;
+const H = place === "top" ? "h2" : "h3";
+const id = `h-measured-${place}`;
+---
+<section class:list={["readouts", `readouts-${place}`]} aria-labelledby={id}>
+  <H id={id} class="label readouts-head">{heading}</H>
+  <ul>
+    {readouts.map((r) => (
+      <li class="readout">
+        <span class="readout-value">{r.value}</span>
+        <span class="readout-label">{r.label}</span>
+        {r.track ? (
+          <>
+            <span class="readout-track" aria-hidden="true">
+              <span class="readout-rail"></span>
+              <span class="readout-span" style={`left:${r.track.lo};width:${r.track.span}`}></span>
+              <span class="readout-dot is-before" style={`left:${r.track.before}`}></span>
+              <span class="readout-dot is-after" style={`left:${r.track.after}`}></span>
+            </span>
+            <span class="readout-scale" aria-hidden="true"><span>0</span><span>1</span></span>
+            <span class="readout-note"><span class="key is-before" aria-hidden="true"></span>{before} {r.before} <span class="key is-after" aria-hidden="true"></span>{after} {r.value}</span>
+          </>
+        ) : (
+          <span class="readout-note">{r.before ? `${before} ${r.before} · ` : ""}{r.note}</span>
+        )}
+        {r.caveat && <span class="readout-caveat">{r.caveat}</span>}
+      </li>
+    ))}
+  </ul>
+  {lead && <p class="readouts-lead">{lead}</p>}
+</section>
+
+<style>
+  /* Joined cells, as the chips on the overview page. */
+  .readouts { display: grid; gap: var(--space-2); }
+  .readouts-head { line-height: 1.4; }
+  .readouts ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--line-thin); background: var(--color-silk-dim); border: var(--line-thin) solid var(--color-silk-dim); }
+  .readouts-lead { font-size: var(--step--1); line-height: 1.45; color: var(--color-silk-dim); max-width: none; }
+  .readout { flex: 1 1 12rem; min-width: 0; background: var(--color-panel-raised); padding: var(--space-4); display: grid; gap: var(--space-2); align-content: start; }
+  /* A value stays on one line and scales with its tile, so five readouts fit a row. */
+  .readout { container-type: inline-size; }
+  .readout-value { font: 400 min(var(--step-3), 12cqi) / 1 var(--font-mono); white-space: nowrap; }
+  .readout-label { font-size: var(--step--1); line-height: 1.35; }
+  .readout-caveat { font: 400 0.75rem / 1.5 var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-amber); }
+  .readout-note { font: 400 0.75rem / 1.5 var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-silk-dim); }
+  .readout-track { position: relative; height: 16px; margin: var(--space-1) 6px 0; }
+  .readout-rail, .readout-span { position: absolute; top: 7px; height: 2px; }
+  .readout-rail { left: 0; right: 0; background: var(--color-panel); }
+  .readout-span { background: var(--color-silk-dim); }
+  .readout-dot { position: absolute; top: 2px; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; }
+  .readout-dot.is-before, .key.is-before { border: var(--focus-width) solid var(--color-silk-dim); background: var(--color-panel-raised); }
+  .readout-dot.is-after, .key.is-after { background: var(--color-amber); }
+  .readout-scale { display: flex; justify-content: space-between; font: 400 0.75rem var(--font-mono); color: var(--color-silk-dim); }
+  .key { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: var(--space-1); vertical-align: 0.05em; }
+  .key.is-after { margin-left: var(--space-2); }
+
+  /* One of the two shows: above the body on wide screens, inside "What it does" on phones. */
+  .readouts-inline { display: none; }
+  @media (max-width: 47.99rem) {
+    .readouts-top { display: none; }
+    .readouts-inline { display: grid; }
+  }
+</style>

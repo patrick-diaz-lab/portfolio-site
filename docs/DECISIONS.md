@@ -377,3 +377,17 @@ Decided 2026-11-15 by Patrick: German versions of all ten Vision part pages, sam
 - **Published only after review:** each German page joins `published-urls.txt` after Patrick merges it, added by him or, at his request, by a session (D22).
 - **Rejected:** machine translation at build time (no review, and a security page could slip past the layers-only check); a full copy of each part file in German (numbers would drift).
 
+## D24 — Site review: what a published number needs, and Patrick's notes as a source
+
+Decided 2026-11-20 by Patrick, after a review of the whole site read as a recruiter or hiring manager would read it, in both languages (PLAN 1.17).
+
+- **A share measured on n cases is shown as "k of n"** ("27 of 27", not "1.0"), in chips, readouts, tables and text. Three values are arithmetic from the published share and its n (26 of 27, 14 of 16, 12 of 16); Patrick accepted them.
+- **A value without a case count isn't published.** The values whose n the notes don't give left the chips, readouts, tables and text (listed in PLAN 1.17). Each comes back when the notes carry its case count.
+- **Patrick's dated notes are a second source (adds to D21).** A fact Patrick states in a session that the mirror doesn't hold yet goes into `sources/patrick/<date>.md`, dated and at layer level, and parts, entries and chips may cite it. `sources/vision/` stays a mirror that sessions never edit. Once a sync brings the fact into the mirror, the page cites the mirror. The first note is `sources/patrick/2026-11-20.md`.
+- **Every eval has a written label in both languages** (`eval_labels` on the English part as well; rule `eval-labels`), so a page never prints an eval's internal name.
+- **`total` joins the eval metrics:** a plain number of things (tests, servers, tools), where `count` is k of n.
+- **Who builds what (adds to D18).** The overview says it in one sentence, in Patrick's words, and the summary may run to 360 characters for it. The homepage's hero has two lines: what Patrick does, and the roles he is looking for (`looking_for`). No job title he doesn't hold.
+- **Tools.** Where the site said "read-only", it says "read-only, except one tool that writes notes". The agents' folder is named by its role, as on the knowledge core page.
+- **Layout (adds to D19's layout 3).** On phones the readouts sit under the first text of "What it does". A before → after bar is drawn only when both sides have at least 10 cases. Lessons are numbered in one run. The map's panel opens on the part `map.yaml` marks `start`, and the overview names where to start: the parts of the homepage's work list.
+- **Not found, and link previews (adds to D22).** A not-found page in both languages, not indexed. Open Graph tags on every page, text only, so nothing is loaded from anywhere.
+- **Waiting for Patrick:** a screenshot and a line on where code can be seen; the part order; the German compound in the homepage's first line; the credits amount on the gateway page; how the Claude worker page frames its terms question; "work in" or "speak" for the languages; new lines in `published-urls.txt`.

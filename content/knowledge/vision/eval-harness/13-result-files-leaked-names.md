@@ -15,7 +15,7 @@ source_commit: bb4fb3747aa6d7a80666b2d19dd718d1e4bedd98
 
 #### What happened
 
-Before one merge I noticed that a docs-retrieval result file listed the real paths of notes in my vault. The docs set searches the whole knowledge scope, and only the vault set's output had been redacted. No note text got out, but the names were in files headed for publication.
+Before one merge I noticed that a docs-retrieval result file listed the real paths of my notes. The docs set searches the whole knowledge scope, and only the notes set's output had been redacted. No note text got out, but the names were in files headed for publication.
 
 #### What I changed
 

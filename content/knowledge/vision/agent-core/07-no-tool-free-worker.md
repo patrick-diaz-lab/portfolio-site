@@ -15,4 +15,4 @@ source_commit: bb4fb3747aa6d7a80666b2d19dd718d1e4bedd98
 
 #### Rejected: a worker without tools, with agent core searching for it
 
-The safest variant, but then the model never chooses its own queries, and the answers get worse for it.
+The safest variant, but then the model never chooses its own queries.

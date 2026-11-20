@@ -48,8 +48,9 @@ A piece is a folder plus an SVG. A second piece needs no code change (D19).
 
 ```
 pieces/<piece>/piece.yaml        id, title, tagline, summary, status, as_of, source_commit,
-                                 order, map_svg, chat_enabled, starters
-pieces/<piece>/map.yaml          parts: id, label, hover (≤140 chars), page?, status, line
+                                 order, map_svg, chat_enabled, starters, chips, chips_note?
+pieces/<piece>/map.yaml          parts: id, label, hover (≤140 chars), page?, status, line,
+                                 start? (the part the map's panel opens on)
 pieces/<piece>/map.svg           annotated schematic; element ids = map.yaml ids
 pieces/<piece>/figures/*.svg     part page figures in the map's style (FIG. <part>.<n>)
 content/parts/<piece>/<part>.mdx frontmatter + fixed sections (below)
@@ -61,15 +62,15 @@ redaction/exceptions.yaml        the only place for scan exceptions (changes via
 evals/retrieval.yaml             public retrieval eval (questions → expected entry ids)
 ```
 
-**Part page frontmatter:** `id, piece, title, summary, status (built | in-progress | planned), as_of, source_commit, sources[], evals[] {name, metric, value, n?, date, baseline?, baseline_n?, cost_usd?}, readouts[] {eval, label, note?}, figures[] {svg, svg_narrow?, alt, caption}, related[]`. `evals[]` is aggregates only (D19): `name` is a slug of at most 48 characters, `metric` one of `accuracy, hit_at_5, mrr, rate, count, cost_usd, seconds`, every other field a number or an ISO date, and no other keys. `n` is required for a count; `baseline_n` is the case count of the baseline where it differs. `readouts[]` (at most 5) picks evals for the top of the page, each with an optional short note that qualifies it; `figures[]` names SVGs in `pieces/<piece>/figures/`, with a narrow version for phones (layout 3, Patrick 2026-11-13).
+**Part page frontmatter:** `id, piece, title, summary, status (built | in-progress | planned), as_of, source_commit, sources[], evals[] {name, metric, value, n?, date, baseline?, baseline_n?, cost_usd?}, readouts[] {eval, label, note?}, figures[] {svg, svg_narrow?, alt, caption}, eval_labels {eval: label}, related[]`. `evals[]` is aggregates only (D19): `name` is a slug of at most 48 characters, `metric` one of `accuracy, hit_at_5, mrr, rate, count, total, cost_usd, seconds`, every other field a number or an ISO date, and no other keys. `n` is required for a count; `baseline_n` is the case count of the baseline where it differs. A share measured on `n` cases is shown as "k of n", a value without a case count isn't published, and `eval_labels` gives every eval the label the page prints (D24). `readouts[]` (at most 5) picks evals for the top of the page, each with an optional short note that qualifies it; `figures[]` names SVGs in `pieces/<piece>/figures/`, with a narrow version for phones (layout 3, Patrick 2026-11-13).
 
 **Fixed sections:** *What it does* (MDX body, then the figures) · *Why this way* (entries `decision` + `rejected`) · *How it's tested* (entries `testing` + `evals[]`) · *What I learned* (entries `learning`).
 
-**Part page layout 3 (Patrick, 2026-11-13):** a compact "you are here" sheet drawn from the piece's map by `src/lib/map-svg.ts` (the part, and every part wired to it as a named terminal on its side of the map; a part wired to no other part shows where its wire leads), the readouts with before → after where an eval has a baseline, a table under *How it's tested* with only the values that aren't readouts, a sticky section rail (a strip on phones), each decision as a card with the options it beat beside it, lessons in case form as case cards, and previous / next part with a page in map order. All drawings share `src/styles/schematic.css`.
+**Part page layout 3 (Patrick, 2026-11-13):** a compact "you are here" sheet drawn from the piece's map by `src/lib/map-svg.ts` (the part, and every part wired to it as a named terminal on its side of the map; a part wired to no other part shows where its wire leads), the readouts with before → after where an eval has a baseline, a table under *How it's tested* with only the values that aren't readouts, a sticky section rail (a strip on phones), each decision as a card with the options it beat beside it, lessons in case form as case cards, and previous / next part with a page in map order. All drawings share `src/styles/schematic.css`. Since D24: on phones the readouts sit under the first text of *What it does* (`src/components/Readouts.astro` renders them in both places and CSS shows one), a before → after bar is drawn only when both sides have at least 10 cases, and lessons are numbered in one run.
 
-**Knowledge entry frontmatter:** `id, piece, part, page, anchor, kind (overview | decision | rejected | testing | learning), lost_to?, metric?, sources (files under sources/vision/), as_of, source_commit`. A `learning` entry in **case form** has, under its title, exactly the subheadings *What happened*, *What I changed* and *Result*, each one paragraph; its optional `metric` names an eval of its part, shown as the case's before → after. `lost_to` (rejected entries only) names the decision on the same part that the option lost to; the page renders it right under that decision (item 1.4). Entries render in the order of their file names (`NN-<id>.md`).
+**Knowledge entry frontmatter:** `id, piece, part, page, anchor, kind (overview | decision | rejected | testing | learning), lost_to?, metric?, sources (files under sources/vision/ or sources/patrick/), as_of, source_commit`. A `learning` entry in **case form** has, under its title, exactly the subheadings *What happened*, *What I changed* and *Result*, each one paragraph; its optional `metric` names an eval of its part, shown as the case's before → after. `lost_to` (rejected entries only) names the decision on the same part that the option lost to; the page renders it right under that decision (item 1.4). Entries render in the order of their file names (`NN-<id>.md`).
 
-**Indexing (PLAN 1.9b):** pages are indexed except the privacy notice and the style sheet. Each indexed page has a canonical link to its URL on the domain. `scripts/sitemap.ts` writes `sitemap.xml` from the built pages in `pnpm build`, with hreflang alternates, and fails on a page that drops out of search by accident. `public/robots.txt` names the sitemap.
+**Indexing (PLAN 1.9b):** pages are indexed except the privacy notice, the style sheet and the not-found page (`src/pages/404.astro`, one file for both languages, D24). Every page carries Open Graph tags for link previews, text only. Each indexed page has a canonical link to its URL on the domain. `scripts/sitemap.ts` writes `sitemap.xml` from the built pages in `pnpm build`, with hreflang alternates, and fails on a page that drops out of search by accident. `public/robots.txt` names the sitemap.
 
 **Published URLs (D22):** `published-urls.txt` lists the paths that must keep resolving; `scripts/published-check.ts` runs at the end of `pnpm build` and fails if a listed path is neither a page nor a 301 in `_redirects` to one.
 
@@ -80,6 +81,7 @@ evals/retrieval.yaml             public retrieval eval (questions → expected e
 - A `lost_to` that doesn't name a decision on the same part, `lost_to` on an entry that isn't `rejected`, or two entries of a piece with the same id (rule `lost-to`, item 1.4).
 - A `built` part with a page but without at least one `decision`, `rejected`, `testing` and `learning` entry.
 - Free text in `evals[]`.
+- An eval without a written label, or a label for an eval the part doesn't have (rule `eval-labels`, D24).
 - A readout or a lesson `metric` that isn't an eval of its part; a `metric` on a lesson that isn't in case form; a case form with other subheadings or more than one paragraph per step (rules `readouts`, `case`).
 - A figure file that doesn't exist, has no `viewBox` or the map's classes, or doesn't pass the figure safety check, which keeps a figure to a plain drawing; on a layers-only page also its texts, alt and caption (rules `figures`, `layers-only`).
 - A `map.yaml` part without its `<g id class="part">` in the SVG, an SVG part missing from `map.yaml`, a part listed twice, or a part group with a nested `<g>` (rule `svg`, item 1.3).
@@ -102,7 +104,7 @@ A starter whose cited entry changed after the starter's `as_of` gives a warning.
 ## 4. Content and redaction pipeline
 
 1. **Source import (Vision side):** Vision's export script opens a `vision-sync/<date>` PR that updates `sources/vision/` (authored by `patrick-diaz-dev`, `Source-Tree:` trailer); Patrick merges it (D21). Sessions never edit `sources/vision/`. Run records, traces, the vault and Vision's database are never sources (D2).
-2. **Drafting (Claude, on a branch):** knowledge entries and part pages are rewritten from `sources/vision/`, never pasted. `pnpm check` warns on 40 or more consecutive words copied from it (D9, D21).
+2. **Drafting (Claude, on a branch):** knowledge entries and part pages are rewritten from `sources/vision/`, never pasted. `pnpm check` warns on 40 or more consecutive words copied from it (D9, D21). A fact Patrick states in a session that the mirror doesn't hold yet goes into a dated note under `sources/patrick/`, and the page cites that note until a sync brings the fact into the mirror (D24).
 3. **Scan, first pass (session):** pre-commit/pre-push hooks run the generic rules and gitleaks. `--no-verify` is denied by the session settings.
 4. **Review (Patrick):** the PR template carries the checklist below. Patrick runs `pnpm scan` with his local deny-list copy, then merges. The merge is the approval (D8).
 5. **Scan, authoritative (Cloudflare build):** `pnpm check` runs the generic rules plus the **private deny-list from a secret build variable** over the sources, `dist/**` and `chunks.json`. A hit fails the build, reporting the rule and `file:line`, never the matched word. Images: metadata (EXIF) is stripped.
@@ -206,6 +208,7 @@ Nothing here is in git, on the Vision machine or in chat. The repo has `.env.exa
 ```
 docs/                      PLAN, ARCHITECTURE, DECISIONS, RESEARCH, STEPS
 sources/vision/            Vision's portfolio notes, synced by PR from the Vision side (D21); never edited here
+sources/patrick/           dated notes of facts Patrick stated in a session (D24), cited until the mirror has them
 pieces/  content/  redaction/  evals/
 src/                       Astro pages, layouts, components (Map, PartCard, Chat island)
 src/styles/                tokens.css (design tokens, D13) and base.css; /styleguide/ renders them

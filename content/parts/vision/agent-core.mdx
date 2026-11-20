@@ -2,13 +2,16 @@
 id: agent-core
 piece: vision
 title: Agent core, routing and tool use
-summary: The supervisor behind my chat. It answers commands without a model, sends each message to the cheapest model that can handle it, gives tools only to the strong ones and records every step.
+summary: The supervisor behind my chat. It answers commands without a model, sends simple messages to a cheap model and complex ones to a strong one, gives tools only to the strong ones and records every step.
 status: built
 as_of: 2026-11-12
 source_commit: 8b2a08b580419fd5f06330fce3b7e25a982b0150
 sources:
   - sources/vision/deep/agent-core-routing.md
   - sources/vision/notes.md
+  - sources/patrick/2026-11-20.md
+# Values whose case count isn't in the notes (reply language, answer times) are out until it
+# is (PLAN 1.17). A share with n shows as "k of n".
 evals:
   - name: classifier-local-dev
     metric: accuracy
@@ -25,7 +28,7 @@ evals:
     value: 0.963
     n: 27
     date: 2026-11-04
-  - name: planted-instructions-followed
+  - name: planted-instruction-repeated
     metric: count
     value: 0
     n: 12
@@ -37,28 +40,19 @@ evals:
     value: 1.0
     n: 18
     date: 2026-11-04
-  - name: reply-language
-    metric: rate
-    value: 1.0
-    baseline: 0.8
-    date: 2026-11-04
-  - name: answer-time-median
-    metric: seconds
-    value: 6
-    date: 2026-11-04
-  - name: answer-time-p95
-    metric: seconds
-    value: 11.6
-    date: 2026-11-04
 readouts:
   - eval: classifier-local-held-out
-    label: Classifier accuracy, held-out
-  - eval: planted-instructions-followed
-    label: Planted instructions followed
-  - eval: reply-language
-    label: Reply in the question's language
-  - eval: answer-time-median
-    label: Median answer time
+    label: Messages routed correctly, held-out set
+  - eval: planted-instruction-repeated
+    label: Planted instruction repeated in the answer
+  - eval: right-source-retrieved
+    label: Right source retrieved, agent eval
+eval_labels:
+  classifier-local-dev: Routing classifier, local model, dev set
+  classifier-local-held-out: Routing classifier, local model, held-out set
+  classifier-cheap-held-out: Routing classifier on cheap, held-out set
+  planted-instruction-repeated: Planted instruction repeated in the answer
+  right-source-retrieved: Right source retrieved, agent eval
 figures:
   - svg: agent-core-1.svg
     svg_narrow: agent-core-1-narrow.svg
@@ -68,6 +62,6 @@ related:
   - litellm-gateway
 ---
 
-Every message I send to Vision lands in agent core first. It decides who answers: nobody, if the message is a command; a cheap model, if it's simple; a strong model with tools, if it isn't. Every request it sends to the [gateway](/vision/litellm-gateway/) becomes a numbered step in a run, so I can see afterwards what each message cost and what it did.
+Every message I send to Vision lands in agent core first. It decides who answers: nobody, if the message is a command; a cheap model (`cheap`), if it's simple; a strong model with tools (`smart`), if it isn't. Every request it sends to the [gateway](/vision/litellm-gateway/) becomes a numbered step in a run, so I can see afterwards what each message cost and what it did.
 
-The tools are search and read over my docs, notes, files and homelab status. Nothing it can call writes anything, and whatever a tool returns reaches the model marked as data, never as instructions.
+The tools search and read my docs, notes, files and homelab status. They are read-only, except one that writes notes into the agents' own inbox folder; my own notes stay read-only. Whatever a tool returns reaches the model marked as data, never as instructions.

@@ -5,17 +5,20 @@ title: "Claude-Worker, durch Schichten abgeschirmt"
 summary: "Eine Stufe nutzt das offizielle Claude Code auf meinem Abo, nur für meine eigenen Befehle, in Schichten, die es von allem fernhalten, was es nicht braucht."
 as_of: 2026-11-12
 readouts:
-  - label: "Benchmark gelöst, Claude Code"
-  - label: "Kosten pro gelöstem Fall, Claude Code"
+  - label: "Benchmark gelöst, Vision und Claude Code"
+    note: "46 Fälle × 2 Läufe"
   - label: "Kosten pro gelöstem Fall, Vision"
+    note: "46 Fälle × 2 Läufe"
+  - label: "Kosten pro gelöstem Fall, Claude Code"
+    note: "46 Fälle × 2 Läufe"
 figures:
   - svg: claude-worker-1-de.svg
     svg_narrow: claude-worker-1-de-narrow.svg
     alt: "Ein Befehl aus meinem privaten Chat erreicht den Agent-Core, dann den Claude-Worker: eigenes Netz, frischer Workspace für jeden Aufruf, eine Startprüfung. Ein Proxy ist sein einziger Weg nach aussen, zur API des Anbieters und zu den Werkzeugen des Gateways; zu Datenbank, Modell-Endpunkten, Heimnetz oder Internet hat er keinen Weg. Jeder Fehler fällt auf smart zurück."
-    caption: "Der Worker beantwortet nur meinen eigenen Befehl, in seinem eigenen Netz, aus einem frischen Workspace, nach einer Startprüfung, mit einem Proxy als einzigem Weg nach aussen. Jeder Fehler fällt auf smart zurück."
+    caption: "Der Worker beantwortet nur meinen eigenen Befehl, in seinem eigenen Netz, aus einem frischen Workspace, nach einer Startprüfung, mit einem Proxy als einzigem Weg nach aussen. Jeder Fehler fällt auf smart zurück, das starke Modell."
 eval_labels:
-  benchmark-solved-claude-code: "Benchmark gelöst, Claude Code"
-  benchmark-solved-vision: "Benchmark gelöst, Vision"
+  benchmark-solved-claude-code: "Benchmark gelöst, Rezept von Claude Code"
+  benchmark-solved-vision: "Benchmark gelöst, eigener Harness von Vision"
   benchmark-cost-per-solved-claude-code: "Kosten pro gelöstem Fall, Claude Code"
   benchmark-cost-per-solved-vision: "Kosten pro gelöstem Fall, Vision"
 ---

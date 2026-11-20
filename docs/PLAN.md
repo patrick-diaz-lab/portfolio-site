@@ -44,6 +44,7 @@ Portfolio site for Patrick's work as an AI/LLM engineer. The first piece is **Vi
 | 1.14 | Detail page: Telegram adapter | Same as 1.4; layers only (D19); built after the sync. **Done 2026-11-13 (PR #38),** in layout 3; open point: no readouts yet (below) |
 | 1.15 | Part page layout 3 (D19, Patrick 2026-11-13): "you are here" sheet, readouts, section rail, decision cards, case cards, previous / next, and a figure on every part page. Plan below | Every part page has at least one figure and its lessons in case form; `pnpm check` (rules `readouts`, `figures`, `case`) and every gate pass; Patrick approves each page's reworded lessons and figure in its PR **Done 2026-11-13** (PRs #31, #32, #34, #35, #37; pages 1.12–1.14 built in layout 3). Four lessons stay prose by the rule below. Open point: the Telegram adapter page has no readouts |
 | 1.16 | German part pages (D23, Patrick 2026-11-15): all ten Vision part pages under `/de/vision/…`, same layout, figures and readouts, with the language switch per page. Two or three pages per PR. Plan below | Each German page passes `pnpm check` (rule `i18n-part`) and every gate; Patrick approves the text and figures in its PR and the page joins `published-urls.txt` after the merge **Done 2026-11-16** (PRs #44–#48); all ten pages are published |
+| 1.17 | Review fixes (Patrick, 2026-11-20; D24): the whole site read as a recruiter would read it, in both languages; numbers as "k of n", values without a case count removed, written labels for every eval, the first screen, who builds what, one word per thing, phone and sharing fixes. Plan below | `pnpm check`, the tests and every gate pass on both languages; Patrick approves the reworded text in the PR |
 
 **Order (Patrick, 2026-11-12):** 1.9a, then the post-sync PR, then 1.10–1.14, then 1.9b (domain and launch switch). Nothing in 1.10–1.14 is built before the sync PR with their notes is merged.
 
@@ -385,6 +386,35 @@ More part pages before launch (Patrick). Their notes are being written on the Vi
 - **1.14, Telegram adapter:** `layers_only`, because sender identity is a security layer. The signed sender identity is told at layer level, once the notes say it's built.
 - **Before 1.10:** the small post-sync PR below, so the existing pages match the corrected notes first.
 - **Cost:** build sessions on the subscription; no API spend.
+
+### Item 1.17 plan (Patrick's OK 2026-11-20)
+
+A review of the whole site against the repo's own sources, read as a recruiter or hiring manager for an applied AI / agent engineering role would read it. Patrick chose the fixes and answered the open questions in the session; the review file itself stays out of the repo. The decisions are D24.
+
+- **Numbers.**
+  - A share with n shows as "k of n" everywhere, text included.
+  - Removed until the notes carry a case count: the eval cost per case before and after prompt caching (chip, gateway, eval harness, map text); reply language; answer times (median, 95th percentile); the homelab eval values; files retrieval; notes retrieval (chunk and note search, dev and held-out); docs retrieval on the dev set; the time until a merged doc is searchable; the token match with the spend log; the cost of the first harness item. The stories around them stay, in words.
+  - Guardrail unit tests: 1528 as of 2026-11-19, from Patrick's note, and now a readout.
+  - The benchmark on the Claude worker page says "46 cases × 2 runs" on every readout; Vision's own result leads.
+- **First screen and overview.**
+  - Chips: "27 of 27 · Messages routed correctly, held-out set", "0 of 12 · Planted instruction repeated in answers", "92 of 92 · Benchmark solved, same as Claude Code". One line under them says what held-out means and who wrote the set, in Patrick's words.
+  - Hero: a second line for the roles Patrick is looking for. The background paragraphs stay as they are.
+  - Tagline without the private term; the summary says who builds what; the routing is "simple to a cheap model, complex to a strong one".
+  - "Project 01" in English, as "Projekt 01" in German; a "Start here" row on the overview; the map opens on agent core.
+- **Words.** Alias (not role), notes (not vault), chunk (not piece), agent core. A gloss at first use for hit@5, held-out and the model aliases; headings name the model in words. "Measured results" with the line "Totals only; single test cases stay private."
+- **Pages.**
+  - Eval harness: held-out sets "that are mine", held-out "stayed at 12 of 16", "accepts only gateway aliases", a summary that parses.
+  - Knowledge core: "my private folder never leaves my devices", the held-out value first, the "before" of the reading rule.
+  - Agent core: one unsourced clause dropped; the label says "repeated", which is what the eval counts; no bar on two cases.
+  - MCP servers: the title and the readouts count servers and tools; the tools are "read-only, except one that writes notes".
+  - Gateway: related links. Guardrails: the test count as a readout.
+- **German.** The small map on a German part page reads the German drawing; the overview map uses the part pages' words; the wording fixes from the review; chip and readout labels agree.
+- **Template and checks.**
+  - `eval_labels` on English parts (rule `eval-labels`), metric `total`, `sources/patrick/`, chip notes, `chips_note`, `looking_for`, `start` on a map part, each with a test.
+  - Readouts under the first text on phones; lessons numbered in one run; labels at least 12 px; tap targets at least 24 px on links that stand alone.
+  - A not-found page, in the page gates; Open Graph tags; "Contact" in the footer.
+- **Open, Patrick's call:** listed in D24.
+- **Cost:** build session on the subscription; no API spend.
 
 ### Item 1.16 plan (Patrick, 2026-11-15)
 

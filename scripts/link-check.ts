@@ -24,6 +24,8 @@ function pages(dir = DIST, base = ""): string[] {
     const f = join(dir, n);
     if (statSync(f).isDirectory()) { if (!n.startsWith(".")) out.push(...pages(f, `${base}${n}/`)); }
     else if (n === "index.html") out.push(`/${base}`);
+    // The not-found page is a single file at the root (2026-11-20).
+    else if (n === "404.html" && base === "") out.push("/404.html");
   }
   return out.sort();
 }
@@ -74,7 +76,8 @@ function checkInternal(page: string, href: string) {
 }
 
 if (LIVE) {
-  for (const page of list.filter((p) => p !== "/styleguide/")) {
+  // The not-found page answers with its own status, so it isn't asked for by name.
+  for (const page of list.filter((p) => p !== "/styleguide/" && p !== "/404.html")) {
     try {
       const res = await fetch(LIVE + page, { redirect: "manual" });
       if (res.status !== 200) problems.push(`live ${LIVE}${page}  status ${res.status}`);

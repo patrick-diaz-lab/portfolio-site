@@ -5,7 +5,6 @@ part: agent-core
 page: /vision/agent-core/
 anchor: a-memory-that-never-happened
 kind: learning
-metric: reply-language
 sources:
   - sources/vision/deep/agent-core-routing.md
 as_of: 2026-11-10
@@ -24,4 +23,4 @@ Three rules came out of this: only turns from the last 6 hours count as context,
 
 #### Result
 
-I measured the old behaviour first, and language went from 0.8 to 1.0. My synthetic history never reproduced the false recall itself, so the fix stands on the real case, and I say so.
+I measured the old behaviour first and then the fix, and in the eval the language problem was gone. My synthetic history never reproduced the false recall itself, so the fix stands on the real case, and I say so.

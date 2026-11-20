@@ -7,7 +7,7 @@
   <text class="fig-sub fig-mid" x="85" y="96">ICH PRÜFE</text>
   <rect class="box" x="0" y="200" width="170" height="64" />
   <text class="lbl fig-mid" x="85" y="228">HELD-OUT-SET</text>
-  <text class="fig-sub fig-mid" x="85" y="248">VON MIR VERFASST</text>
+  <text class="fig-sub fig-mid" x="85" y="248">MEINS · GESPERRT</text>
 
   <path class="wire-static" d="M170 72 H210 M170 232 H210 M210 72 V232 M210 152 H241" />
   <polygon class="fig-head" points="249,152 241,148 241,156" />

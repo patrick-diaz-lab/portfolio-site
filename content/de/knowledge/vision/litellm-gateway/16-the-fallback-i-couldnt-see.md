@@ -7,7 +7,7 @@ kind: learning
 
 #### Was passiert ist
 
-Das Gateway kann von sich aus von einer Rolle auf eine andere wechseln. Für den Klassifikator hiess das: `local` konnte im Agent-Core in einen Timeout laufen, während das Gateway still auf `cheap` wiederholte. Es wurde Geld ausgegeben, das der Lauf nie erfasste, und der Lauf passte nicht mehr zum Kostenlog.
+Das Gateway kann von sich aus von einem Alias auf einen anderen wechseln. Für den Klassifikator hiess das: `local` konnte im Agent-Core in einen Timeout laufen, während das Gateway still auf `cheap` wiederholte. Es wurde Geld ausgegeben, das der Lauf nie erfasste, und der Lauf passte nicht mehr zum Kostenlog.
 
 #### Was ich geändert habe
 
