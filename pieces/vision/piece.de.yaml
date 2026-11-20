@@ -1,14 +1,16 @@
 # German text of the Vision piece (PLAN 1.9a). Only text: numbers, ids and dates stay in
 # piece.yaml. Written in Swiss Standard German (ss, no ß); reviewed by Patrick in the PR.
 title: Vision
-tagline: Ein selbst gehosteter Agent-Harness für mein Home-Intelligence-Center.
+tagline: "Ein selbst gehosteter Agent-Harness: mein persönlicher KI-Assistent für meine Docs, Notizen, Dateien und mein Homelab."
 summary: >-
-  Vorne ein Chat, dahinter ein Supervisor, der jede Nachricht an das günstigste Modell
-  schickt, das sie beantworten kann. Werkzeuge nur zum Lesen, ein Gateway für alle
-  Schlüssel und Budgets, Evals vor und nach jeder Änderung. Claude Code baut es, innerhalb
-  von Guardrails, die ich geschrieben habe.
-# Chip labels, in the order of the chips in piece.yaml.
+  Vorne ein Chat. Ein Supervisor schickt einfache Nachrichten an ein günstiges Modell,
+  komplexe an ein starkes mit Werkzeugen. Ein Gateway für alle Schlüssel und Budgets, Evals
+  vor und nach jeder Änderung. Claude Code schreibt den Grossteil des Codes, in Guardrails,
+  die ich vorgegeben habe; ich lege die Regeln fest, gebe Pläne frei, reviewe und merge.
+# Chips, in the order of the chips in piece.yaml: a label, or a label and the chip's note.
 chips:
-  - Klassifikator-Genauigkeit, Held-out
-  - Eingeschleuste Anweisungen befolgt
-  - Eval-Kosten pro Fall, Prompt-Caching
+  - Nachrichten richtig geroutet, Held-out
+  - Eingeschleuste Anweisung wiederholt
+  - label: Benchmark gelöst, gleich wie Claude Code
+    note: 46 Fälle, je zweimal
+chips_note: "Held-out: Testfälle, die nie zum Optimieren dienen. Dieses Set mit 27 Fällen wurde von Claude entworfen, von mir geprüft und gesperrt. Nur Gesamtwerte."

@@ -1,7 +1,8 @@
 // `pnpm map-check` (PLAN 1.3 done-when): browser tests for every piece map in dist/.
 //   - every map.yaml part is a link with a name, reachable with Tab; Enter follows a part's
 //     page, and on a part without a page only shows it in the panel
-//   - the panel (layout A, 2026-11-13) shows a part on load, on hover (map and index) and on
+//   - the panel (layout A, 2026-11-13) shows a part on load (the one map.yaml marks `start`,
+//     else the first), on hover (map and index) and on
 //     keyboard focus; Previous and Next step through the parts
 //   - on a touch screen the first tap shows the part without navigating; "Read the page"
 //     navigates
@@ -73,8 +74,10 @@ try {
       const title = () => page.locator("[data-card-title]").textContent();
       const label = (id: string) => piece.parts.find((p) => p.id === id)!.label;
       await page.goto(url);
-      check((await page.locator("[data-card]").isVisible()) && (await title()) === piece.parts[0]!.label, "the panel shows the first part on load");
-      check((await dotAnimation(page, ids[0]!)) === "none", "the signal dot doesn't run on load");
+      // The panel opens on the part map.yaml marks `start`, else on the first (2026-11-20).
+      const opening = piece.parts.find((p) => p.start) ?? piece.parts[0]!;
+      check((await page.locator("[data-card]").isVisible()) && (await title()) === opening.label, `the panel shows ${opening.start ? "the map's start part" : "the first part"} on load (${opening.label})`);
+      check((await dotAnimation(page, opening.id)) === "none", "the signal dot doesn't run on load");
       const second = ids[Math.min(1, ids.length - 1)]!;
       await tabTo(second);
       check((await title()) === label(second), "keyboard focus shows the part in the panel");

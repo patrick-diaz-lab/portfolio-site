@@ -5,7 +5,7 @@
   <text class="fig-sub fig-mid" x="75" y="48">CLAUDE ENTWIRFT</text>
   <rect class="box" x="170" y="0" width="150" height="64" />
   <text class="lbl fig-mid" x="245" y="28">HELD-OUT-SET</text>
-  <text class="fig-sub fig-mid" x="245" y="48">VON MIR VERFASST</text>
+  <text class="fig-sub fig-mid" x="245" y="48">MEINS · GESPERRT</text>
 
   <path class="wire-static" d="M75 64 V88 M245 64 V88 M75 88 H245 M160 88 V111" />
   <polygon class="fig-head" points="160,119 156,111 164,111" />

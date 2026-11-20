@@ -1,0 +1,40 @@
+---
+// Not-found page (2026-11-20): the host serves this file for any path that isn't a page, so
+// a mistyped link from an application lands on something that leads on. One file for both
+// languages, because the host looks for a single 404 page; never indexed.
+import Base from "../layouts/Base.astro";
+import { loadPieces } from "../lib/pieces.ts";
+
+const first = { en: loadPieces("en")[0], de: loadPieces("de")[0] };
+---
+<Base title="Page not found — Patrick Diaz" description="This page doesn't exist." noindex>
+  <main class="page not-found">
+    <section>
+      <p class="label">404</p>
+      <h1>Page not found</h1>
+      <p>This address doesn't lead to a page. It may have been mistyped, or cut off in a mail.</p>
+      <ul>
+        <li><a href="/">Homepage</a></li>
+        {first.en && <li><a href={`/${first.en.id}/`}>{first.en.title}: the overview</a></li>}
+        <li><a href="/#h-contact">Contact</a></li>
+      </ul>
+    </section>
+    <section lang="de">
+      <h2>Seite nicht gefunden</h2>
+      <p>Diese Adresse führt zu keiner Seite. Vielleicht wurde sie falsch getippt oder in einer E-Mail abgeschnitten.</p>
+      <ul>
+        <li><a href="/de/" hreflang="de">Startseite</a></li>
+        {first.de && <li><a href={`/de/${first.de.id}/`} hreflang="de">{first.de.title}: die Übersicht</a></li>}
+        <li><a href="/de/#h-contact" hreflang="de">Kontakt</a></li>
+      </ul>
+    </section>
+  </main>
+</Base>
+
+<style>
+  .not-found { max-width: 48rem; gap: var(--space-12); }
+  .not-found section { display: grid; gap: var(--space-3); }
+  .not-found h2 { font-size: var(--step-3); }
+  .not-found ul { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-1); }
+  .not-found a { display: inline-block; padding-block: var(--space-2); font-family: var(--font-mono); }
+</style>

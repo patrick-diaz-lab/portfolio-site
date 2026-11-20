@@ -15,7 +15,7 @@
   <text class="note" x="172" y="126">global cap $24</text>
   <rect class="box" x="60" y="140" width="200" height="72" />
   <text class="lbl fig-mid" x="160" y="168">GATEWAY</text>
-  <text class="fig-sub fig-mid" x="160" y="186">ROLES → MODELS</text>
+  <text class="fig-sub fig-mid" x="160" y="186">ALIASES → MODELS</text>
   <text class="fig-sub fig-mid" x="160" y="202">PRICES I SET</text>
 
   <path class="wire-static" d="M160 212 V236 M75 236 H245 M75 236 V259 M245 236 V259" />

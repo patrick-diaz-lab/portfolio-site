@@ -57,4 +57,6 @@ const text = {
   .privacy-head { display: grid; gap: var(--space-3); }
   .privacy section { display: grid; gap: var(--space-3); }
   .privacy h2 { font-size: var(--step-2); }
+  /* The address alone on its line gets a tap target of at least 24 px. */
+  .privacy > p a { display: inline-block; padding-block: var(--space-1); }
 </style>

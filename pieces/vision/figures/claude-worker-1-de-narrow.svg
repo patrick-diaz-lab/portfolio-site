@@ -3,7 +3,7 @@
        the wide one, stacked. -->
   <rect class="box" x="100" y="10" width="160" height="56" />
   <text class="lbl fig-mid" x="180" y="34">AGENT-CORE</text>
-  <text class="fig-sub fig-mid" x="180" y="54">SIGNIERTER SENDER</text>
+  <text class="fig-sub fig-mid" x="180" y="54">SIGNIERTER ABSENDER</text>
   <path class="wire-static" d="M180 66 V111" />
   <polygon class="fig-head" points="180,119 176,111 184,111" />
 

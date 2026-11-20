@@ -3,8 +3,9 @@ id: guardrails
 piece: vision
 title: "Guardrails für den Coding-Agenten"
 summary: "Claude Code baut den Grossteil von Vision selbständig. Regeln halten meistens; Prüfschichten fangen den Rest ab, und jeder Merge bleibt bei mir. Die Schichten und Gründe, nicht die Regeln."
-as_of: 2026-11-12
+as_of: 2026-11-19
 readouts:
+  - label: "Unit-Tests der Prüfung, 106 zu Beginn"
   - label: "Push-Prüfung, bestandene Tests"
 figures:
   - svg: guardrails-1-de.svg
@@ -12,6 +13,7 @@ figures:
     alt: "Eine Session von Claude Code arbeitet in ihrer eigenen Arbeitskopie und auf ihrem eigenen Branch. Vor jedem Befehl antwortet eine Prüfung mit deny, ask oder allow. Wird Arbeit gepusht, schauen eine zweite Prüfung und ein Secret-Scan noch einmal hin. Ich reviewe den Pull Request, und nur ich merge. Alles, was live geht, läuft über eine einzige Deploy-Lane, jeweils eine Session."
     caption: "Wo die Prüfungen sitzen. Jede Session hat eigene Kopie und Branch, vor jedem Befehl antwortet eine Prüfung mit deny, ask, allow, eine zweite Prüfung und ein Secret-Scan sehen jeden Push, nur ich merge. Alles, was live geht, läuft über eine Deploy-Lane. Schichten und Gründe, nicht die Regeln."
 eval_labels:
+  check-unit-tests: "Unit-Tests der Prüfung"
   pre-push-hook-tests-passing: "Push-Prüfung, bestandene Tests"
 ---
 

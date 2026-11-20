@@ -2,27 +2,22 @@
 id: eval-harness
 piece: vision
 title: "Eval-Harness und Held-out-Sets"
-summary: "Ein kleiner Harness misst den Code, den Vision wirklich ausführt, vor und nach jeder Änderung an Prompt, Modell oder Werkzeug, auf Held-out-Sets, die nur ich schreibe."
+summary: "Ein kleiner Harness misst den Code, den Vision wirklich ausführt, vor und nach jeder Änderung an Prompt, Modell oder Werkzeug, auf Held-out-Sets, die nur ich ändern kann; von ihnen bleiben nur Summen."
 as_of: 2026-11-12
 readouts:
-  - label: "Docs-Retrieval hit@5, held-out, grösserer Korpus"
-  - label: "Files-Retrieval hit@5, held-out"
-  - label: "Vault-Retrieval hit@5, Chunk-Suche"
-  - label: "Agent-Eval-Kosten pro Fall, Prompt-Caching"
+  - label: "Docs-Retrieval hit@5, Held-out, erste Messung"
+  - label: "Docs-Retrieval hit@5, Held-out, grösserer Korpus"
+    note: "Ursache wird untersucht"
 figures:
   - svg: eval-harness-1-de.svg
     svg_narrow: eval-harness-1-de-narrow.svg
-    alt: "Pro Eval gehen zwei Sets in den Harness: ein Dev-Set, das Claude entwirft und ich prüfe, und ein Held-out-Set, das ich selbst schreibe. Der Harness führt den Produktionscode aus und bewertet die Ergebnisse mit Code. Dev-Läufe behalten jeden Fall; Held-out-Läufe behalten nur Summen, ohne Falltexte oder IDs. Ein Lauf stoppt bei 2 Dollar."
-    caption: "Wie der Harness eine Änderung misst. Er führt denselben Code aus, der auch meine Nachrichten im Chat beantwortet, auf zwei Sets pro Eval: Dev-Sets, die Claude entwirft und ich prüfe, und Held-out-Sets von mir. Code bewertet alles, Held-out-Läufe hinterlassen nur Summen, ein Lauf stoppt nach $2."
+    alt: "Pro Eval gehen zwei Sets in den Harness: ein Dev-Set, das Claude entwirft und ich prüfe, und ein Held-out-Set, das mir gehört und für Agenten gesperrt ist. Der Harness führt den Produktionscode aus und bewertet die Ergebnisse mit Code. Dev-Läufe behalten jeden Fall; Held-out-Läufe behalten nur Summen, ohne Falltexte oder IDs. Ein Lauf stoppt bei 2 Dollar."
+    caption: "Wie der Harness eine Änderung misst. Er führt denselben Code aus, der auch meine Nachrichten im Chat beantwortet, auf zwei Sets: Dev-Sets, die Claude entwirft und ich prüfe, und Held-out-Sets, die mir gehören. Code bewertet alles, Held-out-Läufe hinterlassen nur Summen, ein Lauf stoppt nach $2."
 eval_labels:
-  docs-retrieval-hit-at-5-held-out: "Docs-Retrieval hit@5, held-out"
-  docs-retrieval-hit-at-5-held-out-now: "Docs-Retrieval hit@5, held-out, grösserer Korpus"
-  files-retrieval-hit-at-5-held-out: "Files-Retrieval hit@5, held-out"
-  vault-retrieval-chunk-search: "Vault-Retrieval hit@5, Chunk-Suche"
-  vault-retrieval-note-search: "Vault-Retrieval hit@5, Notiz-Suche"
-  agent-eval-cost-per-case: "Agent-Eval-Kosten pro Fall"
+  docs-retrieval-hit-at-5-held-out: "Docs-Retrieval hit@5, Held-out, erste Messung"
+  docs-retrieval-hit-at-5-held-out-now: "Docs-Retrieval hit@5, Held-out, grösserer Korpus"
 ---
 
-Vor und nach jeder Änderung an einem Prompt, einem Modell oder einem Werkzeug will ich eine Zahl, gemessen an Fällen, die das zu verbessernde System nie gesehen hat. Genau das liefert der Harness. Er führt denselben Code aus, der auch meine Nachrichten im Chat beantwortet, gegen zwei Arten von Sets pro Eval: Dev-Sets, die Claude entwirft und ich prüfe, und Held-out-Sets, die ich selbst schreibe und die Agenten nicht anfassen können.
+Vor und nach jeder Änderung an einem Prompt, einem Modell oder einem Werkzeug will ich eine Zahl, gemessen an Fällen, die das zu verbessernde System nie gesehen hat. Genau das liefert der Harness. Er führt denselben Code aus, der auch meine Nachrichten im Chat beantwortet, gegen zwei Arten von Sets pro Eval: Dev-Sets, die Claude entwirft und ich prüfe, und Held-out-Sets, die mir gehören: Agenten können nicht in sie schreiben.
 
-Er deckt das Routing ab, das Retrieval über meine Docs, Notizen und Dateien sowie ganze Agent-Antworten. Die Ergebnisse des Klassifikators stehen auf der [Seite zum Agent-Core](/de/vision/agent-core/); das Retrieval folgt weiter unten.
+Er deckt das Routing ab, das Retrieval über meine Docs, Notizen und Dateien sowie ganze Agent-Antworten. Die Ergebnisse des Klassifikators stehen auf der [Seite zum Agent-Core](/de/vision/agent-core/); das Retrieval folgt weiter unten, gewertet als hit@5: Das richtige Dokument ist unter den ersten fünf Treffern. Modellnamen auf dieser Seite sind Aliase des Gateways: `cheap` und `smart` sind das günstige und das starke Modell beim Anbieter, `local` ist das kleine Modell auf meinem GPU-PC.

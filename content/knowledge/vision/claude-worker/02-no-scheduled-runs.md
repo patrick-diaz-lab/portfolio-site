@@ -5,7 +5,7 @@ part: claude-worker
 page: /vision/claude-worker/
 anchor: no-scheduled-runs
 kind: rejected
-lost_to: terms-first-narrow-reading
+lost_to: own-messages-only
 sources:
   - sources/vision/deep/claude-worker.md
 as_of: 2026-11-12

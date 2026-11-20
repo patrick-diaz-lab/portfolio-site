@@ -29,6 +29,9 @@ interface Props {
 const { title, description, noindex = false, lang = "en", path } = Astro.props;
 const other: Locale = lang === "en" ? "de" : "en";
 const home = localePath(lang, "/");
+// Link previews (2026-11-20): the title card a pasted link gets in mail, chat or LinkedIn.
+// Text only; no image, so nothing is loaded from anywhere.
+const OG_LOCALE = { en: "en_GB", de: "de_CH" } as const;
 ---
 <!doctype html>
 <html lang={lang}>
@@ -46,6 +49,14 @@ const home = localePath(lang, "/");
          isn't indexed as a copy (PLAN 1.9b); scripts/sitemap.ts checks it. -->
     {!noindex && <link rel="canonical" href={SITE.origin + Astro.url.pathname} />}
     <title>{title}</title>
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={t(lang, "site.name")} />
+    <meta property="og:title" content={title} />
+    {description && <meta property="og:description" content={description} />}
+    <meta property="og:url" content={SITE.origin + Astro.url.pathname} />
+    <meta property="og:locale" content={OG_LOCALE[lang]} />
+    {path && <meta property="og:locale:alternate" content={OG_LOCALE[other]} />}
+    <meta name="twitter:card" content="summary" />
     {path && (["en", "de"] as const).map((l) => <link rel="alternate" hreflang={l} href={SITE.origin + localePath(l, path)} />)}
     {path && <link rel="alternate" hreflang="x-default" href={SITE.origin + path} />}
   </head>
@@ -62,6 +73,7 @@ const home = localePath(lang, "/");
     <slot />
     <footer class="site-foot">
       <a href={localePath(lang, "/privacy/")}>{t(lang, "footer.privacy")}</a>
+      <a href={`${home}#h-contact`}>{t(lang, "footer.contact")}</a>
       <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
     </footer>
   </body>

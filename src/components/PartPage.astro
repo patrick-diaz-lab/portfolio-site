@@ -2,12 +2,13 @@
 // Part page (PLAN 1.4, D19), layout 3 (Patrick, 2026-11-13), in English at /<piece>/<part>/
 // and in German at /de/<piece>/<part>/ (Patrick, 2026-11-15). Top to bottom:
 //   - the header and a "you are here" sheet of the piece's map, with the neighbours as links
-//   - up to 5 readouts (the part's `readouts`), before → after where an eval has a baseline
+//   - up to 5 readouts (the part's `readouts`), before → after where an eval has a baseline;
+//     on phones they sit under the first text of "What it does" (Readouts.astro, 2026-11-20)
 //   - the four fixed sections, with a sticky rail beside them (a strip on phones)
 //       What it does     the overview, then the figures (FIG. <part>.<n>, the map's style)
 //       Why this way     each decision as a card, the options it beat beside it (`lost_to`)
 //       How it's tested  the testing entries, and the evals that aren't readouts in a table
-//       What I learned   learning entries; one in case form renders as a case card
+//       What I learned   learning entries, numbered; one in case form renders as a case card
 //   - previous / next part with a page, in map order, and the way back to the map
 // The English part and its entries carry the structure: ids, anchors, kinds, `lost_to`,
 // evals and metrics. A German page takes only its text from content/de/ (`de`), entry by id;
@@ -16,9 +17,10 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { render, type CollectionEntry } from "astro:content";
 import Base from "../layouts/Base.astro";
+import Readouts from "./Readouts.astro";
 import { hasDePart, loadPieces, partPath } from "../lib/pieces.ts";
-import { evalBefore, evalName, evalShares, evalValue, type Eval } from "../lib/evals.ts";
-import { esc, locator } from "../lib/map-svg.ts";
+import { evalBefore, evalName, evalShares, evalValue, showsN, type Eval } from "../lib/evals.ts";
+import { esc, keyedTexts, locator } from "../lib/map-svg.ts";
 import { localePath, t, type Locale } from "../i18n/ui.ts";
 import "../styles/schematic.css";
 
@@ -53,7 +55,8 @@ const testing = ofKind("testing");
 const learning = ofKind("learning");
 const evals = part.data.evals;
 const evalBy = new Map(evals.map((e) => [e.name, e]));
-const evalLabel = (name: string) => text?.eval_labels[name] ?? evalName(name);
+// Every eval has a written label in each language (`pnpm check`); its internal name never shows.
+const evalLabel = (name: string) => text?.eval_labels[name] ?? part.data.eval_labels[name] ?? evalName(name);
 const of = L("part.of");
 
 // The piece: map order numbers the parts, gives previous / next and the "you are here" sheet.
@@ -76,7 +79,7 @@ const linkTo = (id: string) => {
   const p = order.find((x) => x.id === id);
   return { href: p?.page ?? `${back}#part-${id}`, lang: p?.pageLang };
 };
-const here = piece ? locator(piece.svg, part.data.id, labelOf) : undefined;
+const here = piece ? locator(keyedTexts(piece.svg, piece.svgText.text), part.data.id, labelOf) : undefined;
 const neighbours = (here?.neighbours ?? []).map((id) => ({ id, label: labelOf(id) }));
 const ownLabel = labelOf(part.data.id);
 
@@ -104,15 +107,23 @@ const readouts = part.data.readouts.flatMap((r, i) => {
   if (!e) return [];
   const shares = evalShares(e);
   const own = text?.readouts[i];
+  const label = own?.label ?? r.label;
+  // n goes into the note only where neither the value ("27 of 27") nor the label ("First 31
+  // chat runs") already says it.
+  const saysN = e.n === undefined || showsN(e) || new RegExp(`(?<!\\d)${e.n}(?!\\d)`).test(label);
   return [{
-    label: own?.label ?? r.label,
+    label,
     caveat: own ? own.note : r.note,
     value: evalValue(e.metric, e.value, e.n, undefined, of),
     before: evalBefore(e, of),
     track: shares && { before: pct(shares.before), after: pct(shares.after), lo: pct(Math.min(shares.before, shares.after)), span: pct(Math.abs(shares.after - shares.before)) },
-    note: [e.n !== undefined && e.metric !== "count" ? `n = ${e.n}` : "", `${L("chip.asOf")} ${e.date}`].filter(Boolean).join(" · "),
+    note: [saysN ? "" : `n = ${e.n}`, `${L("chip.asOf")} ${e.date}`].filter(Boolean).join(" · "),
   }];
 });
+// "Totals only; single test cases stay private" belongs under numbers measured on cases,
+// not under a plain count of servers or tools.
+const onCases = part.data.readouts.some((r) => evalBy.get(r.eval)?.n !== undefined);
+const readoutText = { heading: L("part.measured"), lead: onCases ? L("part.measuredNote") : "", before: L("part.before"), after: L("part.after") };
 // The table under "How it's tested" lists only the values that aren't readouts (Patrick,
 // 2026-11-13, after #33): a number appears once on the page.
 const readoutNames = new Set(part.data.readouts.map((r) => r.eval));
@@ -124,7 +135,8 @@ const caseMetric = (e: K) => {
   const v = e.data.metric ? evalBy.get(e.data.metric) : undefined;
   return v && { value: `${evalBefore(v, of) ?? "—"} → ${evalValue(v.metric, v.value, v.n, undefined, of)}`, label: evalLabel(v.name) };
 };
-let caseNo = 0;
+// Lessons are numbered in one run, whatever their form (2026-11-20).
+const lessonNo = (e: K) => String(learning.indexOf(e) + 1).padStart(2, "0");
 
 // The rail: the sections this page has, with what each holds.
 const COUNT = {
@@ -139,6 +151,7 @@ const stations = [
   { id: "what-i-learned", name: L("part.learned"), count: count(learning.length, "lesson"), show: learning.length > 0 },
 ].filter((s) => s.show);
 const tableValue = (v: Eval) => evalValue(v.metric, v.value, v.n, undefined, of);
+const tableN = (v: Eval) => (v.n === undefined || showsN(v) ? "" : `n = ${v.n}`);
 const title = text?.title ?? part.data.title;
 const summary = text?.summary ?? part.data.summary;
 const asOf = text?.as_of ?? part.data.as_of;
@@ -169,34 +182,7 @@ const withPiece = (key: Parameters<typeof t>[1]) => L(key).replace("{piece}", pi
       )}
     </div>
 
-    {readouts.length > 0 && (
-      <section class="readouts" aria-labelledby="h-measured">
-        <h2 id="h-measured" class="label">{L("part.measured")}</h2>
-        <ul>
-          {readouts.map((r) => (
-            <li class="readout">
-              <span class="readout-value">{r.value}</span>
-              <span class="readout-label">{r.label}</span>
-              {r.track ? (
-                <>
-                  <span class="readout-track" aria-hidden="true">
-                    <span class="readout-rail"></span>
-                    <span class="readout-span" style={`left:${r.track.lo};width:${r.track.span}`}></span>
-                    <span class="readout-dot is-before" style={`left:${r.track.before}`}></span>
-                    <span class="readout-dot is-after" style={`left:${r.track.after}`}></span>
-                  </span>
-                  <span class="readout-scale" aria-hidden="true"><span>0</span><span>1</span></span>
-                  <span class="readout-note"><span class="key is-before" aria-hidden="true"></span>{L("part.before")} {r.before} <span class="key is-after" aria-hidden="true"></span>{L("part.after")} {r.value}</span>
-                </>
-              ) : (
-                <span class="readout-note">{r.before ? `${L("part.before")} ${r.before} · ` : ""}{r.note}</span>
-              )}
-              {r.caveat && <span class="readout-caveat">{r.caveat}</span>}
-            </li>
-          ))}
-        </ul>
-      </section>
-    )}
+    {readouts.length > 0 && <Readouts readouts={readouts} place="top" {...readoutText} />}
 
     <div class="part-body">
       <nav class="rail" aria-label={L("part.onPage")} data-rail>
@@ -224,6 +210,7 @@ const withPiece = (key: Parameters<typeof t>[1]) => L(key).replace("{piece}", pi
         <section aria-labelledby="what-it-does" class="part-sec" data-station>
           <h2 id="what-it-does">{L("part.does")}</h2>
           <div class="prose"><Content /></div>
+          {readouts.length > 0 && <Readouts readouts={readouts} place="inline" {...readoutText} />}
           {ofKind("overview").map((e) => {
             const C = rendered.get(e.data.id)!;
             return <section id={e.data.anchor} class="entry prose"><C /></section>;
@@ -279,13 +266,12 @@ const withPiece = (key: Parameters<typeof t>[1]) => L(key).replace("{piece}", pi
               <div class="evals-wrap">
                 <table class="evals">
                   <caption class="label">{readouts.length ? L("part.tableMore") : L("part.table")}</caption>
-                  <thead><tr><th scope="col">{L("part.colWhat")}</th><th scope="col">{L("part.colValue")}</th><th scope="col">n</th><th scope="col">{L("part.colDate")}</th></tr></thead>
+                  <thead><tr><th scope="col">{L("part.colWhat")}</th><th scope="col">{L("part.colValue")}</th><th scope="col">{L("part.colDate")}</th></tr></thead>
                   <tbody>
                     {tableEvals.map((v) => (
                       <tr>
                         <th scope="row">{evalLabel(v.name)}</th>
-                        <td>{tableValue(v)}{v.baseline !== undefined && <span class="label"> ({L("part.beforeParen")}: {evalBefore(v, of)})</span>}</td>
-                        <td>{v.n ?? "—"}</td>
+                        <td>{tableValue(v)}{v.baseline !== undefined && <span class="label"> ({L("part.beforeParen")}: {evalBefore(v, of)})</span>}{tableN(v) && <span class="label"> · {tableN(v)}</span>}</td>
                         <td>{v.date}</td>
                       </tr>
                     ))}
@@ -301,12 +287,11 @@ const withPiece = (key: Parameters<typeof t>[1]) => L(key).replace("{piece}", pi
             <h2 id="what-i-learned">{L("part.learned")}</h2>
             {learning.map((e) => {
               const C = rendered.get(e.data.id)!;
-              if (!isCase(e)) return <section id={e.data.anchor} class="entry prose"><C /></section>;
+              if (!isCase(e)) return <section id={e.data.anchor} class="entry prose lesson"><p class="label">{L("part.lesson")} {lessonNo(e)}</p><C /></section>;
               const m = caseMetric(e);
-              caseNo++;
               return (
                 <section id={e.data.anchor} class="case">
-                  <p class="label case-no">{L("part.case")} {String(caseNo).padStart(2, "0")}</p>
+                  <p class="label case-no">{L("part.lesson")} {lessonNo(e)}</p>
                   <C />
                   {m && <p class="case-metric"><span class="case-metric-value">{m.value}</span> <span class="label">{m.label}</span></p>}
                 </section>
@@ -338,6 +323,8 @@ const withPiece = (key: Parameters<typeof t>[1]) => L(key).replace("{piece}", pi
 <style>
   .part-page { gap: var(--space-12); }
   .part-head a, .part-where a { color: inherit; }
+  /* Links that stand alone or in a short line get a tap target of at least 24 px. */
+  .part-head .label a, .part-where-links a { display: inline-block; padding-block: var(--space-1); }
 
   /* Header and "you are here", side by side; stacked on a phone. */
   .part-top { display: flex; flex-wrap: wrap; gap: var(--space-8) var(--space-12); align-items: start; }
@@ -345,32 +332,11 @@ const withPiece = (key: Parameters<typeof t>[1]) => L(key).replace("{piece}", pi
   .part-head h1 { font-size: clamp(var(--step-3), 5vw, 3rem); line-height: 1.05; }
   .part-summary { font-size: var(--step-1); line-height: 1.45; max-width: 46ch; }
   .part-where { flex: 2 1 18rem; min-width: 0; margin: 0; border: var(--line-thin) solid var(--color-silk-dim); border-radius: var(--radius); padding: var(--space-3); display: grid; gap: var(--space-2); }
-  .part-where-head { display: flex; justify-content: space-between; gap: var(--space-2); font-size: 0.6875rem; max-width: none; }
+  .part-where-head { display: flex; justify-content: space-between; gap: var(--space-2); font-size: 0.75rem; max-width: none; }
   .part-where-here { color: var(--color-amber); }
   .part-where :global(.locator) { display: block; max-width: 100%; height: auto; justify-self: center; }
   .part-where-links { font-size: var(--step--1); line-height: 1.5; color: var(--color-silk-dim); }
   .part-where-links a { color: var(--color-silk); }
-
-  /* Readouts: joined cells, as the chips on the overview page. */
-  .readouts { display: grid; gap: var(--space-2); }
-  .readouts ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--line-thin); background: var(--color-silk-dim); border: var(--line-thin) solid var(--color-silk-dim); }
-  .readout { flex: 1 1 12rem; min-width: 0; background: var(--color-panel-raised); padding: var(--space-4); display: grid; gap: var(--space-2); align-content: start; }
-  /* A value stays on one line and scales with its tile, so five readouts fit a row. */
-  .readout { container-type: inline-size; }
-  .readout-value { font: 400 min(var(--step-3), 12cqi) / 1 var(--font-mono); white-space: nowrap; }
-  .readout-label { font-size: var(--step--1); line-height: 1.35; }
-  .readout-caveat { font: 400 0.6875rem / 1.5 var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-amber); }
-  .readout-note { font: 400 0.6875rem / 1.5 var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-silk-dim); }
-  .readout-track { position: relative; height: 16px; margin: var(--space-1) 6px 0; }
-  .readout-rail, .readout-span { position: absolute; top: 7px; height: 2px; }
-  .readout-rail { left: 0; right: 0; background: var(--color-panel); }
-  .readout-span { background: var(--color-silk-dim); }
-  .readout-dot { position: absolute; top: 2px; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; }
-  .readout-dot.is-before, .key.is-before { border: var(--focus-width) solid var(--color-silk-dim); background: var(--color-panel-raised); }
-  .readout-dot.is-after, .key.is-after { background: var(--color-amber); }
-  .readout-scale { display: flex; justify-content: space-between; font: 400 0.6875rem var(--font-mono); color: var(--color-silk-dim); }
-  .key { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: var(--space-1); vertical-align: 0.05em; }
-  .key.is-after { margin-left: var(--space-2); }
 
   /* The body: the sections, and the rail beside them (first in the source, so it comes first
      when the row wraps on a phone). */
@@ -385,7 +351,7 @@ const withPiece = (key: Parameters<typeof t>[1]) => L(key).replace("{piece}", pi
   .rail a[aria-current] { color: var(--color-amber); }
   .rail-name { font: 600 var(--step-0) / 1.3 var(--font-panel); letter-spacing: var(--tracking-panel); text-transform: uppercase; }
   .rail a:hover .rail-name { text-decoration: underline; }
-  .rail-count { font: 400 0.6875rem / 1.4 var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-silk-dim); }
+  .rail-count { font: 400 0.75rem / 1.4 var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-silk-dim); }
   .rail-more { display: grid; gap: var(--space-1); border-top: var(--line-thin) solid var(--color-silk-dim); padding-top: var(--space-3); font-size: var(--step--1); }
   .rail-more a { padding-block: var(--space-1); }
 
@@ -400,7 +366,7 @@ const withPiece = (key: Parameters<typeof t>[1]) => L(key).replace("{piece}", pi
 
   /* Figures: framed like a drawing sheet; the narrow version replaces the wide one on phones. */
   .part-figure { margin: var(--space-2) 0 0; border: var(--line-thin) solid var(--color-silk-dim); border-radius: var(--radius); padding: var(--space-4) var(--space-3); display: grid; gap: var(--space-4); }
-  .part-figure-head { display: flex; justify-content: space-between; gap: var(--space-2); font-size: 0.6875rem; max-width: none; }
+  .part-figure-head { display: flex; justify-content: space-between; gap: var(--space-2); font-size: 0.75rem; max-width: none; }
   .part-figure :global(.figure-svg.is-narrow) { display: none; max-width: 22rem; justify-self: center; }
   .part-figure figcaption { font-size: var(--step--1); line-height: 1.5; border-top: var(--line-thin) solid var(--color-silk-dim); padding-top: var(--space-3); }
   .part-figure-n { font: 400 var(--step--1) var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-amber); margin-right: var(--space-1); }
@@ -422,7 +388,7 @@ const withPiece = (key: Parameters<typeof t>[1]) => L(key).replace("{piece}", pi
   .case-metric { grid-column: 1 / -1; order: 2; max-width: none; padding: 0 var(--space-6) var(--space-4); display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-3); align-items: baseline; }
   .case-metric-value { font: 400 var(--step-1) var(--font-mono); color: var(--color-amber); }
   .case :global(h4), .case :global(h4 + p) { order: 3; border-top: var(--line-thin) solid var(--color-panel); padding: var(--space-3) var(--space-6); }
-  .case :global(h4) { font: 400 0.6875rem / 1.9 var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-silk-dim); padding-right: 0; }
+  .case :global(h4) { font: 400 0.75rem / 1.8 var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-silk-dim); padding-right: 0; }
   .case :global(h4 + p) { font-size: var(--step--1); line-height: 1.55; padding-left: var(--space-3); }
   .case :global(h4:last-of-type) { color: var(--color-amber); }
 

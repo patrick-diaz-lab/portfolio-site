@@ -18,7 +18,7 @@
   <path class="note-line" d="M350 97 V108" />
   <rect class="box" x="250" y="108" width="200" height="80" />
   <text class="lbl fig-mid" x="350" y="140">GATEWAY</text>
-  <text class="fig-sub fig-mid" x="350" y="160">ROLLEN → MODELLE</text>
+  <text class="fig-sub fig-mid" x="350" y="160">ALIASE → MODELLE</text>
   <text class="fig-sub fig-mid" x="350" y="176">PREISE VON MIR</text>
 
   <path class="wire-static" d="M450 148 H500 M500 78 V218 M500 78 H531 M500 218 H531" />

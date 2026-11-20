@@ -15,7 +15,7 @@ source_commit: bb4fb3747aa6d7a80666b2d19dd718d1e4bedd98
 
 #### What happened
 
-The gateway can switch from one role to another on its own. For the classifier that meant `local` could time out in agent core while the gateway quietly retried on `cheap`: money was spent that the run never recorded, and the run no longer matched the spend log.
+The gateway can switch from one alias to another on its own. For the classifier that meant `local` could time out in agent core while the gateway quietly retried on `cheap`: money was spent that the run never recorded, and the run no longer matched the spend log.
 
 #### What I changed
 

@@ -7,7 +7,7 @@ kind: learning
 
 #### Was passiert ist
 
-Als ich alles zum ersten Mal verbunden hatte, kannte das fixierte Gateway die Preise der Modelle nicht, die ich nutzte. Jeder Aufruf wäre mit $0 erfasst worden, und kein Budget hätte je etwas gestoppt.
+Als ich alles zum ersten Mal verbunden hatte, kannte das Gateway in seiner festgelegten Version die Preise der Modelle nicht, die ich nutzte. Jeder Aufruf wäre mit $0 erfasst worden, und kein Budget hätte je etwas gestoppt.
 
 #### Was ich geändert habe
 

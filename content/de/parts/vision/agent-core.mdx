@@ -2,29 +2,25 @@
 id: agent-core
 piece: vision
 title: "Agent-Core, Routing und Werkzeuge"
-summary: "Der Supervisor hinter meinem Chat. Er beantwortet Befehle ohne Modell, schickt jede Nachricht an das günstigste passende Modell, gibt nur starken Modellen Werkzeuge und erfasst jeden Schritt."
+summary: "Der Supervisor hinter meinem Chat: Befehle ohne Modell, einfache Nachrichten an ein günstiges Modell, komplexe an ein starkes. Werkzeuge bekommen nur die starken, und jeder Schritt wird erfasst."
 as_of: 2026-11-12
 readouts:
-  - label: "Klassifikator-Genauigkeit, held-out"
-  - label: "Befolgte eingeschleuste Anweisungen"
-  - label: "Antwort in der Sprache der Frage"
-  - label: "Antwortzeit, Median"
+  - label: "Nachrichten richtig geroutet, Held-out-Set"
+  - label: "Eingeschleuste Anweisung wiederholt"
+  - label: "Richtige Quelle gefunden, Agent-Eval"
 figures:
   - svg: agent-core-1-de.svg
     svg_narrow: agent-core-1-de-narrow.svg
     alt: "Eine Nachricht trifft zuerst auf eine Befehlsprüfung. Befehle laufen ohne Modell. Alles andere geht an den lokalen Klassifikator auf dem GPU-PC, der einfache Nachrichten an cheap schickt, ohne Werkzeuge, und komplexe an smart, mit lesenden Werkzeugen. Antwortet der Klassifikator nicht innert 2 Sekunden oder braucht er über 20, geht die Nachricht direkt an smart."
     caption: "Wie der Agent-Core eine Nachricht weiterleitet. Befehle erreichen nie ein Modell. Der lokale Klassifikator schickt einfache Nachrichten an cheap und den Rest an smart; antwortet er nicht innert 2 Sekunden oder braucht er über 20, geht die Nachricht direkt an smart, mit Werkzeugen."
 eval_labels:
-  classifier-local-dev: "Klassifikator lokal, Dev-Set"
-  classifier-local-held-out: "Klassifikator lokal, held-out"
-  classifier-cheap-held-out: "Klassifikator auf cheap, held-out"
-  planted-instructions-followed: "Befolgte eingeschleuste Anweisungen"
-  right-source-retrieved: "Richtige Quelle gefunden"
-  reply-language: "Antwort in der Sprache der Frage"
-  answer-time-median: "Antwortzeit, Median"
-  answer-time-p95: "Antwortzeit, 95. Perzentil"
+  classifier-local-dev: "Routing-Klassifikator, lokales Modell, Dev-Set"
+  classifier-local-held-out: "Routing-Klassifikator, lokales Modell, Held-out-Set"
+  classifier-cheap-held-out: "Routing-Klassifikator auf cheap, Held-out-Set"
+  planted-instruction-repeated: "Eingeschleuste Anweisung in der Antwort wiederholt"
+  right-source-retrieved: "Richtige Quelle gefunden, Agent-Eval"
 ---
 
-Jede Nachricht, die ich an Vision schicke, landet zuerst im Agent-Core. Er entscheidet, wer antwortet: niemand, wenn die Nachricht ein Befehl ist; ein günstiges Modell, wenn sie einfach ist; ein starkes Modell mit Werkzeugen, wenn nicht. Jede Anfrage, die er an das [Gateway](/de/vision/litellm-gateway/) schickt, wird zu einem nummerierten Schritt in einem Lauf, sodass ich danach sehe, was jede Nachricht gekostet und was sie getan hat.
+Jede Nachricht, die ich an Vision schicke, landet zuerst im Agent-Core. Er entscheidet, wer antwortet: niemand, wenn die Nachricht ein Befehl ist; ein günstiges Modell (`cheap`), wenn sie einfach ist; ein starkes Modell mit Werkzeugen (`smart`), wenn nicht. Jede Anfrage, die er an das [Gateway](/de/vision/litellm-gateway/) schickt, wird zu einem nummerierten Schritt in einem Lauf, sodass ich danach sehe, was jede Nachricht gekostet und was sie getan hat.
 
-Die Werkzeuge suchen und lesen in meinen Docs, Notizen, Dateien und im Homelab-Status. Nichts, was er aufrufen kann, schreibt etwas, und was ein Werkzeug zurückgibt, erreicht das Modell als Daten markiert, nie als Anweisung.
+Die Werkzeuge suchen und lesen in meinen Docs, Notizen, Dateien und im Homelab-Status. Sie sind nur lesend, ausser einem, das Notizen in den eigenen Inbox-Ordner der Agenten schreibt; meine eigenen Notizen bleiben nur lesbar. Was ein Werkzeug zurückgibt, erreicht das Modell als Daten markiert, nie als Anweisung.

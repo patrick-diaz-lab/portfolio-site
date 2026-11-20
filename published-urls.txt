@@ -20,3 +20,12 @@
 /de/vision/telegram-adapter/
 /vision/litellm-gateway/
 /vision/run-records/
+/vision/
+/de/vision/
+/vision/agent-core/
+/vision/knowledge-core/
+/vision/mcp-servers/
+/vision/console/
+/vision/telegram-adapter/
+/privacy/
+/de/privacy/

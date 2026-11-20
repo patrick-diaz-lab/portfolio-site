@@ -2,13 +2,16 @@
 id: knowledge-core
 piece: vision
 title: Knowledge core, index and retrieval
-summary: Makes my project docs, notes and PDFs searchable for the models, with hybrid search and one embedding model, while my notes stay read-only and private ones never leave my devices.
+summary: Makes my project docs, notes and PDFs searchable for the models, with hybrid search and one embedding model, while my notes stay read-only and my private folder never leaves my devices.
 status: built
 as_of: 2026-11-12
 source_commit: 8b2a08b580419fd5f06330fce3b7e25a982b0150
 sources:
   - sources/vision/deep/knowledge-core.md
   - sources/vision/notes.md
+# Values whose case count isn't in the notes (dev scores, notes retrieval, the time to
+# searchable) are out until it is (PLAN 1.17). A share with n shows as "k of n". The
+# held-out value comes first: it is the one the fix couldn't be tuned on.
 evals:
   - name: docs-hit-at-5-held-out
     metric: hit_at_5
@@ -25,48 +28,29 @@ evals:
     value: 1.0
     n: 5
     date: 2026-11-12
-  - name: docs-hit-at-5-dev
-    metric: hit_at_5
-    value: 1.0
-    baseline: 0.933
-    date: 2026-11-12
-  - name: notes-chunk-search-hit-at-5-held-out
-    metric: hit_at_5
-    value: 0.95
-    baseline: 0.91
-    date: 2026-11-12
-  - name: notes-note-search-hit-at-5-held-out
-    metric: hit_at_5
-    value: 0.68
-    baseline: 0.59
-    date: 2026-11-12
-  - name: merged-doc-searchable-after
-    metric: seconds
-    value: 887
-    date: 2026-11-12
 readouts:
-  - eval: docs-hit-at-5-dev
-    label: Docs retrieval hit@5, dev, ranking fix
   - eval: docs-hit-at-5-held-out
     label: Docs retrieval hit@5, held-out
     note: Cause under investigation
-  - eval: notes-chunk-search-hit-at-5-held-out
-    label: Notes, chunk search hit@5, held-out
   - eval: named-document-right-source
     label: Named documents, right source
-  - eval: merged-doc-searchable-after
-    label: A merged doc is searchable after
+  - eval: named-document-read-tool-used
+    label: Named documents, read tool used
+eval_labels:
+  docs-hit-at-5-held-out: Docs retrieval hit@5, held-out
+  named-document-right-source: Named documents, right source
+  named-document-read-tool-used: Named documents, read tool used
 figures:
   - svg: knowledge-core-1.svg
     svg_narrow: knowledge-core-1-narrow.svg
-    alt: "My docs, merged only, my notes, synced one way, and my PDFs go into the indexer, which splits them by heading without a model. The index holds a vector and keywords for every piece, and search runs both rankings and fuses them. Embedding tries the GPU PC first, then the CPU with the same model, then keywords only. Private notes never leave my devices."
-    caption: "How my material becomes searchable. The indexer splits docs, notes and PDFs by heading, without a model; search fuses a vector and a keyword ranking. Embedding falls back from the GPU to the CPU with the same model, then to keywords only. Private notes never leave my devices."
+    alt: "My docs, merged only, my notes, synced one way, and my PDFs go into the indexer, which splits them by heading without a model. The index holds a vector and keywords for every chunk, and search runs both rankings and fuses them. Embedding tries the GPU PC first, then the CPU with the same model, then keywords only. My private folder never leaves my devices."
+    caption: "How my material becomes searchable. The indexer splits docs, notes and PDFs by heading, without a model; search fuses a vector and a keyword ranking. Embedding falls back from the GPU to the CPU with the same model, then to keywords only. My private folder never leaves my devices."
 related:
   - mcp-servers
   - eval-harness
   - agent-core
 ---
 
-The models in Vision answer from my own material: the project's docs, my notes and my PDFs. The knowledge core is what makes that material searchable. An indexer splits each document by its headings, stores a vector and the keywords for every piece, and keeps the index current as documents change. Search runs both rankings and combines them.
+The models in Vision answer from my own material: the project's docs, my notes and my PDFs. The knowledge core is what makes that material searchable. An indexer splits each document by its headings, stores a vector and the keywords for every chunk, and keeps the index current as documents change. Search runs both rankings and combines them.
 
-None of this can change a note. My notes reach the server in one direction only, private ones never reach it at all, and the models get to the index only through read tools on the [MCP servers](/vision/mcp-servers/). How well it finds things is measured in the [eval harness](/vision/eval-harness/).
+None of this can change a note. My notes reach the server in one direction only, my private folder never reaches it at all, and a note marked private is indexed without its title or text. The models get to the index only through read tools on the [MCP servers](/vision/mcp-servers/). How well it finds things is measured in the [eval harness](/vision/eval-harness/), as hit@5: the right document is among the first five results.

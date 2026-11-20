@@ -4,20 +4,31 @@ piece: vision
 title: Guardrails for the coding agent
 summary: Claude Code builds most of Vision on its own. Written rules hold most of the time; layered checks catch the rest, and every merge stays with me. The layers and reasons, not the rules.
 status: built
-as_of: 2026-11-12
+as_of: 2026-11-19
 source_commit: 8b2a08b580419fd5f06330fce3b7e25a982b0150
 sources:
   - sources/vision/deep/guardrails.md
   - sources/vision/notes.md
+  - sources/patrick/2026-11-20.md
+# The unit-test count is Patrick's, as of 2026-11-19 (sources/patrick/2026-11-20.md).
 evals:
+  - name: check-unit-tests
+    metric: total
+    value: 1528
+    date: 2026-11-19
   - name: pre-push-hook-tests-passing
     metric: rate
     value: 1.0
     n: 28
     date: 2026-11-12
 readouts:
+  - eval: check-unit-tests
+    label: Unit tests for the check, 106 at the start
   - eval: pre-push-hook-tests-passing
     label: Push-time check, tests passing
+eval_labels:
+  check-unit-tests: Unit tests for the check
+  pre-push-hook-tests-passing: Push-time check, tests passing
 figures:
   - svg: guardrails-1.svg
     svg_narrow: guardrails-1-narrow.svg

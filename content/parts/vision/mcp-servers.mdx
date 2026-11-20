@@ -1,28 +1,41 @@
 ---
 id: mcp-servers
 piece: vision
-title: MCP servers, read-only tools
-summary: Four servers of my own give the models read access to my docs, notes, files and homelab state, behind one gateway, with rights held in the credentials and test data in a scope of their own.
+title: "MCP servers: 15 read tools, one narrow write tool"
+summary: Four servers of my own give the models read access to my docs, notes, files and homelab state, and one tool that only adds notes, behind one gateway, with rights held in the credentials.
 status: built
 as_of: 2026-11-12
 source_commit: 8b2a08b580419fd5f06330fce3b7e25a982b0150
 sources:
   - sources/vision/deep/mcp-servers.md
   - sources/vision/notes.md
+  - sources/patrick/2026-11-20.md
+# The homelab eval values are out until their case count is in the notes (PLAN 1.17); the
+# readouts show what the notes do count: servers and tools.
 evals:
-  - name: homelab-answers-with-tools
-    metric: rate
-    value: 1.0
-    date: 2026-11-04
-  - name: homelab-no-invented-numbers-without-tools
-    metric: rate
-    value: 1.0
-    date: 2026-11-04
+  - name: servers
+    metric: total
+    value: 4
+    date: 2026-11-12
+  - name: read-tools
+    metric: total
+    value: 15
+    date: 2026-11-12
+  - name: write-tools
+    metric: total
+    value: 1
+    date: 2026-11-12
 readouts:
-  - eval: homelab-answers-with-tools
-    label: Homelab answers, with tools
-  - eval: homelab-no-invented-numbers-without-tools
-    label: Homelab without tools, no invented numbers
+  - eval: servers
+    label: Servers of my own, all behind the gateway
+  - eval: read-tools
+    label: Read tools
+  - eval: write-tools
+    label: Write tool, which only adds notes
+eval_labels:
+  servers: Servers of my own
+  read-tools: Read tools
+  write-tools: Write tool, which only adds notes
 figures:
   - svg: mcp-servers-1.svg
     svg_narrow: mcp-servers-1-narrow.svg
@@ -34,6 +47,6 @@ related:
   - agent-core
 ---
 
-The models reach my docs, notes, files and homelab state through MCP servers I wrote myself: knowledge for docs and notes, files for my PDFs, homelab for the status of machines and services, and one that can only add new notes. Together they offer fifteen read tools and one write tool.
+The models reach my docs, notes, files and homelab state through my own MCP servers, designed by me and built with Claude Code: knowledge for docs and notes, files for my PDFs, homelab for the status of machines and services, and one that can only add new notes. Together they offer fifteen read tools and one write tool. So the tools are read-only, except one that writes notes into the agents' own inbox folder; my own notes stay read-only.
 
-Each server sits behind the [gateway](/vision/litellm-gateway/), and each layer holds only the rights it needs. Search over docs and notes comes from the [knowledge core](/vision/knowledge-core/); which models may use tools at all is decided in [agent core](/vision/agent-core/).
+Each server sits behind the [gateway](/vision/litellm-gateway/), and each layer holds only the rights it needs. Search over docs and notes comes from the [knowledge core](/vision/knowledge-core/); which models may use tools at all is decided in [agent core](/vision/agent-core/): `smart`, the strong model, and the worker.

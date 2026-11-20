@@ -1,22 +1,24 @@
 ---
 id: mcp-servers
 piece: vision
-title: "MCP-Server, lesende Werkzeuge"
-summary: "Vier eigene Server geben den Modellen Lesezugriff auf meine Docs, Notizen, Dateien und den Homelab-Status, hinter einem Gateway, mit Rechten in den Zugangsdaten und Testdaten in einem eigenen Bereich."
+title: "MCP-Server: 15 lesende Werkzeuge, ein schmales schreibendes"
+summary: "Vier eigene Server geben den Modellen Lesezugriff auf Docs, Notizen, Dateien und Homelab-Status, dazu ein Werkzeug nur für neue Notizen; alles hinter einem Gateway, mit Rechten in den Zugangsdaten."
 as_of: 2026-11-12
 readouts:
-  - label: "Homelab-Antworten, mit Werkzeugen"
-  - label: "Homelab ohne Werkzeuge, keine erfundenen Zahlen"
+  - label: "Eigene Server, alle hinter dem Gateway"
+  - label: "Lesende Werkzeuge"
+  - label: "Schreibendes Werkzeug, legt nur Notizen an"
 figures:
   - svg: mcp-servers-1-de.svg
     svg_narrow: mcp-servers-1-de-narrow.svg
     alt: "Ein Modell, smart oder der Worker, ruft das Gateway auf, wo jeder Schlüssel die Werkzeuge auflistet, die er nutzen darf. Das Gateway erreicht vier eigene Server: knowledge für Docs und Notizen, files für meine PDFs und homelab für den Status, alle nur lesend, und eine Inbox, die nur neue Notizen hinzufügen kann. Jedes Ergebnis kommt als nicht vertrauenswürdige Daten markiert zum Modell zurück."
     caption: "Wie ein Werkzeugaufruf meine Daten erreicht. Jeder Aufruf läuft übers Gateway, wo jeder Schlüssel seine Werkzeuge auflistet. Drei Server können nur lesen, der vierte nur neue Notizen anlegen. Jede Schicht hat nur die nötigen Rechte, jedes Ergebnis kommt als nicht vertrauenswürdig markiert zurück."
 eval_labels:
-  homelab-answers-with-tools: "Homelab-Antworten, mit Werkzeugen"
-  homelab-no-invented-numbers-without-tools: "Homelab ohne Werkzeuge, keine erfundenen Zahlen"
+  servers: "Eigene Server"
+  read-tools: "Lesende Werkzeuge"
+  write-tools: "Schreibendes Werkzeug, legt nur Notizen an"
 ---
 
-Die Modelle erreichen meine Docs, Notizen, Dateien und den Homelab-Status über MCP-Server, die ich selbst geschrieben habe: knowledge für Docs und Notizen, files für meine PDFs, homelab für den Status von Maschinen und Diensten, und einer, der nur neue Notizen hinzufügen kann. Zusammen bieten sie fünfzehn lesende Werkzeuge und ein schreibendes.
+Die Modelle erreichen meine Docs, Notizen, Dateien und den Homelab-Status über meine eigenen MCP-Server, von mir entworfen und mit Claude Code gebaut: knowledge für Docs und Notizen, files für meine PDFs, homelab für den Status von Maschinen und Diensten, und einer, der nur neue Notizen hinzufügen kann. Zusammen bieten sie fünfzehn lesende Werkzeuge und ein schreibendes. Die Werkzeuge sind also nur lesend, ausser einem, das Notizen in den eigenen Inbox-Ordner der Agenten schreibt; meine eigenen Notizen bleiben nur lesbar.
 
-Jeder Server sitzt hinter dem [Gateway](/de/vision/litellm-gateway/), und jede Schicht hat nur die Rechte, die sie braucht. Die Suche über Docs und Notizen kommt aus dem [Wissenskern](/de/vision/knowledge-core/); welche Modelle überhaupt Werkzeuge nutzen dürfen, entscheidet der [Agent-Core](/de/vision/agent-core/).
+Jeder Server sitzt hinter dem [Gateway](/de/vision/litellm-gateway/), und jede Schicht hat nur die Rechte, die sie braucht. Die Suche über Docs und Notizen kommt aus dem [Wissenskern](/de/vision/knowledge-core/); welche Modelle überhaupt Werkzeuge nutzen dürfen, entscheidet der [Agent-Core](/de/vision/agent-core/): `smart`, das starke Modell, und der Worker.

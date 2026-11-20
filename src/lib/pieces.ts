@@ -50,7 +50,13 @@ function readPiece(dir: string, locale: Locale): Piece | null {
     title: po.title,
     tagline: po.tagline,
     summary: po.summary,
-    chips: base.chips.map((c, i) => ({ ...c, label: po.chips[i] ?? c.label })),
+    // A German chip is its label, or its label and its note; numbers stay in piece.yaml.
+    chips: base.chips.map((c, i) => {
+      const de = po.chips[i];
+      if (de === undefined) return c;
+      return typeof de === "string" ? { ...c, label: de } : { ...c, label: de.label, note: de.note ?? c.note };
+    }),
+    chips_note: po.chips_note ?? base.chips_note,
     // A part page with a German version links there; one only in English is marked (PLAN 1.9a).
     parts: built.map((p) => {
       const where = p.page ? partPath("de", base.id, p.id, p.page) : undefined;

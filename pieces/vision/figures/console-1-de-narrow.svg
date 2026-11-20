@@ -17,7 +17,7 @@
   <polygon class="fig-head" points="160,239 156,231 164,231" />
   <rect class="box" x="0" y="240" width="320" height="56" />
   <text class="lbl fig-mid" x="160" y="264">AGENT-CORE</text>
-  <text class="fig-sub fig-mid" x="160" y="284">VERTRAUT NUR SIGNIERTEN SENDERN</text>
+  <text class="fig-sub fig-mid" x="160" y="284">VERTRAUT NUR SIGNIERTEN ABSENDERN</text>
 
   <rect class="box" x="0" y="312" width="150" height="52" />
   <text class="lbl fig-mid" x="75" y="336">CODING-AGENT</text>
