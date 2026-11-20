@@ -21,12 +21,14 @@ interface Props {
 const { svg, parts, locale = "en", svgText = {} } = Astro.props;
 const drawing = linkParts(svg, parts, svgText);
 const anyEnglish = parts.some((p) => p.page && p.pageLang);
+// The list groups the parts by line, each line once, in the order the lines first appear;
+// the parts' own order (map.yaml) numbers them and need not keep a line together (2026-11-20).
 const groups: { line: string; parts: MapPart[] }[] = [];
 for (const p of parts) {
   const line = p.line ?? "parts";
-  const g = groups.at(-1);
-  if (g && g.line === line) g.parts.push(p);
-  else groups.push({ line, parts: [p] });
+  let g = groups.find((x) => x.line === line);
+  if (!g) groups.push((g = { line, parts: [] }));
+  g.parts.push(p);
 }
 ---
 <div class="piece-map" data-map data-start={parts.find((p) => p.start)?.id}>

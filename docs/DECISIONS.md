@@ -390,4 +390,11 @@ Decided 2026-11-20 by Patrick, after a review of the whole site read as a recrui
 - **Tools.** Where the site said "read-only", it says "read-only, except one tool that writes notes". The agents' folder is named by its role, as on the knowledge core page.
 - **Layout (adds to D19's layout 3).** On phones the readouts sit under the first text of "What it does". A before → after bar is drawn only when both sides have at least 10 cases. Lessons are numbered in one run. The map's panel opens on the part `map.yaml` marks `start`, and the overview names where to start: the parts of the homepage's work list.
 - **Not found, and link previews (adds to D22).** A not-found page in both languages, not indexed. Open Graph tags on every page, text only, so nothing is loaded from anywhere.
-- **Waiting for Patrick:** a screenshot and a line on where code can be seen; the part order; the German compound in the homepage's first line; the credits amount on the gateway page; how the Claude worker page frames its terms question; "work in" or "speak" for the languages; new lines in `published-urls.txt`.
+- **Second round, the same day (Patrick, 2026-11-20):**
+  - **Part order:** agent core, guardrails and the eval harness first, then the rest as before. The order in `map.yaml` numbers the parts, sets previous / next and the panel's steps; the list under the map groups by line (ARCHITECTURE §7).
+  - **Claude worker:** the page makes no judgement about terms. It says only that the worker runs for messages Patrick sends himself, and that everything automated runs on the API, through the gateway.
+  - **Gateway:** no credits amount; the page describes the mechanism: each flow has its own key with a hard monthly budget, under a global cap.
+  - **MCP servers:** "my own MCP servers, designed by me and built with Claude Code".
+  - **Languages:** "speak", in both languages.
+  - **Published URLs:** the overview pages, the remaining English part pages and the privacy pages joined `published-urls.txt` at Patrick's request.
+- **Still open, Patrick's call:** a screenshot and a line on where code can be seen (skipped for now); the German compound in the homepage's first line.

@@ -47,6 +47,6 @@ related:
   - agent-core
 ---
 
-The models reach my docs, notes, files and homelab state through MCP servers I wrote myself: knowledge for docs and notes, files for my PDFs, homelab for the status of machines and services, and one that can only add new notes. Together they offer fifteen read tools and one write tool. So the tools are read-only, except one that writes notes into the agents' own inbox folder; my own notes stay read-only.
+The models reach my docs, notes, files and homelab state through my own MCP servers, designed by me and built with Claude Code: knowledge for docs and notes, files for my PDFs, homelab for the status of machines and services, and one that can only add new notes. Together they offer fifteen read tools and one write tool. So the tools are read-only, except one that writes notes into the agents' own inbox folder; my own notes stay read-only.
 
 Each server sits behind the [gateway](/vision/litellm-gateway/), and each layer holds only the rights it needs. Search over docs and notes comes from the [knowledge core](/vision/knowledge-core/); which models may use tools at all is decided in [agent core](/vision/agent-core/): `smart`, the strong model, and the worker.

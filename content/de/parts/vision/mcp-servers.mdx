@@ -19,6 +19,6 @@ eval_labels:
   write-tools: "Schreibendes Werkzeug, legt nur Notizen an"
 ---
 
-Die Modelle erreichen meine Docs, Notizen, Dateien und den Homelab-Status über MCP-Server, die ich selbst geschrieben habe: knowledge für Docs und Notizen, files für meine PDFs, homelab für den Status von Maschinen und Diensten, und einer, der nur neue Notizen hinzufügen kann. Zusammen bieten sie fünfzehn lesende Werkzeuge und ein schreibendes. Die Werkzeuge sind also nur lesend, ausser einem, das Notizen in den eigenen Inbox-Ordner der Agenten schreibt; meine eigenen Notizen bleiben nur lesbar.
+Die Modelle erreichen meine Docs, Notizen, Dateien und den Homelab-Status über meine eigenen MCP-Server, von mir entworfen und mit Claude Code gebaut: knowledge für Docs und Notizen, files für meine PDFs, homelab für den Status von Maschinen und Diensten, und einer, der nur neue Notizen hinzufügen kann. Zusammen bieten sie fünfzehn lesende Werkzeuge und ein schreibendes. Die Werkzeuge sind also nur lesend, ausser einem, das Notizen in den eigenen Inbox-Ordner der Agenten schreibt; meine eigenen Notizen bleiben nur lesbar.
 
 Jeder Server sitzt hinter dem [Gateway](/de/vision/litellm-gateway/), und jede Schicht hat nur die Rechte, die sie braucht. Die Suche über Docs und Notizen kommt aus dem [Wissenskern](/de/vision/knowledge-core/); welche Modelle überhaupt Werkzeuge nutzen dürfen, entscheidet der [Agent-Core](/de/vision/agent-core/): `smart`, das starke Modell, und der Worker.

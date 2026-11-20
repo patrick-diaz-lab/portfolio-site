@@ -16,7 +16,9 @@ export function initMap(root: HTMLElement): void {
   const text = card.querySelector<HTMLElement>("[data-card-text]")!;
   const open = card.querySelector<HTMLAnchorElement>("[data-card-open]")!;
   const english = card.querySelector<HTMLElement>("[data-card-english]");
-  const parts = [...frame.querySelectorAll<SVGAElement>("a.part")];
+  // In the parts' own order (map.yaml, as data-order), which is also their number on the
+  // part pages; the drawing's element order only sets the Tab order through the map.
+  const parts = [...frame.querySelectorAll<SVGAElement>("a.part")].sort((a, b) => Number(a.dataset.order ?? 0) - Number(b.dataset.order ?? 0));
   if (parts.length === 0) return;
 
   const item = (a: SVGAElement) => root.querySelector<HTMLElement>(`#part-${CSS.escape(a.id)}`);

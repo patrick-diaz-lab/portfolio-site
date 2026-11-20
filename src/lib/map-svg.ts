@@ -66,6 +66,9 @@ export function keyedTexts(svg: string, text?: Record<string, string>): string {
  *  page that exists only in another language. */
 export function linkParts(svg: string, parts: MapPart[], t: SvgText = {}): string {
   const byId = new Map(parts.map((p) => [p.id, p]));
+  // A part's place in map.yaml: the panel counts and steps by it, not by the drawing's own
+  // element order, so "03 / 10" in the panel is "Part 03" on the page (2026-11-20).
+  const orderOf = new Map(parts.map((p, i) => [p.id, i + 1]));
   let out = svg.replace(/^\s*<\?xml[^>]*>\s*/, "").replace(/<!--[\s\S]*?-->/g, "");
   if (t.ariaLabel) out = out.replace(/(<svg\b[^>]*\baria-label=")[^"]*(")/, `$1${esc(t.ariaLabel)}$2`);
   out = keyedTexts(out, t.text);
@@ -82,6 +85,7 @@ export function linkParts(svg: string, parts: MapPart[], t: SvgText = {}): strin
         `aria-label="${esc(p.label)}"`,
         `aria-describedby="desc-${esc(id)}"`,
         ...(p.page && p.pageLang ? [`hreflang="${esc(p.pageLang)}"`] : []),
+        `data-order="${orderOf.get(id)}"`,
         `data-label="${esc(p.label)}"`,
         `data-hover="${esc(p.hover)}"`,
       ];

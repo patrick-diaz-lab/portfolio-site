@@ -413,6 +413,7 @@ A review of the whole site against the repo's own sources, read as a recruiter o
   - `eval_labels` on English parts (rule `eval-labels`), metric `total`, `sources/patrick/`, chip notes, `chips_note`, `looking_for`, `start` on a map part, each with a test.
   - Readouts under the first text on phones; lessons numbered in one run; labels at least 12 px; tap targets at least 24 px on links that stand alone.
   - A not-found page, in the page gates; Open Graph tags; "Contact" in the footer.
+- **Second round (Patrick, 2026-11-20).** The part order starts with agent core, guardrails and the eval harness, and the map's panel counts in that order. The Claude worker page says only what the worker runs for; the gateway page describes a key with a hard monthly budget per flow, without the credits amount; the MCP servers are "designed by me and built with Claude Code"; the homepage says "speak". The live pages that weren't listed joined `published-urls.txt` at Patrick's request.
 - **Open, Patrick's call:** listed in D24.
 - **Cost:** build session on the subscription; no API spend.
 

@@ -12,6 +12,6 @@ as_of: 2026-11-10
 source_commit: bb4fb3747aa6d7a80666b2d19dd718d1e4bedd98
 ---
 
-#### Rejected: a cap of about $90 to match the credits
+#### Rejected: a cap as high as the credits allow
 
 It only holds if LiteLLM's month and the billing cycle start on the same day. They don't.
