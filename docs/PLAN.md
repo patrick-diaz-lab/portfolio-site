@@ -307,7 +307,7 @@ Turn the browser checks from items 1.1 and 1.3 into gates that run on every PR, 
 
   With `--live https://patrickdiaz.dev` it also requests every page from the live site and expects 200.
 - **`noindex` stays** (Patrick: only if trivial and safe; it isn't). Indexing needs a sitemap, `robots.txt`, `is-crawlable` back in Lighthouse, and a last search-engine review of every page. That comes later as its own small item. Recruiters use the link, and indexing takes days anyway.
-- **Indexing (Patrick, 2026-11-16).** **Done in this PR.**
+- **Indexing (Patrick, 2026-11-16).** **Done 2026-11-16 (PR #51).**
   - `noindex` is off for the homepage, the piece overview and the part pages, in both languages. The privacy notice and the internal style sheet keep it.
   - Every indexed page has a canonical link to its address on the domain, so the `workers.dev` fallback isn't indexed as a copy.
   - `scripts/sitemap.ts` runs in `pnpm build` and writes `sitemap.xml` from the built pages, with hreflang alternates. It fails the build when:
@@ -316,7 +316,7 @@ Turn the browser checks from items 1.1 and 1.3 into gates that run on every PR, 
     - an alternate points to a page that isn't indexed.
   - `robots.txt` names the sitemap.
   - `is-crawlable` is back in Lighthouse on every page except the noindex ones.
-  - Patrick then submits the sitemap in Search Console (STEPS 21.6).
+  - Patrick then submits the sitemap in Search Console (STEPS 21.6). **Done 2026-11-16 (PR #51):** live check after the deploy: `robots.txt` and `sitemap.xml` (24 pages) load, indexed pages carry their canonical link, the privacy page keeps noindex; the sitemap is submitted and Search Console reports it as successful.
 - **Done when:**
   - `https://patrickdiaz.dev` and `/de/` serve the site over HTTPS;
   - a test mail to `hello@` arrives;

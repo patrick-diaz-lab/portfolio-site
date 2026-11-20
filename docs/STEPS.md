@@ -87,7 +87,7 @@ The repo is public in `patrick-diaz-lab` on GitHub Free (D20). Settings come **b
         5. Test: from another address, write to `hello@patrickdiaz.dev`; it should arrive in your inbox within a minute (check spam once).
     4. **Before replying to a recruiter:** Email Routing only receives. A reply from your inbox goes out from your personal address, not from `hello@`. If that matters for the application, reply from the address you're happy to share; sending as `hello@` needs a separate sending service (a later step, not part of 1.9b).
     5. **Tell the session "domain live".** It then runs `pnpm link-check -- --live https://patrickdiaz.dev`, or you run it yourself from a local clone.
-    6. **Search Console, after the indexing PR is merged** (PLAN 1.9b, indexing):
+    6. **Search Console, after the indexing PR is merged** (PLAN 1.9b, indexing). **Done 2026-11-16:** domain property verified by DNS TXT record (keep the record; Google re-checks it), sitemap submitted, status "Erfolgreich".
         1. Check that `https://patrickdiaz.dev/robots.txt` and `https://patrickdiaz.dev/sitemap.xml` load.
         2. In Google Search Console, add `patrickdiaz.dev` as a property and verify it. A domain property is verified with a DNS TXT record, added in Cloudflare under **DNS** → **Records**.
         3. **Sitemaps** → submit `https://patrickdiaz.dev/sitemap.xml`. Indexing takes days.
