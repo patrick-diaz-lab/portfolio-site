@@ -1,0 +1,105 @@
+---
+// Direction A, "Drawing sheet": sheet 02, the project. The map is the drawing: every part
+// carries its item number, and the parts list under it is the drawing's bill of parts.
+// Pointing at a part marks its row, and the detail line under the drawing names it.
+import Layout from "./Layout.astro";
+import { labPath, type Lab } from "../shared/data.ts";
+import { keyPlan, labMap } from "../shared/map.ts";
+import { lt } from "../shared/ui.ts";
+import { t } from "../../i18n/ui.ts";
+
+interface Props {
+  lab: Lab;
+}
+const { lab } = Astro.props;
+const { locale, piece } = lab;
+const L = (k: Parameters<typeof lt>[1]) => lt(locale, k);
+---
+<Layout lab={lab} page="project" title={`${piece.title} — Patrick Diaz`} description={piece.tagline}>
+  <section class="zone" aria-labelledby="h-summary">
+    <div class="zone-mark" aria-hidden="true">A</div>
+    <div class="zone-body">
+      <div class="cols">
+        <div class="c7 stack">
+          <p class="label"><a href={labPath("a", locale, "home")}>Patrick Diaz</a> · {t(locale, "piece.label")} {lab.pieceNo}</p>
+          <h1 id="h-summary">{piece.title}</h1>
+          <p class="positioning" style="max-width: 36ch">{piece.tagline}</p>
+          <p>{piece.summary}</p>
+          <p class="label">{t(locale, "piece.asOf")} {piece.as_of}</p>
+        </div>
+        <div class="c5 stack">
+          <p class="label">{L("results")}</p>
+          <ul class="cells">
+            {lab.chips.map((c) => (
+              <li class="result">
+                <span class="result-v">{c.value}</span>
+                <span class="result-l">{c.label}</span>
+                <span class="label">{c.note && `${c.note} · `}{t(locale, "chip.asOf")} {c.asOf}</span>
+              </li>
+            ))}
+          </ul>
+          {piece.chips_note && <p class="fine">{piece.chips_note}</p>}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="zone" aria-labelledby="h-start">
+    <div class="zone-mark" aria-hidden="true">B</div>
+    <div class="zone-body">
+      <div class="zone-head"><h2 id="h-start">{t(locale, "piece.startHere")}</h2></div>
+      <ol class="cells start-cells">
+        {lab.work.map((w) => <li><span class="cell-k">{L("part")} {w.partN}</span><a href={w.href} hreflang={w.hreflang}>{w.title}</a></li>)}
+      </ol>
+    </div>
+  </section>
+
+  <div data-labmap data-start={lab.parts.find((p) => p.start)?.id ?? lab.parts[0]?.id}>
+    <section class="zone" aria-labelledby="h-drawing">
+      <div class="zone-mark" aria-hidden="true">C</div>
+      <div class="zone-body">
+        <div class="zone-head"><h2 id="h-drawing">{L("drawing")}</h2><p class="fine only-wide">{L("figureCaption")}</p></div>
+        <div class="only-wide">
+          <div class="drawing"><Fragment set:html={labMap(lab)} /></div>
+          <aside class="callout" data-card hidden aria-label={L("selected")}>
+            <span class="callout-n" data-card-n></span>
+            <p class="callout-text"><span class="callout-title"><span data-card-title></span><span class="label" data-card-line></span></span><br /><span data-card-text></span></p>
+            <a class="button" data-card-open href="#h-parts">{t(locale, "map.readPage")} →</a>
+          </aside>
+        </div>
+        <figure class="plan only-narrow">
+          <Fragment set:html={keyPlan(lab)} />
+          <figcaption>{L("planCaption")}</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="zone" aria-labelledby="h-parts">
+      <div class="zone-mark" aria-hidden="true">D</div>
+      <div class="zone-body">
+        <div class="zone-head"><h2 id="h-parts">{L("partsList")}</h2></div>
+        <table class="table">
+          <thead>
+            <tr><th scope="col">{L("item")}</th><th scope="col">{L("part")}</th><th scope="col">{L("description")}</th><th scope="col">{L("line")}</th></tr>
+          </thead>
+          <tbody>
+            {lab.parts.map((p) => (
+              <tr data-row={p.id} id={`part-${p.id}`}>
+                <td class="num">{p.n}</td>
+                <th scope="row" class="name"><a href={p.href} hreflang={p.hreflang}>{p.label}</a></th>
+                <td id={`desc-${p.id}`}>{p.hover}</td>
+                <td class="ref">{p.lineLabel}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+</Layout>
+
+<script>
+  import { initLabMap } from "../shared/map-client.ts";
+  for (const el of document.querySelectorAll<HTMLElement>("[data-labmap]")) initLabMap(el);
+</script>

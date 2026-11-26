@@ -1,0 +1,53 @@
+/* Direction A, "Drawing sheet": design tokens. Drafting film and ink in light mode, a
+   blueprint in dark mode. Every value is light-dark(light, dark); the mode follows the
+   system, or data-theme on <html> when the visitor used the switch. */
+:root {
+  color-scheme: light dark;
+
+  /* Color */
+  --color-bg: light-dark(#f4f2ea, #0f2747);          /* the sheet */
+  --color-surface: light-dark(#fbfaf5, #14305a);     /* boxes, title block, table heads */
+  --color-text: light-dark(#14213a, #e6eefb);        /* ink: text */
+  --color-text-dim: light-dark(#485572, #a6bbdb);    /* annotations, secondary text */
+  --color-line: light-dark(#14213a, #c9d9f2);        /* frame, boxes, wires */
+  --color-line-fine: light-dark(#a9b0bf, #456592);   /* cell dividers */
+  --color-accent: #f2b23e;                           /* highlighter: the selected part */
+  --color-on-accent: #14213a;                        /* ink on the highlighter */
+  --color-accent-text: light-dark(#8a5200, #f6c463); /* the accent as text: notes */
+  --color-focus: light-dark(#8a5200, #f2b23e);
+
+  /* Type: mono lettering for everything that labels, a sans only for running text. */
+  --font-label: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --text-xs: 0.75rem;     /* 12: cell labels */
+  --text-sm: 0.875rem;    /* 14: table text, notes */
+  --text-base: 1rem;      /* 16: running text */
+  --text-md: 1.125rem;    /* 18 */
+  --text-lg: 1.5rem;      /* 24: positioning */
+  --text-xl: 1.75rem;     /* 28: section titles, values */
+  --text-2xl: 2.75rem;    /* 44: sheet title */
+  --leading-body: 1.55;
+  --leading-tight: 1.15;
+  --tracking-label: 0.06em;
+  --measure: 62ch;
+
+  /* Spacing: a 4 px grid. */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+
+  /* Lines and layout */
+  --line-frame: 2px;      /* the sheet's frame */
+  --line: 1.5px;          /* boxes, wires, section rules */
+  --line-fine: 1px;       /* cell dividers */
+  --radius: 0;
+  --sheet-max: 84rem;
+  --zone-mark: 2.5rem;    /* the zone column along the left edge */
+  --focus-width: 3px;
+}
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"] { color-scheme: dark; }

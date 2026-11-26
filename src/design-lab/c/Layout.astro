@@ -1,0 +1,80 @@
+---
+// Direction C, "Control room": the page shell. A rail on the left holds the navigation and
+// the project's parts by group; the page is a board of panels beside it. On a phone the
+// rail is a bar on top and the parts stay in the page.
+import "@fontsource/geist-sans/latin-400.css";
+import "@fontsource/geist-sans/latin-600.css";
+import "@fontsource/geist-mono/latin-400.css";
+import "@fontsource/geist-mono/latin-500.css";
+import fontBody from "@fontsource/geist-sans/files/geist-sans-latin-400-normal.woff2?url";
+import fontBold from "@fontsource/geist-sans/files/geist-sans-latin-600-normal.woff2?url";
+import fontLabel from "@fontsource/geist-mono/files/geist-mono-latin-400-normal.woff2?url";
+import "./tokens.css";
+import "./styles.css";
+import LabHead from "../shared/LabHead.astro";
+import LabStrip from "../shared/LabStrip.astro";
+import { labPath, type Lab, type LabPage } from "../shared/data.ts";
+import { lt } from "../shared/ui.ts";
+import { t } from "../../i18n/ui.ts";
+
+interface Props {
+  lab: Lab;
+  page: LabPage;
+  title: string;
+  description: string;
+}
+const { lab, page, title, description } = Astro.props;
+const { locale } = lab;
+const other = locale === "en" ? "de" : "en";
+const L = (k: Parameters<typeof lt>[1]) => lt(locale, k);
+const home = labPath("c", locale, "home");
+---
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <LabHead title={title} description={description} scheme="dark" preload={[fontBody, fontBold, fontLabel]} />
+  </head>
+  <body>
+    <a class="skip" href="#main">{L("skip")}</a>
+    <LabStrip dir="c" locale={locale} page={page} />
+    <div class="shell">
+      <header class="rail">
+        <div class="rail-in">
+        <a class="brand" href={home}><span class="brand-name">Patrick Diaz</span><span class="label">{t(locale, "site.role")}</span></a>
+        <nav class="rail-main" aria-label={L("nav")}>
+          <ul>
+            <li><a href={home} aria-current={page === "home" ? "page" : undefined}>{L("overview")}</a></li>
+            <li><a href={labPath("c", locale, "project")} aria-current={page === "project" ? "page" : undefined}>{lab.piece.title}<span class="label">{t(locale, "piece.label")} {lab.pieceNo}</span></a></li>
+            <li><a href={`${home}#h-contact`}>{L("contact")}</a></li>
+          </ul>
+        </nav>
+        <nav class="rail-parts" aria-label={`${lab.piece.title}: ${L("parts")}`}>
+          <p class="label">{lab.piece.title} · {L("parts")}</p>
+          {lab.groups.map((g) => (
+            <div class="rail-group">
+              <p class="label">{g.label}</p>
+              <ul>
+                {g.parts.map((p) => <li><a href={p.href} hreflang={p.hreflang}><span class="n">{p.n}</span>{p.label}</a></li>)}
+              </ul>
+            </div>
+          ))}
+        </nav>
+        <div class="rail-foot">
+          <nav class="lang" aria-label={L("language")}>
+            <span aria-current="true" lang={locale}>{locale.toUpperCase()}</span>
+            <a href={labPath("c", other, page)} hreflang={other} lang={other} aria-label={`${other.toUpperCase()} · ${t(other, `lang.${other}`)}`}>{other.toUpperCase()}</a>
+          </nav>
+          <a class="rail-privacy" href={lab.privacyHref}>{t(locale, "footer.privacy")}</a>
+        </div>
+        </div>
+      </header>
+      <main id="main" class="board">
+        <slot />
+        <p class="board-foot">
+          <a href={lab.privacyHref}>{t(locale, "footer.privacy")}</a>
+          <a href={`mailto:${lab.site.email}`}>{lab.site.email}</a>
+        </p>
+      </main>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,104 @@
+/* Direction D, "Minimal paper". One column of serif text with wide margins and no boxes.
+   The only block of color on a page is the plate with the project's map. */
+*, *::before, *::after { box-sizing: border-box; }
+html { background: var(--color-bg); }
+body { margin: 0; color: var(--color-text); font: 400 var(--text-base) / var(--leading-body) var(--font-body); -webkit-font-smoothing: antialiased; font-variant-numeric: oldstyle-nums; }
+p, h1, h2, h3, ul, ol, dl, dd, dt, figure { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+a { color: var(--color-accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.2em; }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: var(--focus-width) solid var(--color-focus); outline-offset: 3px; }
+h1, h2, h3 { font-weight: 600; line-height: var(--leading-tight); text-wrap: balance; overflow-wrap: break-word; }
+em, .em { font-style: italic; }
+
+.page { width: 100%; max-width: calc(var(--measure) + 2.5rem); margin-inline: auto; padding-inline: max(1.25rem, env(safe-area-inset-left, 0px)) max(1.25rem, env(safe-area-inset-right, 0px)); }
+.wide { width: 100%; max-width: calc(var(--plate-max) + 2.5rem); margin-inline: auto; padding-inline: max(1.25rem, env(safe-area-inset-left, 0px)) max(1.25rem, env(safe-area-inset-right, 0px)); }
+.small { font-size: var(--text-sm); line-height: 1.5; color: var(--color-text-dim); }
+
+/* Top line: the name and four words. */
+.top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0 var(--space-4); padding-block: var(--space-3); font-size: 1.0625rem; }
+.top a, .top [aria-current] { color: var(--color-text); text-decoration: none; display: inline-flex; align-items: center; min-height: 2.75rem; }
+.top a:hover, .top a[aria-current="page"] { text-decoration: underline; text-underline-offset: 0.3em; }
+.top-name { font-weight: 600; }
+.top ul { display: flex; flex-wrap: wrap; gap: 0 1.25rem; align-items: center; }
+.theme-toggle { display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2.75rem; background: none; border: 0; color: inherit; cursor: pointer; }
+.theme-toggle[hidden] { display: none; }
+.theme-toggle-mark { width: 0.875rem; height: 0.875rem; border: 1.5px solid currentColor; border-radius: 50%; background: linear-gradient(90deg, currentColor 50%, transparent 50%); }
+.theme-toggle-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+main { display: grid; gap: var(--space-16); padding-block: var(--space-8) var(--space-16); }
+@media (max-width: 40rem) { main { gap: var(--space-8); padding-top: var(--space-4); } }
+.block { display: grid; gap: var(--space-3); }
+.block > h2 { font-size: var(--text-lg); margin-bottom: var(--space-1); }
+.name { font-size: var(--text-base); }
+.statement { font-size: clamp(1.625rem, 5vw, var(--text-xl)); line-height: 1.25; text-wrap: balance; overflow-wrap: break-word; }
+.lead { font-size: clamp(1.25rem, 3.4vw, var(--text-lg)); line-height: 1.4; font-style: italic; }
+.title { font-size: clamp(2.5rem, 9vw, var(--text-2xl)); letter-spacing: -0.01em; }
+
+/* Results: a plain list, number first. */
+.results { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: var(--space-2) var(--space-4); margin-top: var(--space-2); }
+.results dt { font-weight: 600; font-variant-numeric: lining-nums tabular-nums; white-space: nowrap; }
+.results dd .small { display: block; }
+
+.items { display: grid; gap: var(--space-4); margin-top: var(--space-2); }
+.items h3 { font-size: var(--text-base); }
+.items h3 a, .inline-links a, .starts a { display: inline-block; padding-block: 2px; }
+.starts { display: grid; gap: var(--space-1); }
+.inline-links { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); }
+.foot { border-top: var(--line-fine) solid var(--color-line-fine); padding-block: var(--space-3) var(--space-8); display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); }
+.foot a { color: var(--color-text-dim); display: inline-block; padding-block: var(--space-2); }
+
+/* The plate: the one blueprint on the page. */
+.figure { display: grid; gap: var(--space-3); }
+.plate { background: var(--color-plate); padding: clamp(0.5rem, 3vw, 2rem); }
+.plate svg { display: block; width: 100%; height: auto; }
+a.plate-link { display: block; }
+a.plate-link:focus-visible { outline-offset: 4px; }
+.figure figcaption { max-width: var(--measure); margin-inline: auto; width: 100%; }
+.schematic .frame :is(rect, path) { fill: none; stroke: var(--color-plate-dim); stroke-width: 0.75; }
+.schematic .frame-t { fill: var(--color-plate-dim); font: 400 12.5px var(--font-label); letter-spacing: 0.12em; }
+.schematic .dim { stroke: var(--color-plate-dim); stroke-width: 0.75; fill: none; }
+.schematic .dim-t { fill: var(--color-plate-dim); font: 400 12px var(--font-label); letter-spacing: 0.06em; }
+.schematic .terminal circle { fill: var(--color-plate); stroke: var(--color-plate-line); stroke-width: 1.5; }
+.schematic :is(.wire, .wire-static) { stroke: var(--color-plate-line); stroke-width: 1.5; fill: none; pointer-events: none; }
+.schematic .note { fill: var(--color-plate-line); font: italic 400 15.5px var(--font-body); }
+.schematic .note-line { stroke: var(--color-plate-dim); stroke-width: 1; fill: none; stroke-dasharray: 3 3; }
+.schematic .box { fill: var(--color-plate); stroke: var(--color-plate-line); stroke-width: 1.5; }
+.schematic .lbl { fill: var(--color-plate-line); font: 400 16.5px var(--font-label); letter-spacing: 0.04em; }
+.schematic .tag { fill: var(--color-plate); stroke: var(--color-plate-line); stroke-width: 1.25; }
+.schematic .tag-t { fill: var(--color-plate-line); font: 400 10.5px var(--font-label); }
+.schematic .ring { fill: none; stroke: var(--color-plate-line); stroke-width: 2.5; opacity: 0; }
+.schematic .signal-dot, .schematic [data-t="sheet"] { display: none; }
+.schematic a.part { cursor: pointer; text-decoration: none; }
+.schematic a.part:focus { outline: none; }
+.schematic a.part:focus-visible .ring { opacity: 1; }
+.schematic a.part:is(:hover, :focus-visible, .is-selected) :is(.box, .tag) { fill: var(--color-plate-line); }
+.schematic a.part:is(:hover, :focus-visible, .is-selected) :is(.lbl, .tag-t) { fill: var(--color-plate); }
+a.plate-link :is(.tag, .tag-t) { display: none; }
+
+.keyplan { display: block; width: 100%; height: auto; }
+.keyplan :is(.kp-frame, .kp-wire, .kp-box, .kp-term) { vector-effect: non-scaling-stroke; fill: none; stroke: var(--color-plate-line); stroke-width: 1; }
+.keyplan .kp-frame { stroke: var(--color-plate-dim); stroke-width: 0.75; }
+.keyplan :is(.kp-box, .kp-term) { fill: var(--color-plate); }
+.keyplan .kp-n { fill: var(--color-plate-line); font: 400 38px var(--font-label); }
+
+/* Under the plate (script only): the part you point at, in one sentence. */
+.selected { max-width: var(--measure); margin-inline: auto; width: 100%; min-height: 4.8em; }
+.selected[hidden] { display: none; }
+.selected b { font-weight: 600; }
+
+/* The parts, as a numbered list. */
+.parts { display: grid; gap: var(--space-3); margin-top: var(--space-2); }
+.parts > li { display: grid; grid-template-columns: 2.25rem minmax(0, 1fr); gap: 0 var(--space-2); padding: var(--space-2) var(--space-3); margin-inline: calc(-1 * var(--space-3)); }
+.parts-n { font-variant-numeric: lining-nums tabular-nums; color: var(--color-text-dim); }
+.parts h3 { font-size: var(--text-base); }
+.parts h3 a { display: inline-block; padding-block: 2px; }
+.parts h3 .small { font-weight: 400; font-style: italic; margin-left: var(--space-2); }
+.parts li > :not(.parts-n) { grid-column: 2; }
+@media (min-width: 56rem) { .parts > li.is-selected { background: var(--color-surface); } }
+
+.only-narrow { display: none; }
+@media (max-width: 55.99rem) {
+  .only-wide { display: none; }
+  .only-narrow { display: block; }
+}

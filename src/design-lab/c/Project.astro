@@ -1,0 +1,109 @@
+---
+// Direction C, "Control room": the project. The schematic is the main panel; an inspector
+// beside it shows the selected part and steps through the parts; under them the summary,
+// where to start, and every part in one dense table (on a phone: a vertical wire).
+import Layout from "./Layout.astro";
+import { labPath, type Lab } from "../shared/data.ts";
+import { keyPlan, labMap } from "../shared/map.ts";
+import { lt } from "../shared/ui.ts";
+import { t } from "../../i18n/ui.ts";
+
+interface Props {
+  lab: Lab;
+}
+const { lab } = Astro.props;
+const { locale, piece } = lab;
+const L = (k: Parameters<typeof lt>[1]) => lt(locale, k);
+---
+<Layout lab={lab} page="project" title={`${piece.title} — Patrick Diaz`} description={piece.tagline}>
+  <section class="panel" aria-labelledby="h-title">
+    <div class="panel-head"><p class="label"><a href={labPath("c", locale, "home")}>Patrick Diaz</a> · {t(locale, "piece.label")} {lab.pieceNo}</p><span class="label">{t(locale, "piece.asOf")} {piece.as_of}</span></div>
+    <div class="panel-body">
+      <h1 class="title" id="h-title">{piece.title}</h1>
+      <p class="positioning" style="max-width: 60ch">{piece.tagline}</p>
+    </div>
+  </section>
+
+  <div class="board" style="padding: 0" data-labmap data-start={lab.parts.find((p) => p.start)?.id ?? lab.parts[0]?.id}>
+    <section class="panel s9" aria-labelledby="h-map">
+      <div class="panel-head"><h2 id="h-map">{L("schematic")}</h2><span class="label only-wide">{lab.parts.length} {L("parts")}</span></div>
+      <div class="panel-body is-flush">
+        <div class="map only-wide"><Fragment set:html={labMap(lab)} /></div>
+        <div class="map only-narrow"><Fragment set:html={keyPlan(lab)} /></div>
+        <p class="panel-note only-narrow">{L("planCaption")}</p>
+      </div>
+    </section>
+    <aside class="panel inspector s3 only-wide" data-card hidden aria-label={L("selected")}>
+      <div class="panel-head"><span class="label" data-card-line></span><span class="label"><span data-card-n></span> / <span data-card-count></span></span></div>
+      <div class="panel-body" style="display: flex; flex-direction: column">
+        <h3 data-card-title></h3>
+        <p data-card-text></p>
+        <p class="actions"><a class="button is-primary" data-card-open href="#h-parts">{t(locale, "map.readPage")} →</a></p>
+        <div class="inspector-nav">
+          <button type="button" class="button" data-card-prev>← {t(locale, "map.prev")}</button>
+          <button type="button" class="button" data-card-next>{t(locale, "map.next")} →</button>
+        </div>
+      </div>
+    </aside>
+
+    <section class="panel s7" aria-labelledby="h-results">
+      <div class="panel-head"><h2 id="h-results">{L("results")}</h2></div>
+      <div class="panel-body is-flush readouts-wrap">
+        <ul class="readouts">
+          {lab.chips.map((c) => (
+            <li>
+              <span class="readout-v">{c.value}</span>
+              <span class="readout-l">{c.label}</span>
+              <span class="label">{c.note && `${c.note} · `}{t(locale, "chip.asOf")} {c.asOf}</span>
+            </li>
+          ))}
+        </ul>
+        {piece.chips_note && <p class="panel-note">{piece.chips_note}</p>}
+      </div>
+    </section>
+    <section class="panel s5" aria-labelledby="h-summary">
+      <div class="panel-head"><h2 id="h-summary">{L("summary")}</h2></div>
+      <div class="panel-body"><p>{piece.summary}</p></div>
+    </section>
+
+    <section class="panel" aria-labelledby="h-parts">
+      <div class="panel-head"><h2 id="h-parts">{t(locale, "map.allParts")}</h2></div>
+      <div class="panel-body is-flush">
+        <table class="table">
+          <thead>
+            <tr><th scope="col">{L("item")}</th><th scope="col">{L("part")}</th><th scope="col">{L("line")}</th><th scope="col">{L("description")}</th></tr>
+          </thead>
+          <tbody>
+            {lab.parts.map((p) => (
+              <tr data-row={p.id} id={`part-${p.id}`}>
+                <td class="num">{p.n}</td>
+                <th scope="row" class="name"><a href={p.href} hreflang={p.hreflang}>{p.label}</a></th>
+                <td class="ref">{p.lineLabel}</td>
+                <td id={`desc-${p.id}`}>{p.hover}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <section class="panel" aria-labelledby="h-start">
+    <div class="panel-head"><h2 id="h-start">{t(locale, "piece.startHere")}</h2></div>
+    <div class="panel-body is-flush">
+      <ol class="tiles">
+        {lab.work.map((w) => (
+          <li>
+            <p class="label">{L("part")} {w.partN}</p>
+            <h3><a href={w.href} hreflang={w.hreflang}>{w.title}</a></h3>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  import { initLabMap } from "../shared/map-client.ts";
+  for (const el of document.querySelectorAll<HTMLElement>("[data-labmap]")) initLabMap(el);
+</script>

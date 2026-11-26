@@ -1,0 +1,70 @@
+---
+// Direction B, "Technical report": the page shell. A sticky top bar with the name, three
+// destinations, the language and the mode; then the page on a 12-column grid.
+import "@fontsource/inter/latin-400.css";
+import "@fontsource/inter/latin-600.css";
+import "@fontsource/inter-tight/latin-700.css";
+import "@fontsource/jetbrains-mono/latin-400.css";
+import fontBody from "@fontsource/inter/files/inter-latin-400-normal.woff2?url";
+import fontDisplay from "@fontsource/inter-tight/files/inter-tight-latin-700-normal.woff2?url";
+import fontLabel from "@fontsource/jetbrains-mono/files/jetbrains-mono-latin-400-normal.woff2?url";
+import "./tokens.css";
+import "./styles.css";
+import LabHead from "../shared/LabHead.astro";
+import LabStrip from "../shared/LabStrip.astro";
+import ThemeToggle from "../shared/ThemeToggle.astro";
+import { labPath, type Lab, type LabPage } from "../shared/data.ts";
+import { lt } from "../shared/ui.ts";
+import { t } from "../../i18n/ui.ts";
+
+interface Props {
+  lab: Lab;
+  page: LabPage;
+  title: string;
+  description: string;
+}
+const { lab, page, title, description } = Astro.props;
+const { locale } = lab;
+const other = locale === "en" ? "de" : "en";
+const L = (k: Parameters<typeof lt>[1]) => lt(locale, k);
+const home = labPath("b", locale, "home");
+---
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <LabHead title={title} description={description} scheme="light dark" preload={[fontBody, fontDisplay, fontLabel]} />
+  </head>
+  <body>
+    <a class="skip" href="#main">{L("skip")}</a>
+    <LabStrip dir="b" locale={locale} page={page} />
+    <header class="bar">
+      <div class="wrap bar-in">
+        <a class="bar-name" href={home}>Patrick Diaz</a>
+        <nav class="bar-nav" aria-label={L("nav")}>
+          <ul>
+            <li><a href={`${home}#h-work`}>{L("work")}</a></li>
+            <li><a href={labPath("b", locale, "project")} aria-current={page === "project" ? "page" : undefined}>{lab.piece.title}</a></li>
+            <li><a href={`${home}#h-contact`}>{L("contact")}</a></li>
+          </ul>
+        </nav>
+        <div class="bar-tools">
+          <nav class="lang" aria-label={L("language")}>
+            <span aria-current="true" lang={locale}>{locale.toUpperCase()}</span>
+            <a href={labPath("b", other, page)} hreflang={other} lang={other} aria-label={`${other.toUpperCase()} · ${t(other, `lang.${other}`)}`}>{other.toUpperCase()}</a>
+          </nav>
+          <ThemeToggle label={L("theme")} />
+        </div>
+      </div>
+    </header>
+    <main id="main" class="wrap">
+      <slot />
+    </main>
+    <footer class="wrap">
+      <div class="foot">
+        <span>Patrick Diaz · {t(locale, "site.role")}</span>
+        <a href={lab.privacyHref}>{t(locale, "footer.privacy")}</a>
+        <a href={`mailto:${lab.site.email}`}>{lab.site.email}</a>
+      </div>
+    </footer>
+  </body>
+</html>

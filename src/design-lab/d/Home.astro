@@ -1,0 +1,75 @@
+---
+// Direction D, "Minimal paper": the homepage, read top to bottom like a letter. The
+// statement, the background, the project with its results and its map as the one plate,
+// the work lines, contact.
+import Layout from "./Layout.astro";
+import { labPath, type Lab } from "../shared/data.ts";
+import { keyPlan, staticMap } from "../shared/map.ts";
+import { lt } from "../shared/ui.ts";
+import { t } from "../../i18n/ui.ts";
+
+interface Props {
+  lab: Lab;
+}
+const { lab } = Astro.props;
+const { locale, home, piece } = lab;
+const L = (k: Parameters<typeof lt>[1]) => lt(locale, k);
+const project = labPath("d", locale, "project");
+---
+<Layout lab={lab} page="home" title={home.title} description={home.description}>
+  <header class="page block">
+    <h1 class="name">Patrick Diaz</h1>
+    <p class="statement">{home.positioning}</p>
+    {home.looking_for && <p class="lead">{home.looking_for}</p>}
+    {home.background.map((p) => <p>{p}</p>)}
+  </header>
+
+  <section aria-labelledby="h-project" class="block" style="gap: var(--space-4)">
+    <div class="page block">
+      <h2 id="h-project"><a href={project}>{piece.title}</a></h2>
+      <p class="lead">{piece.tagline}</p>
+    </div>
+    <figure class="figure wide">
+      <a class="plate-link" href={project}>
+        <span class="vh">{home.featured.cta}</span>
+        <div class="plate only-wide"><Fragment set:html={staticMap(lab)} /></div>
+        <div class="plate only-narrow"><Fragment set:html={keyPlan(lab, { numbers: false })} /></div>
+      </a>
+      <figcaption class="small">{piece.title}: {lab.parts.length} {L("parts")}. <a href={project}>{home.featured.cta}</a></figcaption>
+    </figure>
+    <div class="page block">
+      <dl class="results" aria-label={L("results")}>
+        {lab.chips.map((c) => (
+          <>
+            <dt>{c.value}</dt>
+            <dd>{c.label}<span class="small">{c.note && `${c.note}, `}{t(locale, "chip.asOf")} {c.asOf}</span></dd>
+          </>
+        ))}
+      </dl>
+      {piece.chips_note && <p class="small">{piece.chips_note}</p>}
+    </div>
+  </section>
+
+  <section aria-labelledby="h-work" class="page block">
+    <h2 id="h-work">{home.work_heading}</h2>
+    <ul class="items">
+      {lab.work.map((w) => (
+        <li>
+          <h3><a href={w.href} hreflang={w.hreflang}>{w.title}</a></h3>
+          <p>{w.text}</p>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section aria-labelledby="h-contact" class="page block">
+    <h2 id="h-contact">{home.contact_heading}</h2>
+    <p>{home.contact_text}</p>
+    <ul class="inline-links">
+      <li><a href={`mailto:${lab.site.email}`}>{lab.site.email}</a></li>
+      <li><a href={lab.site.github} rel="me">GitHub</a></li>
+      <li><a href={lab.site.linkedin} rel="me">LinkedIn</a></li>
+      <li><a href={lab.cvHref}>{home.cv}</a></li>
+    </ul>
+  </section>
+</Layout>

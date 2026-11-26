@@ -1,0 +1,70 @@
+---
+// Direction D, "Minimal paper": the project page. Title, summary and results as text; then
+// the plate, wider than the column, with the map as a white line drawing on blue. Under it
+// one sentence names the part you point at; the parts follow as a numbered list.
+import Layout from "./Layout.astro";
+import { labPath, type Lab } from "../shared/data.ts";
+import { keyPlan, labMap } from "../shared/map.ts";
+import { lt } from "../shared/ui.ts";
+import { t } from "../../i18n/ui.ts";
+
+interface Props {
+  lab: Lab;
+}
+const { lab } = Astro.props;
+const { locale, piece } = lab;
+const L = (k: Parameters<typeof lt>[1]) => lt(locale, k);
+---
+<Layout lab={lab} page="project" title={`${piece.title} — Patrick Diaz`} description={piece.tagline}>
+  <header class="page block">
+    <p class="small"><a href={labPath("d", locale, "home")}>Patrick Diaz</a>, {t(locale, "piece.label")} {lab.pieceNo}</p>
+    <h1 class="title">{piece.title}</h1>
+    <p class="lead">{piece.tagline}</p>
+    <p>{piece.summary}</p>
+    <p class="small">{t(locale, "piece.asOf")} {piece.as_of}</p>
+    <dl class="results" aria-label={L("results")}>
+      {lab.chips.map((c) => (
+        <>
+          <dt>{c.value}</dt>
+          <dd>{c.label}<span class="small">{c.note && `${c.note}, `}{t(locale, "chip.asOf")} {c.asOf}</span></dd>
+        </>
+      ))}
+    </dl>
+    {piece.chips_note && <p class="small">{piece.chips_note}</p>}
+  </header>
+
+  <section aria-labelledby="h-start" class="page block">
+    <h2 id="h-start">{t(locale, "piece.startHere")}</h2>
+    <ul class="starts">
+      {lab.work.map((w) => <li><a href={w.href} hreflang={w.hreflang}>{w.title}</a></li>)}
+    </ul>
+  </section>
+
+  <section aria-labelledby="h-parts" class="block" style="gap: var(--space-4)" data-labmap data-start={lab.parts.find((p) => p.start)?.id ?? lab.parts[0]?.id}>
+    <div class="page block"><h2 id="h-parts">{t(locale, "map.allParts")}</h2></div>
+    <figure class="figure wide">
+      <div class="plate only-wide"><Fragment set:html={labMap(lab)} /></div>
+      <div class="plate only-narrow"><Fragment set:html={keyPlan(lab)} /></div>
+      <figcaption class="small"><span class="only-wide">{L("figureCaption")}</span><span class="only-narrow">{L("planCaption")}</span></figcaption>
+      <aside class="selected only-wide" data-card hidden aria-label={L("selected")}>
+        <p><b><span data-card-n></span> <span data-card-title></span>.</b> <span data-card-text></span> <a data-card-open href="#h-parts">{t(locale, "map.readPage")}</a></p>
+      </aside>
+    </figure>
+    <div class="page">
+      <ol class="parts">
+        {lab.parts.map((p) => (
+          <li data-row={p.id} id={`part-${p.id}`}>
+            <span class="parts-n" aria-hidden="true">{p.n}</span>
+            <h3><a href={p.href} hreflang={p.hreflang}>{p.label}</a><span class="small">{p.lineLabel}</span></h3>
+            <p id={`desc-${p.id}`}>{p.hover}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  import { initLabMap } from "../shared/map-client.ts";
+  for (const el of document.querySelectorAll<HTMLElement>("[data-labmap]")) initLabMap(el);
+</script>

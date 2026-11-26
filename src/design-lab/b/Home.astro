@@ -1,0 +1,101 @@
+---
+// Direction B, "Technical report": the homepage. One statement in display type, then three
+// numbered sections on the grid: the project with its results as large numbers and the
+// drawing as a figure, the work lines as numbered rows, contact.
+import Layout from "./Layout.astro";
+import { labPath, type Lab } from "../shared/data.ts";
+import { keyPlan, staticMap } from "../shared/map.ts";
+import { lt } from "../shared/ui.ts";
+import { t } from "../../i18n/ui.ts";
+
+interface Props {
+  lab: Lab;
+}
+const { lab } = Astro.props;
+const { locale, home, piece } = lab;
+const L = (k: Parameters<typeof lt>[1]) => lt(locale, k);
+const project = labPath("b", locale, "project");
+---
+<Layout lab={lab} page="home" title={home.title} description={home.description}>
+  <header class="head">
+    <h1 class="kicker">Patrick Diaz — {t(locale, "site.role")}</h1>
+    <p class="display">{home.positioning}</p>
+    <div class="grid">
+      <div class="margin">
+        {home.looking_for && <p class="lead">{home.looking_for}</p>}
+      </div>
+      <div class="text">
+        {home.background.map((p) => <p>{p}</p>)}
+        <p class="actions">
+          <a class="button" href="#h-contact">{home.contact_heading} →</a>
+          <a class="more" href="#h-work">{home.work_heading}</a>
+        </p>
+      </div>
+    </div>
+  </header>
+
+  <section class="sec grid" aria-labelledby="h-project">
+    <div class="margin">
+      <p class="sec-n">01</p>
+      <p class="anno">{t(locale, "piece.label")} {lab.pieceNo}</p>
+      <p class="anno">{t(locale, "piece.asOf")} {piece.as_of}</p>
+    </div>
+    <div class="text">
+      <h2 id="h-project" class="is-display">{piece.title}</h2>
+      <p class="lead">{piece.tagline}</p>
+      <ul class="figures" aria-label={L("results")}>
+        {lab.chips.map((c) => (
+          <li>
+            <span class="figures-v">{c.value}</span>
+            <span class="figures-l">{c.label}</span>
+            <span class="anno">{c.note && `${c.note} · `}{t(locale, "chip.asOf")} {c.asOf}</span>
+          </li>
+        ))}
+      </ul>
+      {piece.chips_note && <p class="fine">{piece.chips_note}</p>}
+    </div>
+    <figure class="fig full">
+      <a class="plate-link" href={project}>
+        <span class="vh">{home.featured.cta}</span>
+        <div class="plate only-wide"><Fragment set:html={staticMap(lab, { labels: "as-written" })} /></div>
+        <div class="plate only-narrow"><Fragment set:html={keyPlan(lab, { numbers: false })} /></div>
+      </a>
+      <figcaption><b>{L("figure")} 1</b>{piece.title}: {lab.parts.length} {L("parts")}. <a class="more" href={project}>{home.featured.cta} →</a></figcaption>
+    </figure>
+  </section>
+
+  <section class="sec grid" aria-labelledby="h-work">
+    <div class="margin">
+      <p class="sec-n">02</p>
+      <h2 id="h-work">{home.work_heading}</h2>
+    </div>
+    <div class="text">
+      <ol class="rows has-ref">
+        {lab.work.map((w) => (
+          <li>
+            <span class="rows-n" aria-hidden="true">{w.n}</span>
+            <h3 class="rows-t"><a href={w.href} hreflang={w.hreflang}>{w.title}</a></h3>
+            <p>{w.text}</p>
+            <p class="anno">{w.tag}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section class="sec grid" aria-labelledby="h-contact">
+    <div class="margin">
+      <p class="sec-n">03</p>
+      <h2 id="h-contact">{home.contact_heading}</h2>
+    </div>
+    <div class="text">
+      <p>{home.contact_text}</p>
+      <p><a class="contact-mail" href={`mailto:${lab.site.email}`}>{lab.site.email}</a></p>
+      <ul class="links">
+        <li><a href={lab.site.github} rel="me">GitHub</a></li>
+        <li><a href={lab.site.linkedin} rel="me">LinkedIn</a></li>
+        <li><a href={lab.cvHref}>{home.cv}</a></li>
+      </ul>
+    </div>
+  </section>
+</Layout>

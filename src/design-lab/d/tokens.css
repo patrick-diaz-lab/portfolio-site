@@ -1,0 +1,52 @@
+/* Direction D, "Minimal paper": design tokens. A page of text: paper, ink, one blue.
+   The blueprint appears in one place only, the plate with the project's map, which keeps
+   its blue in both modes. Other colors are light-dark(light, dark). */
+:root {
+  color-scheme: light dark;
+
+  /* Color */
+  --color-bg: light-dark(#fbfaf6, #161514);          /* paper */
+  --color-surface: light-dark(#f2f0e9, #201f1d);     /* the selected row */
+  --color-text: light-dark(#1d1c1a, #ece8e0);        /* ink */
+  --color-text-dim: light-dark(#625f58, #a8a39a);    /* dates, captions */
+  --color-line: light-dark(#1d1c1a, #ece8e0);
+  --color-line-fine: light-dark(#dcd8ce, #383632);   /* the few hairlines */
+  --color-accent: light-dark(#1d3c78, #a9c1ff);      /* the one color: links, focus */
+  --color-on-accent: light-dark(#fbfaf6, #161514);
+  --color-accent-text: var(--color-accent);
+  --color-focus: var(--color-accent);
+  /* The plate: a cyanotype. The same in both modes. */
+  --color-plate: #1d3c78;
+  --color-plate-line: #f1f5ff;
+  --color-plate-dim: #b9c8ee;
+
+  /* Type: one serif for everything on the page; mono only inside the plate. */
+  --font-body: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+  --font-label: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  /* Scale: ratio 1.25 on a 19 px base. */
+  --text-sm: 0.9375rem;    /* 15: dates, captions */
+  --text-base: 1.1875rem;  /* 19: running text */
+  --text-lg: 1.5rem;       /* 24: leads, section titles */
+  --text-xl: 2rem;         /* 32: the statement */
+  --text-2xl: 3rem;        /* 48: the project title */
+  --leading-body: 1.6;
+  --leading-tight: 1.2;
+  --measure: 38rem;        /* the text column */
+
+  /* Spacing: steps of the base line (about 30 px). */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.95rem;      /* half a line */
+  --space-4: 1.9rem;       /* one line */
+  --space-8: 3.8rem;       /* two lines: between blocks */
+  --space-16: 6.5rem;      /* between sections */
+
+  /* Lines and layout */
+  --line: 1.5px;           /* strokes of the drawing */
+  --line-fine: 1px;
+  --radius: 0;
+  --plate-max: 64rem;      /* the plate is wider than the text column */
+  --focus-width: 2px;
+}
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"] { color-scheme: dark; }

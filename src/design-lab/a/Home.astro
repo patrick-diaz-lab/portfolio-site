@@ -1,0 +1,109 @@
+---
+// Direction A, "Drawing sheet": sheet 01, the profile. Zones A to D: profile with the
+// background as general notes, the project with its key plan and results, the work lines
+// as a table, contact as a row of cells.
+import Layout from "./Layout.astro";
+import { labPath, type Lab } from "../shared/data.ts";
+import { keyPlan } from "../shared/map.ts";
+import { lt } from "../shared/ui.ts";
+import { t } from "../../i18n/ui.ts";
+
+interface Props {
+  lab: Lab;
+}
+const { lab } = Astro.props;
+const { locale, home, piece } = lab;
+const L = (k: Parameters<typeof lt>[1]) => lt(locale, k);
+const project = labPath("a", locale, "project");
+---
+<Layout lab={lab} page="home" title={home.title} description={home.description}>
+  <section class="zone" aria-labelledby="h-profile">
+    <div class="zone-mark" aria-hidden="true">A</div>
+    <div class="zone-body">
+      <div class="cols">
+        <div class="c7 stack">
+          <p class="label" id="h-profile">{L("profile")} · {t(locale, "site.role")}</p>
+          <h1>Patrick Diaz</h1>
+          <p class="positioning">{home.positioning}</p>
+          {home.looking_for && <p class="lede">{home.looking_for}</p>}
+          <p class="actions">
+            <a class="button is-primary" href="#h-contact">{home.contact_heading} →</a>
+            <a class="button" href={project}>{L("sheet")} 02 · {piece.title} →</a>
+          </p>
+        </div>
+        <div class="c5 stack">
+          <p class="label">{L("notes")}</p>
+          <ol class="notes">
+            {home.background.map((p) => <li><p>{p}</p></li>)}
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="zone" aria-labelledby="h-project">
+    <div class="zone-mark" aria-hidden="true">B</div>
+    <div class="zone-body">
+      <div class="cols">
+        <div class="c4 stack">
+          <p class="label">{t(locale, "piece.label")} {lab.pieceNo}</p>
+          <h2 id="h-project">{piece.title}</h2>
+          <p class="lede">{piece.tagline}</p>
+          <p class="actions"><a class="button" href={project}>{home.featured.cta} →</a></p>
+        </div>
+        <figure class="c4 plan">
+          <Fragment set:html={keyPlan(lab, { numbers: false })} />
+          <figcaption>{L("sheet")} 02 · {piece.title} · {lab.parts.length} {L("parts")}</figcaption>
+        </figure>
+        <div class="c4 stack">
+          <p class="label">{L("results")}</p>
+          <ul class="cells">
+            {lab.chips.map((c) => (
+              <li class="result">
+                <span class="result-v">{c.value}</span>
+                <span class="result-l">{c.label}</span>
+                <span class="label">{c.note && `${c.note} · `}{t(locale, "chip.asOf")} {c.asOf}</span>
+              </li>
+            ))}
+          </ul>
+          {piece.chips_note && <p class="fine">{piece.chips_note}</p>}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="zone" aria-labelledby="h-work">
+    <div class="zone-mark" aria-hidden="true">C</div>
+    <div class="zone-body">
+      <div class="zone-head"><h2 id="h-work">{home.work_heading}</h2></div>
+      <table class="table">
+        <thead>
+          <tr><th scope="col">{L("item")}</th><th scope="col">{L("work")}</th><th scope="col">{L("description")}</th><th scope="col">{L("part")}</th></tr>
+        </thead>
+        <tbody>
+          {lab.work.map((w) => (
+            <tr>
+              <td class="num">{w.n}</td>
+              <th scope="row" class="name"><a href={w.href} hreflang={w.hreflang}>{w.title}</a></th>
+              <td>{w.text}</td>
+              <td class="ref">{w.tag}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="zone" aria-labelledby="h-contact">
+    <div class="zone-mark" aria-hidden="true">D</div>
+    <div class="zone-body">
+      <div class="zone-head"><h2 id="h-contact">{home.contact_heading}</h2><p>{home.contact_text}</p></div>
+      <ul class="cells contact-cells">
+        <li><span class="cell-k">E-Mail</span><a href={`mailto:${lab.site.email}`}>{lab.site.email}</a></li>
+        <li><span class="cell-k">GitHub</span><a href={lab.site.github} rel="me">patrick-diaz-dev</a></li>
+        <li><span class="cell-k">LinkedIn</span><a href={lab.site.linkedin} rel="me">Patrick Diaz</a></li>
+        <li><span class="cell-k">CV</span><a href={lab.cvHref}>{home.cv}</a></li>
+      </ul>
+    </div>
+  </section>
+</Layout>

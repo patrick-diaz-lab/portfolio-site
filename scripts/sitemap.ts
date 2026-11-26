@@ -13,8 +13,13 @@ import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "
 import { join, resolve } from "node:path";
 import { SITE } from "../src/site.ts";
 
-/** Pages that stay out of search: the privacy notice and the internal style sheet. */
-export const NOINDEX = new Set(["/privacy/", "/de/privacy/", "/styleguide/"]);
+/** The design lab's preview pages (docs/design-exploration.md): four directions, each with a
+ *  homepage and a project page in both languages, plus the lab's index. Never indexed. */
+const DESIGN_LAB = ["/design-lab/", ...["a", "b", "c", "d"].flatMap((d) => ["", "vision/", "de/", "de/vision/"].map((p) => `/design-lab/${d}/${p}`))];
+
+/** Pages that stay out of search: the privacy notice, the internal style sheet and the
+ *  design lab's previews. */
+export const NOINDEX = new Set(["/privacy/", "/de/privacy/", "/styleguide/", ...DESIGN_LAB]);
 
 export type Page = { path: string; noindex: boolean; canonical?: string; alternates: { lang: string; href: string }[] };
 

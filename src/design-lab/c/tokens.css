@@ -1,0 +1,50 @@
+/* Direction C, "Control room": design tokens. Dark only: a quiet console where the line
+   drawing is the main element and one amber marks what is selected. */
+:root {
+  color-scheme: dark;
+
+  /* Color */
+  --color-bg: #0b1014;            /* the room */
+  --color-surface: #121a20;       /* panels, the rail */
+  --color-surface-2: #1a252d;     /* boxes of the schematic, hover, current */
+  --color-text: #dbe4ea;
+  --color-text-dim: #93a4af;      /* labels, secondary text */
+  --color-line: #7d93a1;          /* drawing strokes: boxes, wires, terminals */
+  --color-line-fine: #26343e;     /* panel borders, dividers */
+  --color-accent: #f2b23e;        /* the one signal: selected, focus, the dot on a wire */
+  --color-on-accent: #0b1014;
+  --color-accent-text: #f2b23e;
+  --color-focus: #f2b23e;
+
+  /* Type: a compact sans for the interface, its mono for labels and values. */
+  --font-body: "Geist Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-label: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  /* Scale: ratio 1.2 on a 14 px base. */
+  --text-xs: 0.75rem;      /* 12: labels */
+  --text-sm: 0.8125rem;    /* 13: table text, the rail's parts */
+  --text-base: 0.875rem;   /* 14: running text */
+  --text-md: 1rem;         /* 16: titles in panels */
+  --text-lg: 1.1875rem;    /* 19: positioning */
+  --text-xl: 1.5rem;       /* 24: page title, values */
+  --leading-body: 1.5;
+  --leading-tight: 1.2;
+  --tracking-label: 0.07em;
+  --measure: 68ch;
+
+  /* Spacing: a 4 px grid, small steps. */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+
+  /* Lines and layout */
+  --line: 1.5px;           /* drawing strokes */
+  --line-fine: 1px;        /* panel borders */
+  --radius: 3px;
+  --rail: 15rem;           /* the navigation rail */
+  --gap: 0.75rem;          /* between panels */
+  --focus-width: 2px;
+}

@@ -1,0 +1,94 @@
+---
+// Direction B, "Technical report": the project page. The title in display type, the summary
+// and results on the grid, then the map as figure 1 with a numbered legend whose texts are
+// always visible. Pointing at a legend entry marks its part in the figure, and back.
+import Layout from "./Layout.astro";
+import { labPath, type Lab } from "../shared/data.ts";
+import { keyPlan, labMap } from "../shared/map.ts";
+import { lt } from "../shared/ui.ts";
+import { t } from "../../i18n/ui.ts";
+
+interface Props {
+  lab: Lab;
+}
+const { lab } = Astro.props;
+const { locale, piece } = lab;
+const L = (k: Parameters<typeof lt>[1]) => lt(locale, k);
+---
+<Layout lab={lab} page="project" title={`${piece.title} — Patrick Diaz`} description={piece.tagline}>
+  <header class="head">
+    <p class="kicker"><a href={labPath("b", locale, "home")}>Patrick Diaz</a> — {t(locale, "piece.label")} {lab.pieceNo}</p>
+    <h1 class="display is-title">{piece.title}</h1>
+    <p class="lead" style="max-width: 30ch; font-size: clamp(1.375rem, 3vw, 2rem); line-height: 1.2;">{piece.tagline}</p>
+  </header>
+
+  <section class="sec grid" aria-labelledby="h-summary">
+    <div class="margin">
+      <p class="sec-n">01</p>
+      <h2 id="h-summary">{L("summary")}</h2>
+      <p class="anno">{t(locale, "piece.asOf")} {piece.as_of}</p>
+    </div>
+    <div class="text">
+      <p class="lead" style="max-width: 46ch">{piece.summary}</p>
+      <ul class="figures" aria-label={L("results")}>
+        {lab.chips.map((c) => (
+          <li>
+            <span class="figures-v">{c.value}</span>
+            <span class="figures-l">{c.label}</span>
+            <span class="anno">{c.note && `${c.note} · `}{t(locale, "chip.asOf")} {c.asOf}</span>
+          </li>
+        ))}
+      </ul>
+      {piece.chips_note && <p class="fine">{piece.chips_note}</p>}
+    </div>
+  </section>
+
+  <section class="sec grid" aria-labelledby="h-start">
+    <div class="margin">
+      <p class="sec-n">02</p>
+      <h2 id="h-start">{t(locale, "piece.startHere")}</h2>
+    </div>
+    <div class="text">
+      <ol class="rows is-compact">
+        {lab.work.map((w) => (
+          <li>
+            <span class="rows-n" aria-hidden="true">{w.partN}</span>
+            <p class="rows-t"><a href={w.href} hreflang={w.hreflang}>{w.title}</a></p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section class="sec" aria-labelledby="h-parts" data-labmap>
+    <div class="grid">
+      <div class="margin">
+        <p class="sec-n">03</p>
+        <h2 id="h-parts">{t(locale, "map.allParts")}</h2>
+      </div>
+      <figure class="fig full only-wide">
+        <div class="plate"><Fragment set:html={labMap(lab, { labels: "as-written" })} /></div>
+        <figcaption><b>{L("figure")} 1</b>{L("figureCaption")}</figcaption>
+      </figure>
+      <figure class="fig full only-narrow">
+        <div class="plate"><Fragment set:html={keyPlan(lab)} /></div>
+        <figcaption><b>{L("figure")} 1</b>{L("planCaption")}</figcaption>
+      </figure>
+      <ol class="legend full">
+        {lab.parts.map((p) => (
+          <li data-row={p.id} id={`part-${p.id}`}>
+            <span class="legend-n" aria-hidden="true">{p.n}</span>
+            <h3 class="legend-t"><a href={p.href} hreflang={p.hreflang}>{p.label}</a></h3>
+            <p id={`desc-${p.id}`}>{p.hover}</p>
+            <p class="anno">{p.lineLabel}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  import { initLabMap } from "../shared/map-client.ts";
+  for (const el of document.querySelectorAll<HTMLElement>("[data-labmap]")) initLabMap(el);
+</script>

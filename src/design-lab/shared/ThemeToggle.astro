@@ -1,0 +1,26 @@
+---
+// Design lab: light / dark switch for a direction with both modes. Without the script the
+// button stays hidden and the page follows the system setting. The choice is kept per
+// browser; a page still renders correctly when storage is blocked.
+interface Props {
+  label: string;
+}
+const { label } = Astro.props;
+---
+<button type="button" class="theme-toggle" data-theme-toggle hidden aria-pressed="false"><span class="theme-toggle-mark" aria-hidden="true"></span><span class="theme-toggle-label">{label}</span></button>
+<script>
+  const root = document.documentElement;
+  const dark = () => (root.dataset.theme ?? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")) === "dark";
+  const buttons = [...document.querySelectorAll<HTMLButtonElement>("[data-theme-toggle]")];
+  const sync = () => buttons.forEach((b) => b.setAttribute("aria-pressed", String(dark())));
+  for (const b of buttons) {
+    b.hidden = false;
+    b.addEventListener("click", () => {
+      const next = dark() ? "light" : "dark";
+      root.dataset.theme = next;
+      try { localStorage.setItem("lab-theme", next); } catch {}
+      sync();
+    });
+  }
+  sync();
+</script>

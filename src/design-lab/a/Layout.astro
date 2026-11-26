@@ -1,0 +1,75 @@
+---
+// Direction A, "Drawing sheet": the page shell. One framed sheet per page: a strip of cells
+// on top (the sheets are the navigation), the page's zones, and a title block at the foot.
+import "@fontsource/ibm-plex-mono/latin-400.css";
+import "@fontsource/ibm-plex-mono/latin-600.css";
+import "@fontsource/ibm-plex-sans/latin-400.css";
+import fontMono from "@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2?url";
+import fontMonoBold from "@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-600-normal.woff2?url";
+import fontBody from "@fontsource/ibm-plex-sans/files/ibm-plex-sans-latin-400-normal.woff2?url";
+import "./tokens.css";
+import "./styles.css";
+import LabHead from "../shared/LabHead.astro";
+import LabStrip from "../shared/LabStrip.astro";
+import ThemeToggle from "../shared/ThemeToggle.astro";
+import { labPath, type Lab, type LabPage } from "../shared/data.ts";
+import { lt } from "../shared/ui.ts";
+import { t } from "../../i18n/ui.ts";
+
+interface Props {
+  lab: Lab;
+  page: LabPage;
+  title: string;
+  description: string;
+}
+const { lab, page, title, description } = Astro.props;
+const { locale } = lab;
+const other = locale === "en" ? "de" : "en";
+const L = (k: Parameters<typeof lt>[1]) => lt(locale, k);
+const home = labPath("a", locale, "home");
+const project = labPath("a", locale, "project");
+const sheets = [
+  { n: "01", name: L("profile"), href: home, current: page === "home" },
+  { n: "02", name: lab.piece.title, href: project, current: page === "project" },
+];
+const sheet = sheets.find((s) => s.current)!;
+---
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <LabHead title={title} description={description} scheme="light dark" preload={[fontMono, fontMonoBold, fontBody]} />
+  </head>
+  <body>
+    <a class="skip" href="#main">{L("skip")}</a>
+    <LabStrip dir="a" locale={locale} page={page} />
+    <div class="sheet">
+      <header class="strip">
+        <a class="strip-name" href={home}>Patrick Diaz</a>
+        <nav class="strip-nav" aria-label={L("nav")}>
+          <ul>
+            {sheets.map((s) => (
+              <li><a href={s.href} aria-current={s.current ? "page" : undefined}><span class="n"><span class="n-word">{L("sheet")} </span>{s.n}</span>{s.name}</a></li>
+            ))}
+            <li><a href={`${home}#h-contact`}>{L("contact")}</a></li>
+          </ul>
+        </nav>
+        <div class="strip-tools">
+          <nav class="lang" aria-label={L("language")}>
+            <span aria-current="true" lang={locale}>{locale.toUpperCase()}</span>
+            <a href={labPath("a", other, page)} hreflang={other} lang={other} aria-label={`${other.toUpperCase()} · ${t(other, `lang.${other}`)}`}>{other.toUpperCase()}</a>
+          </nav>
+          <ThemeToggle label={L("theme")} />
+        </div>
+      </header>
+      <main id="main">
+        <slot />
+      </main>
+      <footer class="title-block">
+        <p class="tb-title"><span class="cell-k">{L("title")}</span><span class="tb-v">Patrick Diaz · {t(locale, "site.role")}</span></p>
+        <p><span class="cell-k">{L("sheet")}</span><span class="tb-v">{sheet.n} {L("of")} 02 · {sheet.name}</span></p>
+        <p><span class="cell-k">{L("contact")}</span><a href={`mailto:${lab.site.email}`}>{lab.site.email}</a></p>
+        <p><span class="cell-k">{L("notes")}</span><a href={lab.privacyHref}>{t(locale, "footer.privacy")}</a></p>
+      </footer>
+    </div>
+  </body>
+</html>

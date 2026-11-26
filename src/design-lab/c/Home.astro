@@ -1,0 +1,98 @@
+---
+// Direction C, "Control room": the overview. The profile and contact on the left, the
+// project's live schematic and its measured results on the right, the work lines as one
+// row of tiles. On a wide screen it fits on one screen.
+import Layout from "./Layout.astro";
+import { labPath, type Lab } from "../shared/data.ts";
+import { keyPlan, labMap } from "../shared/map.ts";
+import { lt } from "../shared/ui.ts";
+import { t } from "../../i18n/ui.ts";
+
+interface Props {
+  lab: Lab;
+}
+const { lab } = Astro.props;
+const { locale, home, piece } = lab;
+const L = (k: Parameters<typeof lt>[1]) => lt(locale, k);
+const project = labPath("c", locale, "project");
+---
+<Layout lab={lab} page="home" title={home.title} description={home.description}>
+  <section class="panel" aria-labelledby="h-profile">
+    <div class="panel-head"><h2 id="h-profile">{L("profile")}</h2><span class="label">{t(locale, "site.role")}</span></div>
+    <div class="panel-body split">
+      <div>
+        <h1 class="title">Patrick Diaz</h1>
+        <p class="positioning">{home.positioning}</p>
+        {home.looking_for && <p class="lede">{home.looking_for}</p>}
+        <p class="actions">
+          <a class="button is-primary" href="#h-contact">{home.contact_heading} →</a>
+          <a class="button" href={project}>{home.featured.cta} →</a>
+        </p>
+      </div>
+      <div>
+        {home.background.map((p) => <p>{p}</p>)}
+      </div>
+    </div>
+  </section>
+
+  <section class="panel s9" aria-labelledby="h-project" data-labmap data-start={lab.parts.find((p) => p.start)?.id ?? lab.parts[0]?.id}>
+    <div class="panel-head"><h2 id="h-project">{t(locale, "piece.label")} {lab.pieceNo} · {piece.title} · {L("schematic")}</h2><a href={project}>{home.featured.cta} →</a></div>
+    <div class="panel-body is-flush">
+      <p class="panel-note" style="border-top: 0; color: var(--color-text); font-size: var(--text-base)">{piece.tagline}</p>
+      <div class="map only-wide"><Fragment set:html={labMap(lab)} /></div>
+      <div class="map only-narrow"><Fragment set:html={keyPlan(lab, { numbers: false })} /></div>
+      <aside class="readline only-wide" data-card hidden aria-label={L("selected")}>
+        <span class="readline-n"><span data-card-n></span> / <span data-card-count></span></span>
+        <p><span class="readline-t" data-card-title></span><span data-card-text></span></p>
+        <a class="button" data-card-open href={project}>{t(locale, "map.readPage")} →</a>
+      </aside>
+    </div>
+  </section>
+  <section class="panel s3" aria-labelledby="h-results">
+    <div class="panel-head"><h2 id="h-results">{L("results")}</h2></div>
+    <div class="panel-body is-flush readouts-wrap">
+      <ul class="readouts is-stack">
+        {lab.chips.map((c) => (
+          <li>
+            <span class="readout-v">{c.value}</span>
+            <span class="readout-l">{c.label}</span>
+            <span class="label">{c.note && `${c.note} · `}{t(locale, "chip.asOf")} {c.asOf}</span>
+          </li>
+        ))}
+      </ul>
+      {piece.chips_note && <p class="panel-note" style="border-top: 0">{piece.chips_note}</p>}
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-work">
+    <div class="panel-head"><h2 id="h-work">{home.work_heading}</h2></div>
+    <div class="panel-body is-flush">
+      <ul class="tiles">
+        {lab.work.map((w) => (
+          <li>
+            <p class="label">{w.tag}</p>
+            <h3><a href={w.href} hreflang={w.hreflang}>{w.title}</a></h3>
+            <p>{w.text}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-contact">
+    <div class="panel-head"><h2 id="h-contact">{home.contact_heading}</h2><span class="label" style="text-transform: none; letter-spacing: 0; font-family: var(--font-body); font-size: var(--text-sm)">{home.contact_text}</span></div>
+    <div class="panel-body is-flush">
+      <ul class="tiles">
+        <li><span class="label">E-Mail</span><a class="tile-link" href={`mailto:${lab.site.email}`}>{lab.site.email}</a></li>
+        <li><span class="label">GitHub</span><a class="tile-link" href={lab.site.github} rel="me">patrick-diaz-dev</a></li>
+        <li><span class="label">LinkedIn</span><a class="tile-link" href={lab.site.linkedin} rel="me">Patrick Diaz</a></li>
+        <li><span class="label">CV</span><a class="tile-link" href={lab.cvHref}>{home.cv}</a></li>
+      </ul>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  import { initLabMap } from "../shared/map-client.ts";
+  for (const el of document.querySelectorAll<HTMLElement>("[data-labmap]")) initLabMap(el);
+</script>

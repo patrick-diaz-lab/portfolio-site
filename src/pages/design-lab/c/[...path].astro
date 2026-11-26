@@ -1,0 +1,13 @@
+---
+// Design lab, direction C (docs/design-exploration.md): its four preview pages.
+// /design-lab/c/ and /design-lab/c/vision/, each also under /design-lab/c/de/.
+import Home from "../../../design-lab/c/Home.astro";
+import Project from "../../../design-lab/c/Project.astro";
+import { labStaticPaths, loadLab } from "../../../design-lab/shared/data.ts";
+
+export const getStaticPaths = labStaticPaths;
+
+const { locale, page } = Astro.props;
+const lab = loadLab(locale);
+---
+{page === "home" ? <Home lab={lab} /> : <Project lab={lab} />}

@@ -1,0 +1,25 @@
+---
+// Design lab: the thin strip above every preview page. It names the page as a preview and
+// switches between the directions on the same page and language. Not part of any design.
+import type { Locale } from "../../i18n/ui.ts";
+import { DIRS, labPath, type Dir, type LabPage } from "./data.ts";
+import { lt } from "./ui.ts";
+import "./lab.css";
+
+interface Props {
+  dir: Dir;
+  locale: Locale;
+  page: LabPage;
+}
+const { dir, locale, page } = Astro.props;
+---
+<aside class="lab-strip" aria-label={lt(locale, "lab")}>
+  <span class="lab-strip-name">{lt(locale, "lab")}</span>
+  <ul>
+    {(Object.keys(DIRS) as Dir[]).map((d) => (
+      <li><a href={labPath(d, locale, page)} aria-current={d === dir ? "true" : undefined} title={DIRS[d]}>{d.toUpperCase()}</a></li>
+    ))}
+  </ul>
+  <a class="lab-strip-index" href="/design-lab/">{lt(locale, "labIndex")}</a>
+  <span class="lab-strip-note">{lt(locale, "labNote")}</span>
+</aside>

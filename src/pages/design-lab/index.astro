@@ -1,0 +1,55 @@
+---
+// Design lab index (docs/design-exploration.md): the four directions and their preview
+// pages. Not linked from the site, not in the sitemap, noindex.
+import "../../design-lab/b/tokens.css";
+import "../../design-lab/shared/lab.css";
+import LabHead from "../../design-lab/shared/LabHead.astro";
+import { DIRS, labPath, type Dir } from "../../design-lab/shared/data.ts";
+
+const IDEA: Record<Dir, string> = {
+  a: "The page is a framed sheet: a strip of cells as navigation, lettered zones, a title block, the map as a drawing with a parts list. Light and dark.",
+  b: "A Swiss grid with large type and wide white space; the map is a numbered figure with a legend. Light and dark.",
+  c: "An application shell with a rail and a board of panels; the schematic is the main panel, with an inspector. Dark only.",
+  d: "One column of serif text; the map is the only block of color, a blue plate. Light and dark.",
+};
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <LabHead title="Design lab — four directions" description="Preview pages for four design directions of patrickdiaz.dev. Not the live site." scheme="light dark" preload={[]} />
+  </head>
+  <body>
+    <main>
+      <h1>Design lab</h1>
+      <p>Four design directions for this site, each with the homepage and the Vision project page, in English and German. Previews only: not the live site, not indexed.</p>
+      <ul>
+        {(Object.keys(DIRS) as Dir[]).map((d) => (
+          <li>
+            <h2>{d.toUpperCase()} · {DIRS[d]}</h2>
+            <p>{IDEA[d]}</p>
+            <p class="links">
+              <a href={labPath(d, "en", "home")}>Homepage</a>
+              <a href={labPath(d, "en", "project")}>Project page</a>
+              <a href={labPath(d, "de", "home")} hreflang="de">Startseite (DE)</a>
+              <a href={labPath(d, "de", "project")} hreflang="de">Projektseite (DE)</a>
+            </p>
+          </li>
+        ))}
+      </ul>
+      <p><a href="/">Back to the live site</a></p>
+    </main>
+  </body>
+</html>
+
+<style>
+  body { margin: 0; background: var(--color-bg); color: var(--color-text); font: 400 1.0625rem/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 44rem; margin: 0 auto; padding: 3rem 1.25rem 4rem; display: grid; gap: 1.5rem; }
+  h1 { margin: 0; font-size: 2rem; line-height: 1.1; }
+  h2 { margin: 0; font-size: 1.25rem; }
+  p { margin: 0; }
+  ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+  li { border-top: 1px solid var(--color-line-fine); padding-block: 1.25rem; display: grid; gap: 0.5rem; }
+  .links { display: flex; flex-wrap: wrap; gap: 0.25rem 1.5rem; }
+  a { color: inherit; display: inline-block; padding-block: 0.25rem; text-underline-offset: 0.2em; }
+  :focus-visible { outline: 3px solid var(--color-focus); outline-offset: 3px; }
+</style>
