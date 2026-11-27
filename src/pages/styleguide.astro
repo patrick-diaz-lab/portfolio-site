@@ -6,12 +6,16 @@ import Base from "../layouts/Base.astro";
 import tokensCss from "../styles/tokens.css?raw";
 import "../styles/schematic.css";
 
-const rootBlock = tokensCss.slice(0, tokensCss.indexOf(":root[data-theme"));
-const colors = [...rootBlock.matchAll(/--color-([\w-]+):\s*(?:light-dark\((#[0-9a-f]{6}),\s*(#[0-9a-f]{6})\)|(#[0-9a-f]{6}));\s*\/\*\s*(.*?)\s*\*\//gi)].map((m) => ({
+// Light values and what each color is for come from the :root block; dark values from the
+// block for the visitor's own choice of dark.
+const rootBlock = tokensCss.slice(tokensCss.indexOf(":root {"), tokensCss.indexOf("/* Dark mode."));
+const darkBlock = tokensCss.slice(tokensCss.indexOf(':root[data-theme="dark"] {'));
+const darkOf = Object.fromEntries([...darkBlock.slice(0, darkBlock.indexOf("}")).matchAll(/--color-([\w-]+):\s*(#[0-9a-f]{6});/gi)].map((m) => [m[1]!, m[2]!.toLowerCase()]));
+const colors = [...rootBlock.matchAll(/--color-([\w-]+):\s*(#[0-9a-f]{6});\s*\/\*\s*(.*?)\s*\*\//gi)].map((m) => ({
   name: m[1]!,
-  light: (m[2] ?? m[4])!.toLowerCase(),
-  dark: (m[3] ?? m[4])!.toLowerCase(),
-  use: m[5]!,
+  light: m[2]!.toLowerCase(),
+  dark: darkOf[m[1]!] ?? m[2]!.toLowerCase(),
+  use: m[3]!,
 }));
 const steps = [...rootBlock.matchAll(/--(step-+\d):\s*([\d.]+rem)/g)].map((m) => ({ name: m[1]!, size: m[2]! }));
 const spaces = [...rootBlock.matchAll(/--(space-\d+):\s*([\d.]+rem)/g)].map((m) => ({ name: m[1]!, size: m[2]! }));
