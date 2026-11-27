@@ -13,7 +13,7 @@
 
   <path class="wire-static" d="M220 110 H251" />
   <polygon class="fig-head" points="259,110 251,106 251,114" />
-  <rect class="box" x="260" y="70" width="200" height="80" />
+  <rect class="box key" x="260" y="70" width="200" height="80" />
   <text class="lbl fig-mid" x="360" y="100">ADAPTER</text>
   <text class="fig-sub fig-mid" x="360" y="120">EIN NUTZER · EIN CHAT</text>
   <text class="fig-sub fig-mid" x="360" y="137">SIGNIERT JEDE NACHRICHT</text>

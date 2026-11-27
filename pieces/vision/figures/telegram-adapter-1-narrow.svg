@@ -6,7 +6,7 @@
   <text class="fig-sub fig-mid" x="180" y="54">TELEGRAM</text>
   <path class="wire-static" d="M180 66 V91" />
   <polygon class="fig-head" points="180,99 176,91 184,91" />
-  <rect class="box" x="80" y="100" width="200" height="76" />
+  <rect class="box key" x="80" y="100" width="200" height="76" />
   <text class="lbl fig-mid" x="180" y="128">ADAPTER</text>
   <text class="fig-sub fig-mid" x="180" y="148">ONE USER · ONE CHAT</text>
   <text class="fig-sub fig-mid" x="180" y="164">SIGNS EVERY MESSAGE</text>

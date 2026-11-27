@@ -11,11 +11,11 @@
   <text class="lbl fig-mid" x="131" y="117">AGENT-CORE</text>
   <text class="fig-sub fig-mid" x="131" y="137">SIGNIERTER ABSENDER</text>
 
-  <g class="frame"><rect x="250" y="50" width="270" height="200" /></g>
+  <g class="frame boundary"><rect x="250" y="50" width="270" height="200" /></g>
   <text class="frame-t" x="262" y="72">EIGENES NETZ</text>
   <path class="wire-static" d="M206 120 H281" />
   <polygon class="fig-head" points="289,120 281,116 281,124" />
-  <rect class="box" x="290" y="90" width="190" height="60" />
+  <rect class="box key" x="290" y="90" width="190" height="60" />
   <text class="lbl fig-mid" x="385" y="117">CLAUDE-WORKER</text>
   <text class="fig-sub fig-mid" x="385" y="137">FRISCHER WORKSPACE</text>
   <path class="wire-static" d="M385 150 V171" />

@@ -16,7 +16,7 @@
   <path class="wire-static" d="M344 102 H367" />
   <polygon class="fig-head" points="375,102 367,98 367,106" />
 
-  <rect class="box" x="376" y="60" width="156" height="84" />
+  <rect class="box key" x="376" y="60" width="156" height="84" />
   <text class="lbl fig-mid" x="454" y="90">KONSOLE</text>
   <text class="fig-sub fig-mid" x="454" y="112">SIGNIERT ANFRAGEN</text>
   <text class="fig-sub fig-mid" x="454" y="128">EIGENER ZUGANG</text>

@@ -54,26 +54,32 @@ const id = `h-measured-${place}`;
 </section>
 
 <style>
-  /* Joined cells, as the chips on the overview page. */
-  .readouts { display: grid; gap: var(--space-2); }
-  .readouts-head { line-height: 1.4; }
-  .readouts ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--line-thin); background: var(--color-silk-dim); border: var(--line-thin) solid var(--color-silk-dim); }
-  .readouts-lead { font-size: var(--step--1); line-height: 1.45; color: var(--color-silk-dim); max-width: none; }
-  .readout { flex: 1 1 12rem; min-width: 0; background: var(--color-panel-raised); padding: var(--space-4); display: grid; gap: var(--space-2); align-content: start; }
+  /* Each result under a thin orange rule (D25); the numbers stay monochrome. On wide screens
+     the heading sits in the margin beside them. */
+  .readouts { display: grid; gap: var(--space-3) var(--space-8); grid-template-columns: minmax(0, 1fr); }
+  .readouts-head { font-weight: 400; letter-spacing: var(--tracking-label); }
+  .readouts ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr)); gap: var(--space-6) var(--space-8); }
+  .readouts-lead { font-size: var(--step--1); line-height: 1.45; color: var(--color-text-secondary); max-width: none; }
+  @media (min-width: 60rem) {
+    .readouts-top { grid-template-columns: 9rem minmax(0, 1fr); }
+    .readouts-top > :not(.readouts-head) { grid-column: 2; }
+    .readouts-top .readouts-head { padding-top: var(--space-3); }
+  }
+  .readout { min-width: 0; border-top: var(--line-rule) solid var(--color-accent); padding-top: var(--space-3); display: grid; gap: var(--space-2); align-content: start; }
   /* A value stays on one line and scales with its tile, so five readouts fit a row. */
   .readout { container-type: inline-size; }
-  .readout-value { font: 400 min(var(--step-3), 12cqi) / 1 var(--font-mono); white-space: nowrap; }
-  .readout-label { font-size: var(--step--1); line-height: 1.35; }
-  .readout-caveat { font: 400 0.75rem / 1.5 var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-amber); }
-  .readout-note { font: 400 0.75rem / 1.5 var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-silk-dim); }
+  .readout-value { font: 700 min(var(--step-3), 17cqi) / 1 var(--font-display); letter-spacing: var(--tracking-display); white-space: nowrap; }
+  .readout-label { font-size: 1rem; line-height: 1.35; }
+  .readout-caveat { font: 400 var(--step--2) / 1.5 var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-accent); }
+  .readout-note { font: 400 var(--step--2) / 1.5 var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-text-secondary); }
   .readout-track { position: relative; height: 16px; margin: var(--space-1) 6px 0; }
   .readout-rail, .readout-span { position: absolute; top: 7px; height: 2px; }
-  .readout-rail { left: 0; right: 0; background: var(--color-panel); }
-  .readout-span { background: var(--color-silk-dim); }
+  .readout-rail { left: 0; right: 0; background: var(--color-border); }
+  .readout-span { background: var(--color-text-secondary); }
   .readout-dot { position: absolute; top: 2px; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; }
-  .readout-dot.is-before, .key.is-before { border: var(--focus-width) solid var(--color-silk-dim); background: var(--color-panel-raised); }
-  .readout-dot.is-after, .key.is-after { background: var(--color-amber); }
-  .readout-scale { display: flex; justify-content: space-between; font: 400 0.75rem var(--font-mono); color: var(--color-silk-dim); }
+  .readout-dot.is-before, .key.is-before { border: 2px solid var(--color-text-secondary); background: var(--color-bg); }
+  .readout-dot.is-after, .key.is-after { background: var(--color-accent); }
+  .readout-scale { display: flex; justify-content: space-between; font: 400 var(--step--2) var(--font-mono); color: var(--color-text-secondary); }
   .key { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: var(--space-1); vertical-align: 0.05em; }
   .key.is-after { margin-left: var(--space-2); }
 

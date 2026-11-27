@@ -175,6 +175,7 @@ Decided 2026-11-04 by Patrick (planning Q17).
   - The map is a precise line drawing like an engineer's sheet: modules as labelled blocks, wires between them, hand-lettered side notes that link to decisions, small dimension marks, and a signal dot along a wire on hover/focus.
   - On phones it becomes a vertical wire with the modules along it (the line-network logic).
   - Patrick brings the inspiration for the signature twist (palette, lettering, texture).
+- **Since 2026-11-26 the twist below is replaced by D25** (light and dark, one orange); the drawing language of this decision stays.
 - **Twist chosen 2026-11-10 by Patrick (item 1.1): "Bench instrument".** The front panel of a measuring instrument: a graphite panel, silk-screened labels, one amber trace.
   - **Dark only.** No light variant: the instrument look is the point, and every text pair passes AA (silk 12.5:1, dim silk 6.5:1, amber 8.6:1 on the panel).
   - **One amber** for the signal dot, notes, focus and link hover; these are told apart by shape (dot, dashed lead line, outline), not by a second accent.
@@ -397,4 +398,24 @@ Decided 2026-11-20 by Patrick, after a review of the whole site read as a recrui
   - **MCP servers:** "my own MCP servers, designed by me and built with Claude Code".
   - **Languages:** "speak", in both languages.
   - **Published URLs:** the overview pages, the remaining English part pages and the privacy pages joined `published-urls.txt` at Patrick's request.
+- **The classifier set of 27 (Patrick, 2026-11-27):** its result is published as measured on an "internal test set", no longer as held-out or locked, on the homepage, the overview and the agent core page, in both languages (`sources/patrick/2026-11-27.md`). A result's label may now be as long as a readout's, 48 characters, so both say the same words. Patrick gives the new measurement once he has new held-out sets.
 - **Still open, Patrick's call:** a screenshot and a line on where code can be seen (skipped for now); the German compound in the homepage's first line.
+
+## D25 — Design: Swiss editorial, one orange, light and dark
+
+Decided 2026-11-26 by Patrick, from the design exploration (direction B, "Technical report") and his brief with a reference image (PLAN 1.18). Replaces the "Bench instrument" twist of D13; the drawing language of D13 stays.
+
+- **Decision:** a monochrome editorial design in a light and a dark mode, with one restrained burnt orange. The structure, the content and the routes stay as they are.
+- **Color** (`src/styles/tokens.css`), light / dark:
+  - background `#ffffff` / `#111111`, surface `#f4f3f0` / `#1b1b1b`, text `#111111` / `#f5f4f0`, border `#d8d8d5` / `#393939`;
+  - accent `#a94716` / `#f18445`, accent subtle `#f8e8dd` / `#39251b`.
+- **The light mode's orange is `#a94716`** (Patrick, 2026-11-27), not the brief's `#e87532`, which reaches only 2.99:1 on white. `#a94716` reaches 5.8:1 on white and 5.3:1 on the surface, so one orange serves rules, markers, labels, focus and the strokes of a drawing. The dark mode keeps `#f18445` (7.3:1).
+- **Two more changes to the brief's values, for WCAG AA:**
+  - secondary text is `#6e6e6e` in light mode, not `#777777`, which reaches only 4.48:1 on white and less on the surface;
+  - the primary button's text is white in light mode: dark text on `#a94716` reaches only 3.2:1, white 5.8:1. In dark mode it stays dark on `#f18445`.
+- **What orange means:** active, primary or significant, and nothing else. It marks the active item in the bar, the language and the contents strip; the marker beside an introductory statement; the primary button (orange ground); the rule over a measured result; a decision; and, in a drawing, the key component, the main path, a fallback (dashed), a boundary (dashed border) and a note. Numbers and headings stay monochrome.
+- **Type:** Inter Tight 700 for display, Inter to read, JetBrains Mono for labels and values, all OFL, self-hosted from `@fontsource`, Latin subset. Headings in sentence case.
+- **Modes:** the page follows the system setting. A switch in the site bar overrides it and keeps the choice in the browser; the privacy page says so. Every drawing takes its colors from the tokens, so it follows the mode.
+- **No:** gradients, glow, shadows, rounded cards, a second accent, motion beyond the signal dot and short color transitions (none under reduced motion).
+- **Open, Patrick's call:** a highlighted word in the homepage's first line (the brief makes it optional; not built).
+

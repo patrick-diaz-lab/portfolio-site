@@ -1,24 +1,23 @@
 ---
-// Metric chips (aggregates only, D19), per language. Used on the piece overview and on the
-// homepage's featured card (PLAN 1.9a). `panel` joins them into one grid inside a card, and
-// shows a measured change (a chip with a baseline) in amber (homepage layout, 2026-11-13).
+// A piece's measured results (aggregates only, D19), per language. Used on the piece overview
+// and on the homepage (PLAN 1.9a). Since D25 each result sits under a thin orange rule; the
+// numbers themselves stay monochrome.
 import { t, type Locale } from "../i18n/ui.ts";
 import { chipNote, chipValue } from "../lib/chips.ts";
 
 interface Props {
   chips: { label: string; metric: string; value: number; n?: number; baseline?: number; note?: string; as_of: string }[];
   locale: Locale;
-  variant?: "cards" | "panel";
-  /** One line under the chips: what the numbers were measured on (2026-11-20). */
+  /** One line under the results: what the numbers were measured on (2026-11-20). */
   footnote?: string;
 }
-const { chips, locale, variant = "cards", footnote } = Astro.props;
+const { chips, locale, footnote } = Astro.props;
 ---
 {chips.length > 0 && (
-  <ul class:list={["chips", variant]} aria-label={t(locale, "piece.measured")}>
+  <ul class="chips" aria-label={t(locale, "piece.measured")}>
     {chips.map((c) => (
       <li class="chip">
-        <span class:list={["chip-value", { change: c.baseline !== undefined }]}>{chipValue(c, locale)}</span>
+        <span class="chip-value">{chipValue(c, locale)}</span>
         <span class="chip-label">{c.label}</span>
         <span class="label">{chipNote(c, locale).slice(0, -c.as_of.length)}<span class="chip-date">{c.as_of}</span></span>
       </li>
@@ -28,18 +27,11 @@ const { chips, locale, variant = "cards", footnote } = Astro.props;
 {chips.length > 0 && footnote && <p class="chips-footnote">{footnote}</p>}
 
 <style>
-  .chips { list-style: none; margin: var(--space-2) 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-3); }
-  .chip { display: grid; gap: var(--space-1); min-width: 13rem; padding: var(--space-3) var(--space-4); background: var(--color-panel-raised); border: var(--line-thin) solid var(--color-silk-dim); border-left: 3px solid var(--color-amber); border-radius: var(--radius); }
-  .chip-value { font: 400 var(--step-2) / 1 var(--font-mono); color: var(--color-silk); }
-  .chip-label { font-size: var(--step--1); line-height: 1.35; }
-  @media (max-width: 47.99rem) { .chips.cards .chip { flex: 1 1 100%; } }
-
-  /* Lines between cells are the gap over a silk-dim ground; a cell that wraps alone fills its row. */
-  .chips.panel { gap: var(--line-thin); background: var(--color-silk-dim); border: var(--line-thin) solid var(--color-silk-dim); }
-  .panel .chip { flex: 1 1 9.5rem; min-width: 0; border: 0; border-radius: 0; padding: var(--space-3); align-content: start; }
-  .panel .chip-value.change { color: var(--color-amber); }
-  .panel .label { font-size: 0.75rem; line-height: 1.4; }
+  .chips { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); gap: var(--space-6) var(--space-8); }
+  .chip { display: grid; gap: var(--space-2); align-content: start; border-top: var(--line-rule) solid var(--color-accent); padding-top: var(--space-3); min-width: 0; }
+  .chip-value { font: 700 var(--step-3) / 1 var(--font-display); letter-spacing: var(--tracking-display); white-space: nowrap; }
+  .chip-label { font-size: 1rem; line-height: 1.4; }
   /* A date never breaks at its hyphens. */
   .chip-date { white-space: nowrap; }
-  .chips-footnote { margin-top: var(--space-2); font-size: var(--step--1); line-height: 1.45; color: var(--color-silk-dim); max-width: none; }
+  .chips-footnote { font-size: var(--step--1); line-height: 1.5; color: var(--color-text-secondary); max-width: 70ch; }
 </style>

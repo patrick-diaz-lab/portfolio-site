@@ -1,7 +1,8 @@
 ---
 // Privacy page (PLAN 1.9a), English at /privacy/ and German at /de/privacy/. States only what
-// is true today: static pages, no cookies, no storage in the browser, no analytics, no
-// requests to other hosts, Worker logs off (D7). The chat's sections come with item 3.6.
+// is true today: static pages, no cookies, no analytics, no requests to other hosts, Worker
+// logs off (D7). The browser keeps one thing, the visitor's choice of light or dark, if they
+// used the switch (D25). The chat's sections come with item 3.6.
 import Base from "../layouts/Base.astro";
 import type { Locale } from "../i18n/ui.ts";
 import { SITE } from "../site.ts";
@@ -15,9 +16,9 @@ const text = {
   en: {
     title: "Privacy",
     meta: "What this site does and doesn't do with your data.",
-    asOf: "As of 2026-11-12",
+    asOf: "As of 2026-11-27",
     sections: [
-      ["What this site doesn't do", "It sets no cookies, stores nothing in your browser, runs no analytics and loads nothing from other hosts. The fonts are served from this site itself."],
+      ["What this site doesn't do", "It sets no cookies, runs no analytics and loads nothing from other hosts. The fonts are served from this site itself. If you use the switch between light and dark, your browser keeps that one choice so the next page looks the same; it stays on your device and is sent nowhere. Nothing else is stored."],
       ["Hosting", "The pages are static files served by Cloudflare. To deliver a page, Cloudflare processes your IP address and the request, under its own privacy policy. Request logging is switched off for this site, so I don't receive or keep request logs."],
       ["Email", "If you write to me, I use your address and message only to reply, and nothing else."],
       ["Later", "A chat about my projects may come later. Before it does, this page will say what it sends, to whom, and what is kept."],
@@ -26,9 +27,9 @@ const text = {
   de: {
     title: "Datenschutz",
     meta: "Was diese Website mit Ihren Daten tut und was nicht.",
-    asOf: "Stand 2026-11-12",
+    asOf: "Stand 2026-11-27",
     sections: [
-      ["Was diese Website nicht tut", "Sie setzt keine Cookies, speichert nichts in Ihrem Browser, nutzt keine Analyse-Werkzeuge und lädt nichts von anderen Servern. Die Schriften kommen von dieser Website selbst."],
+      ["Was diese Website nicht tut", "Sie setzt keine Cookies, nutzt keine Analyse-Werkzeuge und lädt nichts von anderen Servern. Die Schriften kommen von dieser Website selbst. Wenn Sie zwischen hell und dunkel umschalten, merkt sich Ihr Browser diese eine Wahl, damit die nächste Seite gleich aussieht; sie bleibt auf Ihrem Gerät und wird nirgendwohin gesendet. Sonst wird nichts gespeichert."],
       ["Hosting", "Die Seiten sind statische Dateien, die Cloudflare ausliefert. Dafür verarbeitet Cloudflare Ihre IP-Adresse und die Anfrage, nach seiner eigenen Datenschutzerklärung. Das Protokollieren von Anfragen ist für diese Website ausgeschaltet; ich erhalte und speichere keine Zugriffsprotokolle."],
       ["E-Mail", "Wenn Sie mir schreiben, nutze ich Ihre Adresse und Nachricht nur, um zu antworten, und für nichts anderes."],
       ["Später", "Später kommt vielleicht ein Chat zu meinen Projekten. Bevor es so weit ist, steht hier, was er sendet, an wen und was gespeichert wird."],
@@ -37,7 +38,7 @@ const text = {
 }[locale];
 ---
 <Base title={`${text.title} — Patrick Diaz`} description={text.meta} noindex lang={locale} path="/privacy/">
-  <main class="page privacy">
+  <main id="main" class="page privacy">
     <header class="privacy-head">
       <h1>{text.title}</h1>
       <p class="label">{text.asOf}</p>
@@ -56,7 +57,8 @@ const text = {
   .privacy { max-width: 48rem; gap: var(--space-8); }
   .privacy-head { display: grid; gap: var(--space-3); }
   .privacy section { display: grid; gap: var(--space-3); }
-  .privacy h2 { font-size: var(--step-2); }
+  .privacy h2 { font-size: var(--step-1); letter-spacing: -0.015em; }
+  .privacy h1 { font-size: clamp(var(--step-3), 6vw, var(--step-4)); }
   /* The address alone on its line gets a tap target of at least 24 px. */
   .privacy > p a { display: inline-block; padding-block: var(--space-1); }
 </style>

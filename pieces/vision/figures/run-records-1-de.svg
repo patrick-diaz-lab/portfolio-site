@@ -7,7 +7,7 @@
   <text class="dim-t" x="0" y="128">ARBEIT</text>
   <path class="wire-static" d="M12 150 H47" />
   <polygon class="fig-head" points="55,150 47,146 47,154" />
-  <rect class="box" x="56" y="110" width="160" height="80" />
+  <rect class="box key" x="56" y="110" width="160" height="80" />
   <text class="lbl fig-mid" x="136" y="146">LAUF</text>
   <text class="fig-sub fig-mid" x="136" y="168">EINER PRO ARBEIT</text>
 

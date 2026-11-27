@@ -13,18 +13,18 @@
 
   <path class="wire-static" d="M150 46 H175 M150 122 H175 M150 198 H175 M175 46 V198 M175 122 H201" />
   <polygon class="fig-head" points="209,122 201,118 201,126" />
-  <rect class="box" x="210" y="92" width="150" height="60" />
+  <rect class="box key" x="210" y="92" width="150" height="60" />
   <text class="lbl fig-mid" x="285" y="114">INDEXER</text>
   <text class="fig-sub fig-mid" x="285" y="132">NACH ÜBERSCHRIFT</text>
   <text class="fig-sub fig-mid" x="285" y="146">KEIN MODELL</text>
-  <path class="wire-static" d="M360 122 H401" />
-  <polygon class="fig-head" points="409,122 401,118 401,126" />
+  <path class="wire-key" d="M360 122 H401" />
+  <polygon class="fig-head-key" points="409,122 401,118 401,126" />
   <rect class="box" x="410" y="92" width="140" height="60" />
   <text class="lbl fig-mid" x="480" y="118">INDEX</text>
   <text class="fig-sub fig-mid" x="480" y="138">VEKTOR + KEYWORDS</text>
-  <path class="wire-static" d="M550 122 H591" />
-  <polygon class="fig-head" points="599,122 591,118 591,126" />
-  <rect class="box" x="600" y="92" width="120" height="60" />
+  <path class="wire-key" d="M550 122 H591" />
+  <polygon class="fig-head-key" points="599,122 591,118 591,126" />
+  <rect class="box key" x="600" y="92" width="120" height="60" />
   <text class="lbl fig-mid" x="660" y="118">SUCHE</text>
   <text class="fig-sub fig-mid" x="660" y="138">BEIDE, VEREINT</text>
   <text class="dim-t" x="600" y="172">nur lesend</text>

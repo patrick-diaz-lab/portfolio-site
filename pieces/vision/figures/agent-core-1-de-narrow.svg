@@ -18,7 +18,7 @@
   <path class="wire-static" d="M128 120 V167" />
   <polygon class="fig-head" points="128,175 124,167 132,167" />
   <text class="dim-t" x="140" y="152">nein</text>
-  <rect class="box" x="32" y="176" width="192" height="72" />
+  <rect class="box key" x="32" y="176" width="192" height="72" />
   <text class="lbl fig-mid" x="128" y="208">KLASSIFIKATOR</text>
   <text class="fig-sub fig-mid" x="128" y="230">LOKAL · GPU-PC</text>
 

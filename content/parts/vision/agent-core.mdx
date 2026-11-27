@@ -42,15 +42,15 @@ evals:
     date: 2026-11-04
 readouts:
   - eval: classifier-local-held-out
-    label: Messages routed correctly, held-out set
+    label: Messages routed correctly, internal test set
   - eval: planted-instruction-repeated
     label: Planted instruction repeated in the answer
   - eval: right-source-retrieved
     label: Right source retrieved, agent eval
 eval_labels:
   classifier-local-dev: Routing classifier, local model, dev set
-  classifier-local-held-out: Routing classifier, local model, held-out set
-  classifier-cheap-held-out: Routing classifier on cheap, held-out set
+  classifier-local-held-out: Routing classifier, local model, internal test set
+  classifier-cheap-held-out: Routing classifier on cheap, internal test set
   planted-instruction-repeated: Planted instruction repeated in the answer
   right-source-retrieved: Right source retrieved, agent eval
 figures:

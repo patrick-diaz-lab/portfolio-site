@@ -12,7 +12,7 @@
 
   <path class="wire-static" d="M75 64 V87" />
   <polygon class="fig-head" points="75,95 71,87 79,87" />
-  <rect class="box" x="0" y="96" width="320" height="64" />
+  <rect class="box key" x="0" y="96" width="320" height="64" />
   <text class="lbl fig-mid" x="160" y="120">PRÜFUNG</text>
   <text class="fig-sub fig-mid" x="160" y="138">VOR JEDEM BEFEHL</text>
   <text class="fig-sub fig-mid" x="160" y="152">DENY · ASK · ALLOW</text>

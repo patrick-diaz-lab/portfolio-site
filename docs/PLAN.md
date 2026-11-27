@@ -45,6 +45,7 @@ Portfolio site for Patrick's work as an AI/LLM engineer. The first piece is **Vi
 | 1.15 | Part page layout 3 (D19, Patrick 2026-11-13): "you are here" sheet, readouts, section rail, decision cards, case cards, previous / next, and a figure on every part page. Plan below | Every part page has at least one figure and its lessons in case form; `pnpm check` (rules `readouts`, `figures`, `case`) and every gate pass; Patrick approves each page's reworded lessons and figure in its PR **Done 2026-11-13** (PRs #31, #32, #34, #35, #37; pages 1.12–1.14 built in layout 3). Four lessons stay prose by the rule below. Open point: the Telegram adapter page has no readouts |
 | 1.16 | German part pages (D23, Patrick 2026-11-15): all ten Vision part pages under `/de/vision/…`, same layout, figures and readouts, with the language switch per page. Two or three pages per PR. Plan below | Each German page passes `pnpm check` (rule `i18n-part`) and every gate; Patrick approves the text and figures in its PR and the page joins `published-urls.txt` after the merge **Done 2026-11-16** (PRs #44–#48); all ten pages are published |
 | 1.17 | Review fixes (Patrick, 2026-11-20; D24): the whole site read as a recruiter would read it, in both languages; numbers as "k of n", values without a case count removed, written labels for every eval, the first screen, who builds what, one word per thing, phone and sharing fixes. Plan below | `pnpm check`, the tests and every gate pass on both languages; Patrick approves the reworded text in the PR |
+| 1.18 | Design: Swiss editorial with one orange, light and dark (D25; Patrick's brief and reference image, 2026-11-26). Plan below | Homepage, piece overview, every part page, privacy, not found and the style sheet in the new tokens, in both languages and both modes; every drawing follows the mode; `pnpm check`, the tests and every gate pass, with axe in both modes; Patrick approves on screenshots (desktop, tablet, phone, light and dark) and in the PR |
 
 **Order (Patrick, 2026-11-12):** 1.9a, then the post-sync PR, then 1.10–1.14, then 1.9b (domain and launch switch). Nothing in 1.10–1.14 is built before the sync PR with their notes is merged.
 
@@ -386,6 +387,23 @@ More part pages before launch (Patrick). Their notes are being written on the Vi
 - **1.14, Telegram adapter:** `layers_only`, because sender identity is a security layer. The signed sender identity is told at layer level, once the notes say it's built.
 - **Before 1.10:** the small post-sync PR below, so the existing pages match the corrected notes first.
 - **Cost:** build sessions on the subscription; no API spend.
+
+### Item 1.18 plan (Patrick's brief, 2026-11-26)
+
+The site moves from the dark "Bench instrument" look to direction B of the design exploration (branch `item/design-exploration`), refined with one burnt orange. The structure, the content and every route stay; the decision is D25.
+
+- **Tokens** (`src/styles/tokens.css`): background, surface, text, secondary text, border, accent, accent subtle, each as `light-dark(light, dark)`. The light mode's orange is `#a94716` (Patrick, 2026-11-27). The mode follows the system; the switch in the site bar sets `data-theme` on `<html>` and keeps the choice in the browser.
+- **Type:** Inter Tight 700 for display, Inter 400/600 to read, JetBrains Mono 400 for labels; Barlow and Barlow Condensed leave. Sentence case instead of capitals for headings.
+- **Site bar:** the name, Work, each built piece, Contact, the language, the mode; a skip link first. Not sticky, so a part page's contents strip can be.
+- **Homepage:** the same order as before (intro, featured piece, work, contact): one statement in display type, the "looking for" line with an orange marker, the results under orange rules, the map as a figure that links to the piece, the work lines as rows.
+- **Piece overview:** title, tagline with its marker beside the summary, results, where to start, then the map with its panel and list, unchanged in behaviour.
+- **Part pages:** breadcrumb, title, the summary with its marker beside the "you are here" sheet, results, a contents strip that stays on top while reading, the four sections numbered in the margin. Decisions under a thin orange rule with the rejected options beside them; lessons with neutral rules. The related parts move from the old rail to the foot of the page.
+- **Drawings** (`src/styles/schematic.css`, `pieces/vision/figures/`): every stroke and letter from the tokens. Orange marks, by class: the component that does the page's main work (`key`, one per figure; two on the knowledge core figure), the main path (knowledge core only), fallback paths (as before), a boundary (the worker's own network, the blocked path on the console figure), and notes.
+- **Privacy page:** it no longer says that nothing is stored in the browser; it says that the choice of light or dark is kept there, if the switch is used, and nothing else. Both languages; Patrick's read in the PR.
+- **Gates:** axe runs in both modes; the focus gate reads the new token; nothing else changes. The size budget holds (fonts about 92 KB).
+- **Not in 1.18:** a highlighted word in the headline (the brief makes it optional), the chat, and the design lab, which stays on its own branch.
+- **Done when:** the row above.
+- **Cost:** build session on the subscription; no API spend.
 
 ### Item 1.17 plan (Patrick's OK 2026-11-20)
 

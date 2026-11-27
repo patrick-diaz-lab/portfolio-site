@@ -16,7 +16,7 @@
 
   <text class="note" x="300" y="92">Gesamtlimit $24</text>
   <path class="note-line" d="M350 97 V108" />
-  <rect class="box" x="250" y="108" width="200" height="80" />
+  <rect class="box key" x="250" y="108" width="200" height="80" />
   <text class="lbl fig-mid" x="350" y="140">GATEWAY</text>
   <text class="fig-sub fig-mid" x="350" y="160">ALIASE → MODELLE</text>
   <text class="fig-sub fig-mid" x="350" y="176">PREISE VON MIR</text>

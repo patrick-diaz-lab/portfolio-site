@@ -9,8 +9,8 @@ summary: >-
   die ich vorgegeben habe; ich lege die Regeln fest, gebe Pläne frei, reviewe und merge.
 # Chips, in the order of the chips in piece.yaml: a label, or a label and the chip's note.
 chips:
-  - Nachrichten richtig geroutet, Held-out
+  - Nachrichten richtig geroutet, internes Testset
   - Eingeschleuste Anweisung wiederholt
   - label: Benchmark gelöst, gleich wie Claude Code
     note: 46 Fälle, je zweimal
-chips_note: "Held-out: Testfälle, die nie zum Optimieren dienen. Dieses Set mit 27 Fällen wurde von Claude entworfen, von mir geprüft und gesperrt. Nur Gesamtwerte."
+chips_note: "Internes Testset: 27 Fälle, von Claude entworfen und von mir geprüft. Nur Gesamtwerte."
