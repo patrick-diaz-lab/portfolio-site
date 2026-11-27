@@ -93,6 +93,16 @@ export function linkParts(svg: string, parts: MapPart[], t: SvgText = {}): strin
     });
 }
 
+/** The drawing as one picture: every part as drawn, in a language, but none of them a link.
+ *  For a figure that is one link as a whole (the homepage, D25). Hidden from screen readers;
+ *  the link around it carries the name. */
+export function plainDrawing(svg: string, parts: MapPart[], t: SvgText = {}): string {
+  return linkParts(svg, parts, t)
+    .replace(/<a id="[^"]+" class="part"[^>]*>/g, '<g class="part">')
+    .replace(/<\/a>/g, "</g>")
+    .replace(/<svg\b([^>]*)\srole="group"\s+aria-label="[^"]*"/, '<svg$1 aria-hidden="true" focusable="false"');
+}
+
 const BOX = /<rect\s+class="box"\s+x="([\d.]+)"\s+y="([\d.]+)"\s+width="([\d.]+)"\s+height="([\d.]+)"/;
 
 /** The two ends of a wire path made of absolute M, L, H and V commands. */

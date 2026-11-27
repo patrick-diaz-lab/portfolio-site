@@ -127,6 +127,8 @@ try {
       const ctx = await browser.newContext(desktop);
       const page = await ctx.newPage();
       await page.goto(url);
+      // The map can start below the first screen (D25): bring the part into view first.
+      await page.locator(`${sel(ids[0]!)} .box`).scrollIntoViewIfNeeded();
       const box = await page.locator(`${sel(ids[0]!)} .box`).boundingBox();
       if (box) {
         await page.mouse.move(box.x + 10, box.y + 10);

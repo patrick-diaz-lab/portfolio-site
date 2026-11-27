@@ -1,6 +1,6 @@
-// `pnpm design-check` (PLAN 1.1): serves dist/, runs axe-core (WCAG 2 A/AA) on every page,
-// fails on any violation or any request to another host, and saves desktop and phone
-// screenshots for Patrick's review.
+// `pnpm design-check` (PLAN 1.1): serves dist/, runs axe-core (WCAG 2 A/AA) on every page in
+// the light and the dark mode (D25), fails on any violation or any request to another host,
+// and saves desktop and phone screenshots for Patrick's review.
 //
 //   node scripts/design-check.ts [--shots <dir>]     default dir: .cache/screens (git-ignored)
 //
@@ -61,8 +61,9 @@ async function main(): Promise<number> {
   try {
     for (const path of pages()) {
       const slug = path === "/" ? "home" : path.replace(/\//g, "-").replace(/^-|-$/g, "");
-      for (const [view, opts] of views) {
-        const ctx = await browser.newContext({ ...opts, colorScheme: "dark" });
+      // Both modes (D25): a pair can pass in one and fail in the other.
+      for (const [view, opts] of views) for (const scheme of ["light", "dark"] as const) {
+        const ctx = await browser.newContext({ ...opts, colorScheme: scheme });
         const page = await ctx.newPage();
         const foreign: string[] = [];
         page.on("request", (r) => {
@@ -75,12 +76,12 @@ async function main(): Promise<number> {
         const result = await page.evaluate<{ violations: { id: string; impact: string; nodes: unknown[] }[] }>(
           "axe.run(document, { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'] } })",
         );
-        const shot = join(SHOTS, `${slug}-${view}.png`);
+        const shot = join(SHOTS, `${slug}-${view}-${scheme}.png`);
         await page.screenshot({ path: shot, fullPage: true });
         const v = result.violations;
         const status = v.length === 0 && foreign.length === 0 ? "ok" : "FAILED";
         if (status !== "ok") failed++;
-        process.stdout.write(`${status.padEnd(6)} ${path.padEnd(14)} ${view.padEnd(8)} axe: ${v.length} violation(s), other hosts: ${foreign.length}\n`);
+        process.stdout.write(`${status.padEnd(6)} ${path.padEnd(14)} ${view.padEnd(8)} ${scheme.padEnd(5)} axe: ${v.length} violation(s), other hosts: ${foreign.length}\n`);
         for (const x of v) process.stdout.write(`       ${x.id} (${x.impact}) on ${x.nodes.length} element(s)\n`);
         for (const u of foreign) process.stdout.write(`       request to another host: ${new URL(u).host}\n`);
         await ctx.close();

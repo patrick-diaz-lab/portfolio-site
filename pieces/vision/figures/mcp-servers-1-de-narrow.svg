@@ -5,7 +5,7 @@
   <text class="fig-sub fig-mid" x="70" y="44">SMART · WORKER</text>
   <path class="wire-static" d="M140 28 H171" />
   <polygon class="fig-head" points="179,28 171,24 171,32" />
-  <rect class="box" x="180" y="0" width="140" height="56" />
+  <rect class="box key" x="180" y="0" width="140" height="56" />
   <text class="lbl fig-mid" x="250" y="24">GATEWAY</text>
   <text class="fig-sub fig-mid" x="250" y="44">TOOLS JE SCHLÜSSEL</text>
 

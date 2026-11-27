@@ -12,17 +12,17 @@
 
   <path class="wire-static" d="M50 52 V72 M160 52 V72 M270 52 V72 M50 72 H270 M160 72 V95" />
   <polygon class="fig-head" points="160,103 156,95 164,95" />
-  <rect class="box" x="60" y="104" width="200" height="56" />
+  <rect class="box key" x="60" y="104" width="200" height="56" />
   <text class="lbl fig-mid" x="160" y="128">INDEXER</text>
   <text class="fig-sub fig-mid" x="160" y="148">BY HEADING · NO MODEL</text>
-  <path class="wire-static" d="M160 160 V183" />
-  <polygon class="fig-head" points="160,191 156,183 164,183" />
+  <path class="wire-key" d="M160 160 V183" />
+  <polygon class="fig-head-key" points="160,191 156,183 164,183" />
   <rect class="box" x="60" y="192" width="200" height="56" />
   <text class="lbl fig-mid" x="160" y="216">INDEX</text>
   <text class="fig-sub fig-mid" x="160" y="236">VECTOR + KEYWORDS</text>
-  <path class="wire-static" d="M160 248 V271" />
-  <polygon class="fig-head" points="160,279 156,271 164,271" />
-  <rect class="box" x="60" y="280" width="200" height="56" />
+  <path class="wire-key" d="M160 248 V271" />
+  <polygon class="fig-head-key" points="160,279 156,271 164,271" />
+  <rect class="box key" x="60" y="280" width="200" height="56" />
   <text class="lbl fig-mid" x="160" y="304">SEARCH</text>
   <text class="fig-sub fig-mid" x="160" y="324">BOTH RANKINGS, FUSED</text>
 

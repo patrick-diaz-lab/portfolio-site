@@ -4,7 +4,8 @@
 //   - the header and a "you are here" sheet of the piece's map, with the neighbours as links
 //   - up to 5 readouts (the part's `readouts`), before → after where an eval has a baseline;
 //     on phones they sit under the first text of "What it does" (Readouts.astro, 2026-11-20)
-//   - the four fixed sections, with a sticky rail beside them (a strip on phones)
+//   - a strip of contents that stays at the top while reading (D25; the active section is
+//     marked in orange), then the four fixed sections, each numbered in the margin
 //       What it does     the overview, then the figures (FIG. <part>.<n>, the map's style)
 //       Why this way     each decision as a card, the options it beat beside it (`lost_to`)
 //       How it's tested  the testing entries, and the evals that aren't readouts in a table
@@ -150,6 +151,8 @@ const stations = [
   { id: "how-its-tested", name: L("part.tested"), count: [testing.length ? count(testing.length, "test") : "", tableEvals.length ? count(tableEvals.length, readouts.length ? "more" : "value") : ""].filter(Boolean).join(" · "), show: testing.length + tableEvals.length > 0 },
   { id: "what-i-learned", name: L("part.learned"), count: count(learning.length, "lesson"), show: learning.length > 0 },
 ].filter((s) => s.show);
+const stationNo = (id: string) => String(stations.findIndex((x) => x.id === id) + 1).padStart(2, "0");
+const stationCount = (id: string) => stations.find((x) => x.id === id)?.count ?? "";
 const tableValue = (v: Eval) => evalValue(v.metric, v.value, v.n, undefined, of);
 const tableN = (v: Eval) => (v.n === undefined || showsN(v) ? "" : `n = ${v.n}`);
 const title = text?.title ?? part.data.title;
@@ -158,57 +161,49 @@ const asOf = text?.as_of ?? part.data.as_of;
 const withPiece = (key: Parameters<typeof t>[1]) => L(key).replace("{piece}", pieceTitle);
 ---
 <Base title={`${title} — ${pieceTitle} — Patrick Diaz`} description={summary} lang={locale} path={bilingual ? page : undefined}>
-  <main class="page part-page">
-    <div class="part-top">
-      <header class="part-head">
-        <p class="label"><a href={back}>{pieceTitle}</a> · {L("part.label")} {num}</p>
-        <h1>{title}</h1>
-        <p class="part-summary">{summary}</p>
-        <p class="label">{L("piece.asOf")} {asOf}</p>
-      </header>
-      {here && (
-        <figure class="part-where">
-          <p class="part-where-head label"><span class="part-where-here">{L("part.here")}</span><span>{pieceTitle} · {L("part.map")}</span></p>
-          <Fragment set:html={here.svg} />
-          {neighbours.length > 0 && (
-            <figcaption class="part-where-links">
-              {L("part.nextTo")} {neighbours.map((n, i) => {
-                const l = linkTo(n.id);
-                return <>{i > 0 && (i === neighbours.length - 1 ? ` ${L("part.and")} ` : ", ")}<a href={l.href} hreflang={l.lang}>{n.label}</a>{l.lang && ` ${L("map.englishPage")}`}</>;
-              })} <a href={back}>{withPiece("part.onMap")}</a>.
-            </figcaption>
-          )}
-        </figure>
-      )}
-    </div>
+  <main id="main" class="page part-page">
+    <header class="part-head">
+      <p class="label part-crumb"><a class="is-accent" href={back}>{pieceTitle}</a> <span aria-hidden="true">–</span> {L("part.label")} {num}</p>
+      <h1>{title}</h1>
+      <div class="part-intro">
+        <div class="part-lede">
+          <p class="part-summary lead marked">{summary}</p>
+          <p class="label">{L("piece.asOf")} {asOf}</p>
+        </div>
+        {here && (
+          <figure class="part-where">
+            <p class="part-where-head label"><span class="part-where-here is-accent">{L("part.here")}</span><span>{pieceTitle} · {L("part.map")}</span></p>
+            <div class="plate"><Fragment set:html={here.svg} /></div>
+            {neighbours.length > 0 && (
+              <figcaption class="part-where-links">
+                {L("part.nextTo")} {neighbours.map((n, i) => {
+                  const l = linkTo(n.id);
+                  return <>{i > 0 && (i === neighbours.length - 1 ? ` ${L("part.and")} ` : ", ")}<a href={l.href} hreflang={l.lang}>{n.label}</a>{l.lang && ` ${L("map.englishPage")}`}</>;
+                })} <a href={back}>{withPiece("part.onMap")}</a>.
+              </figcaption>
+            )}
+          </figure>
+        )}
+      </div>
+    </header>
 
     {readouts.length > 0 && <Readouts readouts={readouts} place="top" {...readoutText} />}
 
     <div class="part-body">
       <nav class="rail" aria-label={L("part.onPage")} data-rail>
-        <p class="label rail-label">{L("part.onPage")}</p>
+        <p class="label rail-label">{L("part.contents")}</p>
         <ol>
-          {stations.map((s) => (
-            <li><a href={`#${s.id}`}><span class="rail-name">{s.name}</span>{s.count && <span class="rail-count">{s.count}</span>}</a></li>
+          {stations.map((s, i) => (
+            <li><a href={`#${s.id}`}><span class="rail-n" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span><span class="rail-name">{s.name}</span></a></li>
           ))}
         </ol>
-        <p class="rail-more">
-          {part.data.related.length > 0 && (
-            <>
-              <span class="label">{L("part.related")}</span>
-              {part.data.related.map((r) => {
-                const l = linkTo(r);
-                return <a href={l.href} hreflang={l.lang}>{labelOf(r)}{l.lang && ` ${L("map.englishPage")}`} →</a>;
-              })}
-            </>
-          )}
-          <a href={back}>{withPiece("part.back")}</a>
-        </p>
       </nav>
 
       <article class="part-article">
-        <section aria-labelledby="what-it-does" class="part-sec" data-station>
+        <section aria-labelledby="what-it-does" class="part-sec sec" data-station>
+          <p class="sec-n" aria-hidden="true">{stationNo("what-it-does")}</p>
           <h2 id="what-it-does">{L("part.does")}</h2>
+          {stationCount("what-it-does") && <p class="label part-sec-count">{stationCount("what-it-does")}</p>}
           <div class="prose"><Content /></div>
           {readouts.length > 0 && <Readouts readouts={readouts} place="inline" {...readoutText} />}
           {ofKind("overview").map((e) => {
@@ -218,23 +213,24 @@ const withPiece = (key: Parameters<typeof t>[1]) => L(key).replace("{piece}", pi
           {figures.map((f) => (
             <figure class="part-figure">
               <p class="part-figure-head label" aria-hidden="true"><span>{L("part.fig")} {f.n}</span><span>{pieceTitle} · {ownLabel}</span></p>
-              <Fragment set:html={f.wide} />
-              {f.narrow && <Fragment set:html={f.narrow} />}
+              <div class="plate"><Fragment set:html={f.wide} />{f.narrow && <Fragment set:html={f.narrow} />}</div>
               <figcaption><span class="part-figure-n">{L("part.fig")} {f.n}</span> {f.caption}</figcaption>
             </figure>
           ))}
         </section>
 
         {(decisions.length > 0 || rejected.length > 0) && (
-          <section aria-labelledby="why-this-way" class="part-sec" data-station>
+          <section aria-labelledby="why-this-way" class="part-sec sec" data-station>
+            <p class="sec-n" aria-hidden="true">{stationNo("why-this-way")}</p>
             <h2 id="why-this-way">{L("part.why")}</h2>
+            {stationCount("why-this-way") && <p class="label part-sec-count">{stationCount("why-this-way")}</p>}
             {decisions.map((d, i) => {
               const C = rendered.get(d.data.id)!;
               const lost = rejectedFor(d.data.id);
               return (
                 <div class="decision-card">
                   <section id={d.data.anchor} class="decision-main prose">
-                    <p class="label">{L("part.decision")} {String(i + 1).padStart(2, "0")}</p>
+                    <p class="label is-accent">{L("part.decision")} {String(i + 1).padStart(2, "0")}</p>
                     <C />
                   </section>
                   {lost.length > 0 && (
@@ -256,8 +252,10 @@ const withPiece = (key: Parameters<typeof t>[1]) => L(key).replace("{piece}", pi
         )}
 
         {(testing.length > 0 || tableEvals.length > 0) && (
-          <section aria-labelledby="how-its-tested" class="part-sec" data-station>
+          <section aria-labelledby="how-its-tested" class="part-sec sec" data-station>
+            <p class="sec-n" aria-hidden="true">{stationNo("how-its-tested")}</p>
             <h2 id="how-its-tested">{L("part.tested")}</h2>
+            {stationCount("how-its-tested") && <p class="label part-sec-count">{stationCount("how-its-tested")}</p>}
             {testing.map((e) => {
               const C = rendered.get(e.data.id)!;
               return <section id={e.data.anchor} class="entry prose"><C /></section>;
@@ -283,8 +281,10 @@ const withPiece = (key: Parameters<typeof t>[1]) => L(key).replace("{piece}", pi
         )}
 
         {learning.length > 0 && (
-          <section aria-labelledby="what-i-learned" class="part-sec" data-station>
+          <section aria-labelledby="what-i-learned" class="part-sec sec" data-station>
+            <p class="sec-n" aria-hidden="true">{stationNo("what-i-learned")}</p>
             <h2 id="what-i-learned">{L("part.learned")}</h2>
+            {stationCount("what-i-learned") && <p class="label part-sec-count">{stationCount("what-i-learned")}</p>}
             {learning.map((e) => {
               const C = rendered.get(e.data.id)!;
               if (!isCase(e)) return <section id={e.data.anchor} class="entry prose lesson"><p class="label">{L("part.lesson")} {lessonNo(e)}</p><C /></section>;
@@ -309,6 +309,15 @@ const withPiece = (key: Parameters<typeof t>[1]) => L(key).replace("{piece}", pi
           ) : <span class="part-step is-empty"></span>}
           <a class="part-back" href={back}>{withPiece("part.back")}</a>
         </nav>
+        {part.data.related.length > 0 && (
+          <p class="part-related">
+            <span class="label">{L("part.related")}</span>
+            {part.data.related.map((r) => {
+              const l = linkTo(r);
+              return <a href={l.href} hreflang={l.lang}>{labelOf(r)}{l.lang && ` ${L("map.englishPage")}`} →</a>;
+            })}
+          </p>
+        )}
       </article>
     </div>
   </main>
@@ -321,105 +330,102 @@ const withPiece = (key: Parameters<typeof t>[1]) => L(key).replace("{piece}", pi
 </script>
 
 <style>
-  .part-page { gap: var(--space-12); }
-  .part-head a, .part-where a { color: inherit; }
+  .part-page { gap: var(--space-12); padding-top: var(--space-8); }
   /* Links that stand alone or in a short line get a tap target of at least 24 px. */
-  .part-head .label a, .part-where-links a { display: inline-block; padding-block: var(--space-1); }
+  .part-crumb a, .part-where-links a { display: inline-block; padding-block: var(--space-1); }
 
-  /* Header and "you are here", side by side; stacked on a phone. */
-  .part-top { display: flex; flex-wrap: wrap; gap: var(--space-8) var(--space-12); align-items: start; }
-  .part-head { flex: 3 1 24rem; min-width: 0; display: grid; gap: var(--space-4); }
-  .part-head h1 { font-size: clamp(var(--step-3), 5vw, 3rem); line-height: 1.05; }
-  .part-summary { font-size: var(--step-1); line-height: 1.45; max-width: 46ch; }
-  .part-where { flex: 2 1 18rem; min-width: 0; margin: 0; border: var(--line-thin) solid var(--color-silk-dim); border-radius: var(--radius); padding: var(--space-3); display: grid; gap: var(--space-2); }
-  .part-where-head { display: flex; justify-content: space-between; gap: var(--space-2); font-size: 0.75rem; max-width: none; }
-  .part-where-here { color: var(--color-amber); }
-  .part-where :global(.locator) { display: block; max-width: 100%; height: auto; justify-self: center; }
-  .part-where-links { font-size: var(--step--1); line-height: 1.5; color: var(--color-silk-dim); }
-  .part-where-links a { color: var(--color-silk); }
+  /* Header: breadcrumb, title, then the summary with its marker beside the "you are here" sheet. */
+  .part-head { display: grid; gap: var(--space-6); }
+  .part-head h1 { font-size: clamp(var(--step-3), 6.2vw, var(--step-5)); max-width: 16ch; }
+  .part-intro { display: flex; flex-wrap: wrap; gap: var(--space-8) var(--space-12); align-items: start; margin-top: var(--space-2); }
+  .part-lede { flex: 3 1 22rem; min-width: 0; display: grid; gap: var(--space-3); }
+  .part-summary { max-width: 42ch; }
+  .part-where { flex: 2 1 20rem; min-width: 0; margin: 0; display: grid; gap: var(--space-2); border-left: var(--line-thin) solid var(--color-border); padding-left: var(--space-6); }
+  .part-where-head { display: flex; justify-content: space-between; gap: var(--space-2); }
+  .part-where .plate { padding: var(--space-3); }
+  .part-where :global(.locator) { display: block; max-width: 100%; height: auto; margin-inline: auto; }
+  .part-where-links { font-size: var(--step--1); line-height: 1.5; color: var(--color-text-secondary); }
+  @media (max-width: 47.99rem) { .part-where { border-left: 0; padding-left: 0; } }
 
-  /* The body: the sections, and the rail beside them (first in the source, so it comes first
-     when the row wraps on a phone). */
-  .part-body { display: flex; flex-direction: row-reverse; flex-wrap: wrap; gap: var(--space-8) var(--space-12); align-items: flex-start; }
-  .part-article { flex: 999 1 35rem; min-width: 0; max-width: 48rem; display: grid; gap: var(--space-16); }
-  .rail { flex: 1 1 13rem; min-width: 0; position: sticky; top: var(--space-6); display: grid; gap: var(--space-4); }
-  .rail ol { list-style: none; margin: 0 0 0 6px; padding: 0 0 0 var(--space-6); border-left: var(--focus-width) solid var(--color-silk-dim); display: grid; gap: var(--space-3); }
-  .rail li { position: relative; }
-  .rail li::before { content: ""; position: absolute; left: calc(-1 * var(--space-6) - 8px); top: 0.55rem; width: 14px; height: 14px; box-sizing: border-box; border-radius: 50%; border: var(--focus-width) solid var(--color-silk-dim); background: var(--color-panel); }
-  .rail li:has(a[aria-current])::before { border-color: var(--color-amber); background: var(--color-amber); }
-  .rail a { display: grid; text-decoration: none; padding-block: var(--space-1); }
-  .rail a[aria-current] { color: var(--color-amber); }
-  .rail-name { font: 600 var(--step-0) / 1.3 var(--font-panel); letter-spacing: var(--tracking-panel); text-transform: uppercase; }
-  .rail a:hover .rail-name { text-decoration: underline; }
-  .rail-count { font: 400 0.75rem / 1.4 var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-silk-dim); }
-  .rail-more { display: grid; gap: var(--space-1); border-top: var(--line-thin) solid var(--color-silk-dim); padding-top: var(--space-3); font-size: var(--step--1); }
-  .rail-more a { padding-block: var(--space-1); }
+  /* Contents: a strip that stays at the top while reading; the section being read is marked. */
+  .part-body { display: grid; gap: var(--space-12); }
+  .rail { position: sticky; top: 0; z-index: 3; background: var(--color-bg); border-block: var(--line-thin) solid var(--color-border); display: flex; align-items: center; gap: 0 var(--space-8); min-width: 0; }
+  .rail-label { flex: none; }
+  .rail ol { list-style: none; margin: 0; padding: 0; display: flex; gap: var(--space-6); overflow-x: auto; white-space: nowrap; min-width: 0; }
+  .rail a { display: inline-flex; align-items: center; gap: var(--space-2); min-height: 2.75rem; text-decoration: none; font-size: 0.9375rem; box-shadow: inset 0 -2px 0 transparent; }
+  .rail-n { font: 400 var(--step--2) / 1 var(--font-mono); color: var(--color-text-secondary); }
+  .rail a:hover, .rail a[aria-current] { box-shadow: inset 0 -2px 0 var(--color-accent); }
+  .rail a[aria-current] { font-weight: 600; }
+  .rail a[aria-current] .rail-n { color: var(--color-accent-strong); }
+  .rail a:focus-visible { outline-offset: -3px; }
+  @media (max-width: 47.99rem) { .rail-label { display: none; } .rail ol { gap: var(--space-4); } }
 
-  .part-sec { display: grid; gap: var(--space-6); scroll-margin-top: var(--space-8); }
-  .part-sec > h2 { scroll-margin-top: var(--space-8); }
-  .entry { display: grid; gap: var(--space-3); scroll-margin-top: var(--space-8); }
-  .entry + .entry { border-top: var(--line-thin) solid var(--color-silk-dim); padding-top: var(--space-6); }
+  .part-article { min-width: 0; display: grid; gap: var(--space-16); }
+  .part-sec { scroll-margin-top: var(--space-16); }
+  .part-sec > h2 { scroll-margin-top: var(--space-16); }
+  .part-sec-count { margin-top: calc(-1 * var(--space-4)); }
+  .entry { display: grid; gap: var(--space-3); scroll-margin-top: var(--space-16); }
+  .entry + .entry { border-top: var(--line-thin) solid var(--color-border); padding-top: var(--space-6); }
   .prose :global(h3) { font-size: var(--step-1); }
-  .prose :global(h4) { font: 600 var(--step-0) / var(--leading-tight) var(--font-panel); letter-spacing: var(--tracking-panel); text-transform: uppercase; color: var(--color-silk-dim); }
+  .prose :global(h4) { font: 400 var(--step--2) / 1.5 var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-text-secondary); margin: 0; }
   .prose :global(p) { line-height: var(--leading-body); }
   .prose { display: grid; gap: var(--space-3); }
 
-  /* Figures: framed like a drawing sheet; the narrow version replaces the wide one on phones. */
-  .part-figure { margin: var(--space-2) 0 0; border: var(--line-thin) solid var(--color-silk-dim); border-radius: var(--radius); padding: var(--space-4) var(--space-3); display: grid; gap: var(--space-4); }
-  .part-figure-head { display: flex; justify-content: space-between; gap: var(--space-2); font-size: 0.75rem; max-width: none; }
-  .part-figure :global(.figure-svg.is-narrow) { display: none; max-width: 22rem; justify-self: center; }
-  .part-figure figcaption { font-size: var(--step--1); line-height: 1.5; border-top: var(--line-thin) solid var(--color-silk-dim); padding-top: var(--space-3); }
-  .part-figure-n { font: 400 var(--step--1) var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-amber); margin-right: var(--space-1); }
+  /* Figures: the drawing on a plate; the narrow version replaces the wide one on phones. */
+  .part-figure { margin: var(--space-2) 0 0; display: grid; gap: var(--space-3); max-width: 60rem; }
+  .part-figure-head { display: flex; justify-content: space-between; gap: var(--space-2); }
+  .part-figure :global(.figure-svg.is-narrow) { display: none; max-width: 22rem; margin-inline: auto; }
+  .part-figure figcaption { font-size: var(--step--1); line-height: 1.5; color: var(--color-text-secondary); max-width: 70ch; }
+  .part-figure-n { font: 400 var(--step--2) var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-text); margin-right: var(--space-1); }
 
-  /* Decisions: the choice on the left, the options it beat on the right. */
-  .decision-card { display: flex; flex-wrap: wrap; border: var(--line-module) solid var(--color-silk); border-radius: var(--radius); overflow: hidden; }
-  .decision-main { flex: 3 1 18rem; min-width: 0; background: var(--color-panel-raised); padding: var(--space-6); align-content: start; scroll-margin-top: var(--space-8); }
-  .decision-lost { flex: 2 1 14rem; min-width: 0; background: var(--color-panel); padding: var(--space-6); display: grid; gap: var(--space-4); align-content: start; }
-  .rejected { display: grid; gap: var(--space-2); padding-left: var(--space-3); border-left: var(--focus-width) dashed var(--color-silk-dim); scroll-margin-top: var(--space-8); }
-  .rejected-loose { background: var(--color-panel-raised); padding: var(--space-3) var(--space-4); }
-  .rejected :global(p) { font-size: var(--step--1); }
+  /* Decisions: under a thin orange rule, the choice on the left, the options it beat on the right. */
+  .decision-card { display: flex; flex-wrap: wrap; gap: var(--space-6) var(--space-12); border-top: var(--line-thin) solid var(--color-accent); padding-top: var(--space-4); }
+  .decision-main { flex: 3 1 20rem; min-width: 0; align-content: start; scroll-margin-top: var(--space-16); }
+  .decision-lost { flex: 2 1 14rem; min-width: 0; display: grid; gap: var(--space-4); align-content: start; padding-top: var(--space-6); }
+  .rejected { display: grid; gap: var(--space-2); padding-left: var(--space-4); border-left: var(--line-thin) dashed var(--color-text-secondary); scroll-margin-top: var(--space-16); }
+  .rejected :global(h3) { font-size: var(--step-0); letter-spacing: -0.01em; }
+  .rejected :global(p) { font-size: var(--step--1); color: var(--color-text-secondary); }
+  .rejected-loose { max-width: 40rem; }
 
-  /* Case cards: a learning entry in case form. The entry's own h3 is the title; each h4 and
-     its paragraph form one row. */
-  .case { display: grid; grid-template-columns: 9rem minmax(0, 1fr); border: var(--line-module) solid var(--color-silk); border-radius: var(--radius); background: var(--color-panel-raised); scroll-margin-top: var(--space-8); }
+  /* Lessons in case form: neutral rules. The entry's own h3 is the title; each h4 and its
+     paragraph form one row; the last row, what changed, carries the orange label. */
+  .case { display: grid; grid-template-columns: 9rem minmax(0, 1fr); border-top: var(--line-thin) solid var(--color-border); padding-top: var(--space-4); scroll-margin-top: var(--space-16); max-width: 52rem; }
   .case > :global(*) { margin: 0; max-width: none; }
-  .case-no { grid-column: 1 / -1; order: 0; padding: var(--space-4) var(--space-6) 0; }
-  .case :global(h3) { grid-column: 1 / -1; order: 1; font-size: var(--step-1); padding: var(--space-1) var(--space-6) var(--space-4); }
-  .case-metric { grid-column: 1 / -1; order: 2; max-width: none; padding: 0 var(--space-6) var(--space-4); display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-3); align-items: baseline; }
-  .case-metric-value { font: 400 var(--step-1) var(--font-mono); color: var(--color-amber); }
-  .case :global(h4), .case :global(h4 + p) { order: 3; border-top: var(--line-thin) solid var(--color-panel); padding: var(--space-3) var(--space-6); }
-  .case :global(h4) { font: 400 0.75rem / 1.8 var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-silk-dim); padding-right: 0; }
-  .case :global(h4 + p) { font-size: var(--step--1); line-height: 1.55; padding-left: var(--space-3); }
-  .case :global(h4:last-of-type) { color: var(--color-amber); }
+  .case-no { grid-column: 1 / -1; order: 0; }
+  .case :global(h3) { grid-column: 1 / -1; order: 1; font-size: var(--step-1); padding: var(--space-1) 0 var(--space-4); }
+  .case-metric { grid-column: 1 / -1; order: 2; max-width: none; padding: 0 0 var(--space-4); display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-3); align-items: baseline; }
+  .case-metric-value { font: 700 var(--step-1) var(--font-display); }
+  .case :global(h4), .case :global(h4 + p) { order: 3; border-top: var(--line-thin) solid var(--color-border); padding: var(--space-3) 0; }
+  .case :global(h4) { font: 400 var(--step--2) / 1.9 var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-text-secondary); padding-right: var(--space-3); }
+  .case :global(h4 + p) { font-size: 1rem; line-height: 1.55; }
+  .case :global(h4:last-of-type) { color: var(--color-accent-strong); }
+  .lesson { max-width: 52rem; }
+  .part-sec .lesson { border-top: var(--line-thin) solid var(--color-border); padding-top: var(--space-4); }
 
   .evals-wrap { overflow-x: auto; }
-  .evals { border-collapse: collapse; width: 100%; font-size: var(--step--1); }
+  .evals { border-collapse: collapse; width: 100%; max-width: 52rem; font-size: var(--step--1); }
   .evals caption { text-align: left; padding-bottom: var(--space-2); }
-  .evals :is(th, td) { text-align: left; padding: var(--space-2) var(--space-3); border-bottom: var(--line-thin) solid var(--color-silk-dim); }
-  .evals thead th { font: 400 var(--step--1) var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-silk-dim); }
+  .evals :is(th, td) { text-align: left; padding: var(--space-2) var(--space-3) var(--space-2) 0; border-bottom: var(--line-thin) solid var(--color-border); }
+  .evals thead th { font: 400 var(--step--2) var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-text-secondary); }
   .evals td { font-family: var(--font-mono); }
   .evals tbody th { font-weight: 400; }
 
-  /* Previous / next, then the way back to the map. */
-  .part-steps { display: flex; flex-wrap: wrap; gap: var(--space-3); border-top: var(--line-module) solid var(--color-silk); padding-top: var(--space-6); }
-  .part-step { flex: 1 1 12rem; display: grid; gap: var(--space-1); padding: var(--space-3) var(--space-4); border: var(--line-thin) solid var(--color-silk-dim); border-radius: var(--radius); text-decoration: none; }
-  .part-step:hover { border-color: var(--color-amber); }
+  /* Previous / next, the way back to the map, then the related parts. */
+  .part-steps { display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-8); border-top: var(--line-rule) solid var(--color-text); padding-top: var(--space-4); }
+  .part-step { flex: 1 1 12rem; display: grid; gap: var(--space-1); padding-block: var(--space-2); text-decoration: none; }
   .part-step.is-next { text-align: right; }
-  .part-step.is-empty { border: 0; padding: 0; }
-  .part-step-name { font: 600 var(--step-1) / 1.2 var(--font-panel); letter-spacing: var(--tracking-panel); text-transform: uppercase; }
-  .part-back { flex: 1 1 100%; text-align: center; font: 400 var(--step--1) var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; padding-block: var(--space-3); }
+  .part-step.is-empty { padding: 0; }
+  .part-step-name { font: 700 var(--step-1) / 1.2 var(--font-display); letter-spacing: -0.015em; text-decoration: underline; text-decoration-color: transparent; text-decoration-thickness: 2px; text-underline-offset: 0.2em; }
+  .part-step:hover .part-step-name { text-decoration-color: var(--color-accent); }
+  .part-back { flex: 1 1 100%; text-align: center; font-size: var(--step--1); padding-block: var(--space-3); }
+  .part-related { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-6); align-items: baseline; font-size: var(--step--1); max-width: none; }
+  .part-related a { display: inline-block; padding-block: var(--space-2); }
 
   @media (max-width: 47.99rem) {
     .part-figure :global(.figure-svg.is-wide) { display: none; }
     .part-figure :global(.figure-svg.is-narrow) { display: block; }
     .case { grid-template-columns: minmax(0, 1fr); }
     .case :global(h4) { padding-bottom: 0; }
-    .case :global(h4 + p) { border-top: 0; padding-left: var(--space-6); padding-top: var(--space-1); }
-    /* The rail becomes a strip of section links that stays at the top while reading. */
-    .rail { flex-basis: 100%; top: 0; z-index: 3; gap: 0; background: var(--color-panel); border-bottom: var(--line-thin) solid var(--color-silk-dim); }
-    .rail-label, .rail-count, .rail-more { display: none; }
-    .rail ol { display: flex; gap: var(--space-4); margin: 0; padding: 0; border-left: 0; overflow-x: auto; white-space: nowrap; }
-    .rail li::before { display: none; }
-    .rail a { min-height: 2.75rem; align-items: center; }
+    .case :global(h4 + p) { border-top: 0; padding-top: var(--space-1); }
   }
 </style>

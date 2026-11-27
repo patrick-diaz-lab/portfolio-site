@@ -1,6 +1,6 @@
-// The section rail on part pages (layout 3, Patrick 2026-11-13). Progressive enhancement
+// The contents strip on part pages (layout 3, Patrick 2026-11-13). Progressive enhancement
 // only: the rail's links work without this script. With it, the link of the section being
-// read is marked (aria-current), which the rail shows as a filled amber stop. No motion.
+// read is marked (aria-current), which the contents strip shows with an orange underline (D25).
 
 export function initRail(rail: HTMLElement): void {
   const links = [...rail.querySelectorAll<HTMLAnchorElement>("ol a[href^='#']")];

@@ -9,7 +9,7 @@
 
   <path class="wire-static" d="M75 64 V88 M245 64 V88 M75 88 H245 M160 88 V111" />
   <polygon class="fig-head" points="160,119 156,111 164,111" />
-  <rect class="box" x="60" y="120" width="200" height="80" />
+  <rect class="box key" x="60" y="120" width="200" height="80" />
   <text class="lbl fig-mid" x="160" y="152">HARNESS</text>
   <text class="fig-sub fig-mid" x="160" y="172">PRODUKTIONSCODE</text>
   <text class="fig-sub fig-mid" x="160" y="188">CODE BEWERTET</text>

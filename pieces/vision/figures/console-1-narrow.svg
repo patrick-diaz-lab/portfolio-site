@@ -10,7 +10,7 @@
   <text class="fig-sub fig-mid" x="160" y="124">NO OPEN PORT · IDENTITY FROM IT</text>
   <path class="wire-static" d="M160 136 V151" />
   <polygon class="fig-head" points="160,159 156,151 164,151" />
-  <rect class="box" x="0" y="160" width="320" height="56" />
+  <rect class="box key" x="0" y="160" width="320" height="56" />
   <text class="lbl fig-mid" x="160" y="184">CONSOLE</text>
   <text class="fig-sub fig-mid" x="160" y="204">SIGNS EVERY REQUEST · OWN CREDENTIAL</text>
   <path class="wire-static" d="M160 216 V231" />

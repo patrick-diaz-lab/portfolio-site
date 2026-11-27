@@ -1,19 +1,21 @@
 ---
-// Page shell for every page (PLAN 1.1): self-hosted fonts, tokens, base styles. No
-// third-party requests: the fonts are bundled from @fontsource (Latin subset only).
-import "@fontsource/barlow/latin-400.css";
-import "@fontsource/barlow/latin-400-italic.css";
-import "@fontsource/barlow/latin-600.css";
-import "@fontsource/barlow-condensed/latin-600.css";
+// Page shell for every page (PLAN 1.1; D25, PLAN 1.18): self-hosted fonts, tokens, base
+// styles, the site bar and the footer. No third-party requests: the fonts are bundled from
+// @fontsource (Latin subset only).
+import "@fontsource/inter/latin-400.css";
+import "@fontsource/inter/latin-400-italic.css";
+import "@fontsource/inter/latin-600.css";
+import "@fontsource/inter-tight/latin-700.css";
 import "@fontsource/jetbrains-mono/latin-400.css";
 // The three faces of the first paint, preloaded so the swap from the fallback font doesn't
 // shift the layout (Lighthouse CLS on long part pages, PLAN 1.5).
-import fontBody from "@fontsource/barlow/files/barlow-latin-400-normal.woff2?url";
-import fontPanel from "@fontsource/barlow-condensed/files/barlow-condensed-latin-600-normal.woff2?url";
+import fontBody from "@fontsource/inter/files/inter-latin-400-normal.woff2?url";
+import fontDisplay from "@fontsource/inter-tight/files/inter-tight-latin-700-normal.woff2?url";
 import fontMono from "@fontsource/jetbrains-mono/files/jetbrains-mono-latin-400-normal.woff2?url";
 import "../styles/tokens.css";
 import "../styles/base.css";
 import { localePath, t, type Locale } from "../i18n/ui.ts";
+import { loadPieces } from "../lib/pieces.ts";
 import { SITE } from "../site.ts";
 
 interface Props {
@@ -32,17 +34,32 @@ const home = localePath(lang, "/");
 // Link previews (2026-11-20): the title card a pasted link gets in mail, chat or LinkedIn.
 // Text only; no image, so nothing is loaded from anywhere.
 const OG_LOCALE = { en: "en_GB", de: "de_CH" } as const;
+// The bar's destinations (D25): the work lines, each built piece, contact. A piece without
+// text in this language links its English overview.
+const local = new Set(loadPieces(lang).map((p) => p.id));
+const here = Astro.url.pathname;
+const pieces = loadPieces("en").map((en) => {
+  const href = local.has(en.id) ? localePath(lang, `/${en.id}/`) : `/${en.id}/`;
+  const piece = loadPieces(lang).find((p) => p.id === en.id) ?? en;
+  return { title: piece.title, href, hreflang: local.has(en.id) ? undefined : "en", current: here === href ? "page" : here.startsWith(href) ? "true" : undefined } as const;
+});
 ---
 <!doctype html>
 <html lang={lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="color-scheme" content="dark" />
-    <meta name="theme-color" content="#1e2225" />
-    {[fontBody, fontPanel, fontMono].map((href) => <link rel="preload" href={href} as="font" type="font/woff2" crossorigin />)}
-    <!-- Inline icon (an amber signal dot): no extra request, no /favicon.ico 404 (PLAN 1.3). -->
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='2' fill='%231e2225'/%3E%3Ccircle cx='8' cy='8' r='4' fill='%23f2b23e'/%3E%3C/svg%3E" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#111111" media="(prefers-color-scheme: dark)" />
+    <!-- The visitor's own choice of light or dark, if they used the switch (D25): set before
+         the first paint, so the page doesn't flash in the other mode. -->
+    <script is:inline>
+      try { var m = localStorage.getItem("theme"); if (m === "light" || m === "dark") document.documentElement.dataset.theme = m; } catch (e) {}
+    </script>
+    {[fontBody, fontDisplay, fontMono].map((href) => <link rel="preload" href={href} as="font" type="font/woff2" crossorigin />)}
+    <!-- Inline icon (the orange signal dot): no extra request, no /favicon.ico 404 (PLAN 1.3). -->
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23111111'/%3E%3Ccircle cx='8' cy='8' r='4' fill='%23f18445'/%3E%3C/svg%3E" />
     {description && <meta name="description" content={description} />}
     {noindex && <meta name="robots" content="noindex" />}
     <!-- Indexed pages name their address on the domain, so the workers.dev fallback host
@@ -61,14 +78,27 @@ const OG_LOCALE = { en: "en_GB", de: "de_CH" } as const;
     {path && <link rel="alternate" hreflang="x-default" href={SITE.origin + path} />}
   </head>
   <body>
+    <a class="skip" href="#main">{t(lang, "site.skip")}</a>
     <header class="site-bar">
-      <a class="site-name" href={home}>{t(lang, "site.name")}</a>
-      {path && (
-        <nav aria-label={t(lang, "lang.switch")} class="lang-switch">
-          <span aria-current="true" lang={lang}>{t(lang, `lang.${lang}`)}</span>
-          <a href={localePath(other, path)} hreflang={other} lang={other}>{t(other, `lang.${other}`)}</a>
+      <div class="site-bar-in">
+        <a class="site-name" href={home}>{t(lang, "site.name")}</a>
+        <nav class="site-nav" aria-label={t(lang, "nav.main")}>
+          <ul>
+            <li><a href={`${home}#h-work`}>{t(lang, "nav.work")}</a></li>
+            {pieces.map((p) => <li><a href={p.href} hreflang={p.hreflang} aria-current={p.current}>{p.title}</a></li>)}
+            <li><a href={`${home}#h-contact`}>{t(lang, "footer.contact")}</a></li>
+          </ul>
         </nav>
-      )}
+        <div class="site-tools">
+          {path && (
+            <nav aria-label={t(lang, "lang.switch")} class="lang-switch">
+              <span aria-current="true" lang={lang}><abbr title={t(lang, `lang.${lang}`)}>{lang.toUpperCase()}</abbr></span>
+              <a href={localePath(other, path)} hreflang={other} lang={other}><abbr title={t(other, `lang.${other}`)}>{other.toUpperCase()}</abbr></a>
+            </nav>
+          )}
+          <button type="button" class="theme-toggle" data-theme-toggle hidden aria-pressed="false"><span class="theme-toggle-mark" aria-hidden="true"></span><span class="vh">{t(lang, "theme.dark")}</span></button>
+        </div>
+      </div>
     </header>
     <slot />
     <footer class="site-foot">
@@ -76,5 +106,9 @@ const OG_LOCALE = { en: "en_GB", de: "de_CH" } as const;
       <a href={`${home}#h-contact`}>{t(lang, "footer.contact")}</a>
       <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
     </footer>
+    <script>
+      import { initTheme } from "../scripts/theme.ts";
+      initTheme();
+    </script>
   </body>
 </html>

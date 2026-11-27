@@ -1,14 +1,17 @@
 ---
-// Style sheet page (PLAN 1.1 done-when): renders every token. Colors and their contrast
-// ratios are read from tokens.css itself, so this page can't drift from the tokens.
+// Style sheet page (PLAN 1.1 done-when; D25): renders every token. Colors and their contrast
+// ratios are read from tokens.css itself, in both modes, so this page can't drift from the
+// tokens. Internal: noindex, not linked.
 import Base from "../layouts/Base.astro";
 import tokensCss from "../styles/tokens.css?raw";
+import "../styles/schematic.css";
 
-const rootBlock = tokensCss.slice(0, tokensCss.indexOf("@media"));
-const colors = [...rootBlock.matchAll(/--color-([\w-]+):\s*(#[0-9a-f]{6});\s*\/\*\s*(.*?)\s*\*\//gi)].map((m) => ({
+const rootBlock = tokensCss.slice(0, tokensCss.indexOf(":root[data-theme"));
+const colors = [...rootBlock.matchAll(/--color-([\w-]+):\s*(?:light-dark\((#[0-9a-f]{6}),\s*(#[0-9a-f]{6})\)|(#[0-9a-f]{6}));\s*\/\*\s*(.*?)\s*\*\//gi)].map((m) => ({
   name: m[1]!,
-  hex: m[2]!.toLowerCase(),
-  use: m[3]!,
+  light: (m[2] ?? m[4])!.toLowerCase(),
+  dark: (m[3] ?? m[4])!.toLowerCase(),
+  use: m[5]!,
 }));
 const steps = [...rootBlock.matchAll(/--(step-+\d):\s*([\d.]+rem)/g)].map((m) => ({ name: m[1]!, size: m[2]! }));
 const spaces = [...rootBlock.matchAll(/--(space-\d+):\s*([\d.]+rem)/g)].map((m) => ({ name: m[1]!, size: m[2]! }));
@@ -21,17 +24,20 @@ function ratio(a: string, b: string): number {
   const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p) as [number, number];
   return (x + 0.05) / (y + 0.05);
 }
-const hexOf = (n: string) => colors.find((c) => c.name === n)?.hex ?? "#000000";
-const grounds = ["panel", "panel-raised"];
-const inks = ["silk", "silk-dim", "amber"];
-const pairs = inks.flatMap((ink) => grounds.map((g) => ({ ink, ground: g, r: ratio(hexOf(ink), hexOf(g)) })));
+const hexOf = (n: string, mode: "light" | "dark") => colors.find((c) => c.name === n)?.[mode] ?? "#000000";
+// Every pair the site sets as text, and what it must reach. The plain accent is used only
+// for rules, markers and the button's ground, never as text, so it has no pair of its own.
+const pairs = [
+  ["text", "bg", 4.5], ["text", "surface", 4.5], ["text-secondary", "bg", 4.5], ["text-secondary", "surface", 4.5],
+  ["accent-strong", "bg", 4.5], ["accent-strong", "surface", 4.5], ["on-accent", "accent", 4.5], ["text", "accent-subtle", 4.5],
+].map(([ink, ground, min]) => ({ ink: String(ink), ground: String(ground), min: Number(min), light: ratio(hexOf(String(ink), "light"), hexOf(String(ground), "light")), dark: ratio(hexOf(String(ink), "dark"), hexOf(String(ground), "dark")) }));
 ---
-<Base title="Style sheet · Bench instrument" description="Design tokens of patrickdiaz.dev" noindex>
-  <main class="page sg">
+<Base title="Style sheet · patrickdiaz.dev" description="Design tokens of patrickdiaz.dev" noindex>
+  <main id="main" class="page sg">
     <header class="sg-head">
-      <p class="label">Panel 01 · Style sheet · D13</p>
-      <h1>Bench instrument</h1>
-      <p>Every token of the design system. A graphite panel, silk-screened labels and one amber trace. Dark only. Every pair below must meet WCAG AA: 4.5:1 for text, 3:1 for lines and focus marks.</p>
+      <p class="label">Style sheet · D25</p>
+      <h1>One orange</h1>
+      <p>Every token of the design system. Monochrome paper and ink in a light and a dark mode, and one burnt orange that means: active, primary or significant. Every text pair below must meet WCAG AA, 4.5:1, in both modes.</p>
     </header>
 
     <section aria-labelledby="h-color" class="sg-sec">
@@ -39,23 +45,24 @@ const pairs = inks.flatMap((ink) => grounds.map((g) => ({ ink, ground: g, r: rat
       <ul class="swatches" role="list">
         {colors.map((c) => (
           <li class="swatch">
-            <span class="chip" style={`background:${c.hex}`}></span>
+            <span class="chips"><span class="chip" style={`background:${c.light}`}></span><span class="chip" style={`background:${c.dark}`}></span></span>
             <span class="label">--color-{c.name}</span>
-            <span class="mono">{c.hex}</span>
+            <span class="mono">{c.light} · {c.dark}</span>
             <span class="use">{c.use}</span>
           </li>
         ))}
       </ul>
       <table class="ratios">
         <caption class="label">Contrast, computed from tokens.css</caption>
-        <thead><tr><th scope="col">Ink</th><th scope="col">On</th><th scope="col">Ratio</th><th scope="col">AA text 4.5:1</th></tr></thead>
+        <thead><tr><th scope="col">Ink</th><th scope="col">On</th><th scope="col">Light</th><th scope="col">Dark</th><th scope="col">AA text 4.5:1</th></tr></thead>
         <tbody>
           {pairs.map((p) => (
             <tr>
-              <td><span style={`color:var(--color-${p.ink})`}>{p.ink}</span></td>
+              <td>{p.ink}</td>
               <td>{p.ground}</td>
-              <td class="mono">{p.r.toFixed(2)}:1</td>
-              <td class="mono">{p.r >= 4.5 ? "pass" : "FAIL"}</td>
+              <td class="mono">{p.light.toFixed(2)}:1</td>
+              <td class="mono">{p.dark.toFixed(2)}:1</td>
+              <td class="mono">{p.light >= p.min && p.dark >= p.min ? "pass" : "FAIL"}</td>
             </tr>
           ))}
         </tbody>
@@ -65,18 +72,18 @@ const pairs = inks.flatMap((ink) => grounds.map((g) => ({ ink, ground: g, r: rat
     <section aria-labelledby="h-type" class="sg-sec">
       <h2 id="h-type">Type</h2>
       <div class="faces">
-        <div class="module"><p class="label">Body · Barlow 400 / 600 / italic</p><p>Every model call goes through one gateway. <strong>Aliases only</strong>, prices pinned by hand, <em>one budget per flow</em>.</p></div>
-        <div class="module"><p class="label">Panel · Barlow Condensed 600</p><p class="panel-sample">Gateway · Agent core · Evals</p></div>
-        <div class="module"><p class="label">Labels and values · JetBrains Mono 400</p><p class="mono">hit@5 0.875 · $0.0023 · 40/40</p></div>
+        <div class="face"><p class="label">Reading · Inter 400 / 600 / italic</p><p>Every model call goes through one gateway. <strong>Aliases only</strong>, prices pinned by hand, <em>one budget per flow</em>.</p></div>
+        <div class="face"><p class="label">Display · Inter Tight 700</p><p class="display-sample">Gateway, agent core, evals</p></div>
+        <div class="face"><p class="label">Labels and values · JetBrains Mono 400</p><p class="mono">hit@5 0.875 · $0.0023 · 40/40</p></div>
       </div>
       <ol class="scale" role="list">
         {steps.map((s) => (
           <li><span class="label">--{s.name} · {s.size}</span><span style={`font-size:var(--${s.name})`}>Agent core: routing and tool use</span></li>
         ))}
       </ol>
-      <div class="module measure">
+      <div class="face measure">
         <p class="label">Running text · --measure 65ch · --leading-body 1.6</p>
-        <p>A local model classifies each message as simple or complex. Simple messages go to the cheap alias, complex ones to the smart alias with read-only tools. If the classifier is slow or the PC is off, the message goes to the smart alias, so a fallback keeps capability instead of only saving money.</p>
+        <p>A local model classifies each message as simple or complex. Simple messages go to the cheap alias, complex ones to the smart alias with read-only tools. If the classifier is slow or the PC is off, the message goes to the smart alias, so a broken classifier costs money, never an answer.</p>
       </div>
     </section>
 
@@ -89,30 +96,33 @@ const pairs = inks.flatMap((ink) => grounds.map((g) => ({ ink, ground: g, r: rat
       </ul>
     </section>
 
-
     <section aria-labelledby="h-interact" class="sg-sec">
-      <h2 id="h-interact">Links and focus</h2>
-      <p>Links are silkscreen and underlined, amber on hover. Focus is a 2px amber outline with a 3px offset on every interactive element: press Tab to see it.</p>
-      <p><a href="#h-color">A link to the colors</a> · <button type="button" class="btn">A button</button> · <code>inline code</code></p>
+      <h2 id="h-interact">Links, buttons and focus</h2>
+      <p>Links are ink and underlined; the underline turns orange on hover. The primary button is the one orange surface, with dark text; the quiet button is an outline. Focus is a 3px outline with a 3px offset on every interactive element: press Tab to see it.</p>
+      <p class="sg-row"><a href="#h-color">A link to the colors</a> <button type="button" class="button">Primary button</button> <button type="button" class="button is-quiet">Quiet button</button> <code>inline code</code></p>
+      <p class="lead marked">An introductory statement carries a thin orange marker.</p>
     </section>
 
     <section aria-labelledby="h-schematic" class="sg-sec">
-      <h2 id="h-schematic">Schematic elements</h2>
-      <p>Modules, a wire, a dimension mark and an amber note. Hover or focus a module: the signal dot runs along the wire (it stays still under reduced motion).</p>
-      <div class="schematic-wrap">
-        <svg class="schematic" viewBox="0 0 640 230" role="group" aria-labelledby="schem-title">
-          <title id="schem-title">Sample: gateway, agent core and evals joined by one wire</title>
-          <path class="wire" d="M170 80 H245 M395 80 H470" />
+      <h2 id="h-schematic">Drawings</h2>
+      <p>Boxes, wires and lettering come from the tokens, so every drawing follows the mode. Orange has a meaning: a solid orange border is the component that does the main work, a solid orange arrow the main path, a dashed orange arrow a fallback, a dashed orange border a boundary, orange lettering a note. Hover or focus a part: the signal dot runs along the wire (it stays still under reduced motion).</p>
+      <div class="plate">
+        <svg class="schematic figure-svg" viewBox="0 0 640 250" role="group" aria-labelledby="schem-title">
+          <title id="schem-title">Sample: an input, a key component with its main path, a fallback and a boundary</title>
+          <path class="wire" d="M170 80 H245" />
+          <path class="wire-key" d="M395 80 H461" />
+          <polygon class="fig-head-key" points="469,80 461,76 461,84" />
           <circle class="signal-dot" r="5" style="offset-path: path('M170 80 H470')" />
-          <a class="part" href="#h-schematic" aria-label="Gateway: LiteLLM, built"><rect x="30" y="50" width="140" height="60" /><text x="100" y="86" text-anchor="middle">GATEWAY</text></a>
-          <a class="part" href="#h-schematic" aria-label="Agent core: routing and tools, built"><rect x="245" y="50" width="150" height="60" /><text x="320" y="86" text-anchor="middle">AGENT CORE</text></a>
-          <a class="part" href="#h-schematic" aria-label="Evals: eval harness, built"><rect x="470" y="50" width="140" height="60" /><text x="540" y="86" text-anchor="middle">EVALS</text></a>
+          <a class="part" href="#h-schematic" aria-label="Input"><rect class="box" x="30" y="50" width="140" height="60" /><text class="lbl fig-mid" x="100" y="86">INPUT</text></a>
+          <a class="part" href="#h-schematic" aria-label="Key part"><rect class="box key" x="245" y="50" width="150" height="60" /><text class="lbl fig-mid" x="320" y="86">KEY PART</text></a>
+          <a class="part" href="#h-schematic" aria-label="Output"><rect class="box" x="470" y="50" width="140" height="60" /><text class="lbl fig-mid" x="540" y="86">OUTPUT</text></a>
+          <path class="fig-fallback" d="M320 110 V151" />
+          <polygon class="fig-head-amber" points="320,159 316,151 324,151" />
+          <rect class="box" x="245" y="160" width="150" height="50" /><text class="lbl fig-mid" x="320" y="191">FALLBACK</text>
+          <rect class="box boundary" x="470" y="160" width="140" height="50" /><text class="lbl fig-mid" x="540" y="191">ISOLATED</text>
           <path class="dim" d="M30 130 V142 M170 130 V142 M30 136 H170" />
-          <text class="dim-t" x="100" y="158" text-anchor="middle">4 aliases</text>
-          <path class="dim" d="M245 130 V142 M395 130 V142 M245 136 H395" />
-          <text class="dim-t" x="320" y="158" text-anchor="middle">≤ 6 tool calls</text>
-          <path class="note-line" d="M540 110 C540 165, 500 185, 450 196" />
-          <text class="note" x="250" y="202">HELD-OUT SETS: TOTALS ONLY</text>
+          <text class="dim-t fig-mid" x="100" y="158">a dimension</text>
+          <text class="note" x="30" y="236">a note that matters for reading the drawing</text>
         </svg>
       </div>
     </section>
@@ -120,37 +130,29 @@ const pairs = inks.flatMap((ink) => grounds.map((g) => ({ ink, ground: g, r: rat
 </Base>
 
 <style>
+  .sg { max-width: 64rem; }
   .sg-head, .sg-sec { display: grid; gap: var(--space-4); }
+  .sg-sec { border-top: var(--line-rule) solid var(--color-text); padding-top: var(--space-4); }
   .mono { font-family: var(--font-mono); font-size: var(--step--1); }
-  .swatches { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 12rem), 1fr)); gap: var(--space-4); }
+  .swatches { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 13rem), 1fr)); gap: var(--space-6) var(--space-4); }
   .swatch { display: grid; gap: var(--space-1); }
-  .chip { display: block; height: 4rem; border: var(--line-thin) solid var(--color-silk-dim); border-radius: var(--radius); }
-  .use { font-size: var(--step--1); color: var(--color-silk-dim); }
-  .ratios { border-collapse: collapse; font-size: var(--step--1); width: 100%; max-width: 36rem; }
+  .chips { display: grid; grid-template-columns: 1fr 1fr; }
+  .chip { display: block; height: 3.5rem; border: var(--line-thin) solid var(--color-border); }
+  .use { font-size: var(--step--1); color: var(--color-text-secondary); }
+  .ratios { border-collapse: collapse; font-size: var(--step--1); width: 100%; max-width: 44rem; }
   .ratios caption { text-align: left; padding-bottom: var(--space-2); }
-  .ratios th, .ratios td { text-align: left; padding: var(--space-2) var(--space-3); border-bottom: var(--line-thin) solid var(--color-silk-dim); }
-  .ratios th { font-family: var(--font-mono); font-weight: 400; color: var(--color-silk-dim); }
-  .faces { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: var(--space-4); }
-  .faces .module { display: grid; gap: var(--space-2); align-content: start; }
-  .panel-sample { font-family: var(--font-panel); font-weight: 600; font-size: var(--step-2); letter-spacing: var(--tracking-panel); text-transform: uppercase; }
+  .ratios th, .ratios td { text-align: left; padding: var(--space-2) var(--space-3) var(--space-2) 0; border-bottom: var(--line-thin) solid var(--color-border); }
+  .ratios th { font-family: var(--font-mono); font-weight: 400; color: var(--color-text-secondary); }
+  .faces { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: var(--space-6); }
+  .face { display: grid; gap: var(--space-2); align-content: start; border-top: var(--line-thin) solid var(--color-border); padding-top: var(--space-3); }
+  .display-sample { font: 700 var(--step-2) / 1.1 var(--font-display); letter-spacing: var(--tracking-display); }
   .scale { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); }
-  .scale li { display: grid; gap: var(--space-1); min-width: 0; overflow-wrap: anywhere; }
-  .measure { display: grid; gap: var(--space-2); }
+  .scale li { display: grid; gap: var(--space-1); min-width: 0; overflow-wrap: anywhere; font-family: var(--font-display); font-weight: 700; letter-spacing: var(--tracking-display); line-height: 1.1; }
+  .scale .label { font-weight: 400; }
   .spaces { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
   .spaces li { display: flex; align-items: center; gap: var(--space-4); }
-  .bar { display: block; height: var(--space-4); background: var(--color-amber); }
-  .btn { font: 600 var(--step--1) / 1 var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-panel); background: var(--color-silk); border: 0; border-radius: var(--radius); padding: var(--space-2) var(--space-3); cursor: pointer; }
-  .btn:hover { background: var(--color-amber); }
-  .schematic-wrap { overflow-x: auto; }
-  .schematic { width: 100%; max-width: 44rem; min-width: 30rem; height: auto; display: block; }
-  .schematic .wire { stroke: var(--color-silk); stroke-width: var(--line-module); fill: none; }
-  .schematic .part rect { fill: var(--color-panel-raised); stroke: var(--color-silk); stroke-width: var(--line-module); }
-  .schematic .part text { fill: var(--color-silk); font: 400 13px var(--font-mono); letter-spacing: 0.06em; }
-  .schematic .part:hover rect { stroke: var(--color-amber); }
-  .schematic .part:focus-visible { outline: none; }
-  .schematic .part:focus-visible rect { stroke: var(--color-amber); stroke-width: 3px; }
-  .schematic .dim { stroke: var(--color-silk-dim); stroke-width: var(--line-thin); fill: none; }
-  .schematic .dim-t { fill: var(--color-silk-dim); font: 400 11px var(--font-mono); }
-  .schematic .note { fill: var(--color-amber); font: 600 16px var(--font-panel); letter-spacing: var(--tracking-panel); }
-  .schematic .note-line { stroke: var(--color-amber); stroke-width: 1.2; fill: none; stroke-dasharray: 3 3; }
+  .bar { display: block; height: 0.75rem; background: var(--color-text); }
+  .sg-row { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: center; max-width: none; }
+  /* The sample's parts show keyboard focus as an orange stroke on their box. */
+  .sg :global(.schematic .part:focus-visible rect) { stroke: var(--color-accent-strong); stroke-width: 3; }
 </style>

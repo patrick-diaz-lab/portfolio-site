@@ -13,7 +13,7 @@
   <path class="wire-static" d="M50 80 V100 M160 80 V100 M270 80 V100 M50 100 H270 M160 100 V131" />
   <polygon class="fig-head" points="160,139 156,131 164,131" />
   <text class="note" x="172" y="126">Gesamtlimit $24</text>
-  <rect class="box" x="60" y="140" width="200" height="72" />
+  <rect class="box key" x="60" y="140" width="200" height="72" />
   <text class="lbl fig-mid" x="160" y="168">GATEWAY</text>
   <text class="fig-sub fig-mid" x="160" y="186">ALIASE → MODELLE</text>
   <text class="fig-sub fig-mid" x="160" y="202">PREISE VON MIR</text>

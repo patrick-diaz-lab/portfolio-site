@@ -20,7 +20,7 @@
   <path class="wire-static" d="M200 150 H271" />
   <polygon class="fig-head" points="279,150 271,146 271,154" />
   <text class="dim-t fig-mid" x="240" y="140">no</text>
-  <rect class="box" x="280" y="110" width="168" height="80" />
+  <rect class="box key" x="280" y="110" width="168" height="80" />
   <text class="lbl fig-mid" x="364" y="148">CLASSIFIER</text>
   <text class="fig-sub fig-mid" x="364" y="170">LOCAL MODEL · GPU PC</text>
 

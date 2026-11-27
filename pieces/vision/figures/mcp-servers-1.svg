@@ -6,7 +6,7 @@
   <text class="fig-sub fig-mid" x="70" y="162">SMART · WORKER</text>
   <path class="wire-static" d="M140 148 H191" />
   <polygon class="fig-head" points="199,148 191,144 191,152" />
-  <rect class="box" x="200" y="112" width="160" height="72" />
+  <rect class="box key" x="200" y="112" width="160" height="72" />
   <text class="lbl fig-mid" x="280" y="142">GATEWAY</text>
   <text class="fig-sub fig-mid" x="280" y="162">TOOLS PER KEY</text>
 

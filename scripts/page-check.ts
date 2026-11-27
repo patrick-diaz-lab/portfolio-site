@@ -51,9 +51,9 @@ async function invisibleFocus(page: Page): Promise<{ stops: number; bad: string[
       const key = `${el.tagName}#${el.id}|${(el.getAttribute("href") ?? "")}|${(el.textContent ?? "").trim().slice(0, 40)}`;
       let visible: boolean;
       if (el.matches("svg a.part")) {
-        // A map part shows focus as its ring, or (the style sheet's sample) as an amber
+        // A map part shows focus as its ring, or (the style sheet's sample) as an orange
         // stroke of at least 2 px on its box. SVG links draw no outline of their own.
-        const amber = getComputedStyle(document.documentElement).getPropertyValue("--color-amber").trim();
+        const amber = getComputedStyle(document.documentElement).getPropertyValue("--color-accent-strong").trim();
         const probe = document.createElement("i");
         probe.style.color = amber;
         document.body.append(probe);

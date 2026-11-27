@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 364 524" class="schematic figure-svg">
   <!-- FIG. run records, narrow version for phones (layout 3). Same content as the wide one,
        stacked. -->
-  <rect class="box" x="100" y="20" width="160" height="56" />
+  <rect class="box key" x="100" y="20" width="160" height="56" />
   <text class="lbl fig-mid" x="180" y="44">LAUF</text>
   <text class="fig-sub fig-mid" x="180" y="64">EINER PRO ARBEIT</text>
 

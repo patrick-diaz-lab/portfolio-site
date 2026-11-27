@@ -8,7 +8,7 @@
   <path class="wire-static" d="M156 102 H179" />
   <polygon class="fig-head" points="187,102 179,98 179,106" />
 
-  <rect class="box" x="188" y="60" width="156" height="84" />
+  <rect class="box key" x="188" y="60" width="156" height="84" />
   <text class="lbl fig-mid" x="266" y="90">PRÜFUNG</text>
   <text class="fig-sub fig-mid" x="266" y="112">VOR JEDEM BEFEHL</text>
   <text class="fig-sub fig-mid" x="266" y="128">DENY · ASK · ALLOW</text>
