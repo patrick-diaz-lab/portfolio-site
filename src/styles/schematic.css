@@ -13,30 +13,30 @@
 .schematic .dim-t { fill: var(--color-text-secondary); font: 400 12px var(--font-mono); letter-spacing: 0.06em; }
 .schematic .terminal circle { fill: var(--color-surface); stroke: var(--color-text); stroke-width: 1.5; }
 .schematic .wire-static { stroke: var(--color-text); stroke-width: var(--line-module); fill: none; }
-.schematic .note { fill: var(--color-accent-strong); font: 400 14px var(--font-body); }
-.schematic .note-line { stroke: var(--color-accent-strong); stroke-width: 1; fill: none; stroke-dasharray: 3 3; }
+.schematic .note { fill: var(--color-accent); font: 400 14px var(--font-body); }
+.schematic .note-line { stroke: var(--color-accent); stroke-width: 1; fill: none; stroke-dasharray: 3 3; }
 .schematic .wire { stroke: var(--color-text); stroke-width: var(--line-module); fill: none; pointer-events: none; }
 .schematic .box { fill: var(--color-bg); stroke: var(--color-text); stroke-width: var(--line-module); }
-.schematic .ring { fill: none; stroke: var(--color-accent-strong); stroke-width: 3; opacity: 0; }
+.schematic .ring { fill: none; stroke: var(--color-accent); stroke-width: 3; opacity: 0; }
 .schematic .lbl { fill: var(--color-text); font: 400 16px var(--font-mono); letter-spacing: 0.03em; }
 /* No underline under the box labels; focus shows as the ring only. */
 .schematic .part { cursor: pointer; text-decoration: none; }
 /* No browser outline on any focus (a mouse click showed one around box and wires); keyboard
    focus shows the ring below. */
 .schematic .part:focus { outline: none; }
-.schematic .part:is(:hover, :focus-visible, .is-selected) .box { stroke: var(--color-accent-strong); fill: var(--color-accent-subtle); }
+.schematic .part:is(:hover, :focus-visible, .is-selected) .box { stroke: var(--color-accent); fill: var(--color-accent-subtle); }
 .schematic .part.is-selected .box { stroke-width: 2.5; }
 .schematic .part:focus-visible .ring { opacity: 1; }
 
 /* What orange marks in a drawing. */
-.schematic .box.key { stroke: var(--color-accent-strong); stroke-width: 2; }
-.schematic .box.boundary { stroke: var(--color-accent-strong); stroke-width: 1.5; stroke-dasharray: 5 4; }
-.schematic .frame.boundary rect { stroke: var(--color-accent-strong); stroke-width: 1.5; stroke-dasharray: 5 4; }
-.schematic .wire-key { stroke: var(--color-accent-strong); stroke-width: var(--line-module); fill: none; }
-.schematic .fig-head-key { fill: var(--color-accent-strong); }
+.schematic .box.key { stroke: var(--color-accent); stroke-width: 2; }
+.schematic .box.boundary { stroke: var(--color-accent); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.schematic .frame.boundary rect { stroke: var(--color-accent); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.schematic .wire-key { stroke: var(--color-accent); stroke-width: var(--line-module); fill: none; }
+.schematic .fig-head-key { fill: var(--color-accent); }
 
 /* "You are here" sheet on a part page: the part in orange, its neighbours as named terminals. */
-.locator .part.is-here .box { stroke: var(--color-accent-strong); stroke-width: 2.5; fill: var(--color-accent-subtle); }
+.locator .part.is-here .box { stroke: var(--color-accent); stroke-width: 2.5; fill: var(--color-accent-subtle); }
 .locator .part.is-here .lbl { fill: var(--color-text); font-weight: 400; }
 .locator .loc-mid { text-anchor: middle; }
 .locator .loc-dot { fill: none; stroke: var(--color-text-secondary); stroke-width: 1.5; }
@@ -51,9 +51,9 @@
 .figure-svg .fig-decision { fill: var(--color-text-secondary); }
 .figure-svg .fig-decision-t { fill: var(--color-bg); font: 400 12px var(--font-mono); letter-spacing: 0.04em; text-anchor: middle; }
 .figure-svg .fig-head { fill: var(--color-text); }
-.figure-svg .fig-fallback { stroke: var(--color-accent-strong); stroke-width: 2; stroke-dasharray: 6 6; fill: none; }
-.figure-svg .fig-head-amber { fill: var(--color-accent-strong); }
+.figure-svg .fig-fallback { stroke: var(--color-accent); stroke-width: 2; stroke-dasharray: 6 6; fill: none; }
+.figure-svg .fig-head-amber { fill: var(--color-accent); }
 .figure-svg .fig-start { fill: none; stroke: var(--color-text-secondary); stroke-width: 1.5; }
 .figure-svg .fig-end { text-anchor: end; }
 .figure-svg .fig-lbl-s { fill: var(--color-text); font: 400 14px var(--font-mono); letter-spacing: 0.04em; }
-.figure-svg .fig-block { stroke: var(--color-accent-strong); stroke-width: 2.5; fill: none; }
+.figure-svg .fig-block { stroke: var(--color-accent); stroke-width: 2.5; fill: none; }

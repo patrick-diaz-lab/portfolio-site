@@ -356,7 +356,7 @@ const withPiece = (key: Parameters<typeof t>[1]) => L(key).replace("{piece}", pi
   .rail-n { font: 400 var(--step--2) / 1 var(--font-mono); color: var(--color-text-secondary); }
   .rail a:hover, .rail a[aria-current] { box-shadow: inset 0 -2px 0 var(--color-accent); }
   .rail a[aria-current] { font-weight: 600; }
-  .rail a[aria-current] .rail-n { color: var(--color-accent-strong); }
+  .rail a[aria-current] .rail-n { color: var(--color-accent); }
   .rail a:focus-visible { outline-offset: -3px; }
   @media (max-width: 47.99rem) { .rail-label { display: none; } .rail ol { gap: var(--space-4); } }
 
@@ -398,7 +398,7 @@ const withPiece = (key: Parameters<typeof t>[1]) => L(key).replace("{piece}", pi
   .case :global(h4), .case :global(h4 + p) { order: 3; border-top: var(--line-thin) solid var(--color-border); padding: var(--space-3) 0; }
   .case :global(h4) { font: 400 var(--step--2) / 1.9 var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-text-secondary); padding-right: var(--space-3); }
   .case :global(h4 + p) { font-size: 1rem; line-height: 1.55; }
-  .case :global(h4:last-of-type) { color: var(--color-accent-strong); }
+  .case :global(h4:last-of-type) { color: var(--color-accent); }
   .lesson { max-width: 52rem; }
   .part-sec .lesson { border-top: var(--line-thin) solid var(--color-border); padding-top: var(--space-4); }
 

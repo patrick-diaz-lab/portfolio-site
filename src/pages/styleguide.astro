@@ -25,11 +25,10 @@ function ratio(a: string, b: string): number {
   return (x + 0.05) / (y + 0.05);
 }
 const hexOf = (n: string, mode: "light" | "dark") => colors.find((c) => c.name === n)?.[mode] ?? "#000000";
-// Every pair the site sets as text, and what it must reach. The plain accent is used only
-// for rules, markers and the button's ground, never as text, so it has no pair of its own.
+// Every pair the site sets as text, and what it must reach.
 const pairs = [
   ["text", "bg", 4.5], ["text", "surface", 4.5], ["text-secondary", "bg", 4.5], ["text-secondary", "surface", 4.5],
-  ["accent-strong", "bg", 4.5], ["accent-strong", "surface", 4.5], ["on-accent", "accent", 4.5], ["text", "accent-subtle", 4.5],
+  ["accent", "bg", 4.5], ["accent", "surface", 4.5], ["on-accent", "accent", 4.5], ["text", "accent-subtle", 4.5],
 ].map(([ink, ground, min]) => ({ ink: String(ink), ground: String(ground), min: Number(min), light: ratio(hexOf(String(ink), "light"), hexOf(String(ground), "light")), dark: ratio(hexOf(String(ink), "dark"), hexOf(String(ground), "dark")) }));
 ---
 <Base title="Style sheet · patrickdiaz.dev" description="Design tokens of patrickdiaz.dev" noindex>
@@ -98,7 +97,7 @@ const pairs = [
 
     <section aria-labelledby="h-interact" class="sg-sec">
       <h2 id="h-interact">Links, buttons and focus</h2>
-      <p>Links are ink and underlined; the underline turns orange on hover. The primary button is the one orange surface, with dark text; the quiet button is an outline. Focus is a 3px outline with a 3px offset on every interactive element: press Tab to see it.</p>
+      <p>Links are ink and underlined; the underline turns orange on hover. The primary button is the one orange surface; the quiet button is an outline. Focus is a 3px outline with a 3px offset on every interactive element: press Tab to see it.</p>
       <p class="sg-row"><a href="#h-color">A link to the colors</a> <button type="button" class="button">Primary button</button> <button type="button" class="button is-quiet">Quiet button</button> <code>inline code</code></p>
       <p class="lead marked">An introductory statement carries a thin orange marker.</p>
     </section>
@@ -154,5 +153,5 @@ const pairs = [
   .bar { display: block; height: 0.75rem; background: var(--color-text); }
   .sg-row { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: center; max-width: none; }
   /* The sample's parts show keyboard focus as an orange stroke on their box. */
-  .sg :global(.schematic .part:focus-visible rect) { stroke: var(--color-accent-strong); stroke-width: 3; }
+  .sg :global(.schematic .part:focus-visible rect) { stroke: var(--color-accent); stroke-width: 3; }
 </style>

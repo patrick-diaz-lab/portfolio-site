@@ -392,7 +392,7 @@ More part pages before launch (Patrick). Their notes are being written on the Vi
 
 The site moves from the dark "Bench instrument" look to direction B of the design exploration (branch `item/design-exploration`), refined with one burnt orange. The structure, the content and every route stay; the decision is D25.
 
-- **Tokens** (`src/styles/tokens.css`): background, surface, text, secondary text, border, accent, accent strong, accent subtle, each as `light-dark(light, dark)`. The mode follows the system; the switch in the site bar sets `data-theme` on `<html>` and keeps the choice in the browser.
+- **Tokens** (`src/styles/tokens.css`): background, surface, text, secondary text, border, accent, accent subtle, each as `light-dark(light, dark)`. The light mode's orange is `#a94716` (Patrick, 2026-11-27). The mode follows the system; the switch in the site bar sets `data-theme` on `<html>` and keeps the choice in the browser.
 - **Type:** Inter Tight 700 for display, Inter 400/600 to read, JetBrains Mono 400 for labels; Barlow and Barlow Condensed leave. Sentence case instead of capitals for headings.
 - **Site bar:** the name, Work, each built piece, Contact, the language, the mode; a skip link first. Not sticky, so a part page's contents strip can be.
 - **Homepage:** the same order as before (intro, featured piece, work, contact): one statement in display type, the "looking for" line with an orange marker, the results under orange rules, the map as a figure that links to the piece, the work lines as rows.

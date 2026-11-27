@@ -12,10 +12,9 @@
   --color-text: light-dark(#111111, #f5f4f0);            /* headings, text, drawing strokes */
   --color-text-secondary: light-dark(#6e6e6e, #999999);  /* supporting text, labels */
   --color-border: light-dark(#d8d8d5, #393939);          /* neutral dividers */
-  --color-accent: light-dark(#e87532, #f18445);          /* rules, markers, the primary button */
-  --color-accent-strong: light-dark(#b04f18, #f18445);   /* orange as text, focus and diagram strokes */
+  --color-accent: light-dark(#a94716, #f18445);          /* the one orange: rules, markers, labels, focus, drawing strokes, the primary button */
   --color-accent-subtle: light-dark(#f8e8dd, #39251b);   /* the selected part */
-  --color-on-accent: #111111;                            /* text on the primary button */
+  --color-on-accent: light-dark(#ffffff, #111111);       /* text on the primary button */
 
   /* Type: Inter Tight for display, Inter to read, JetBrains Mono for labels and values. */
   --font-display: "Inter Tight", "Helvetica Neue", Arial, sans-serif;

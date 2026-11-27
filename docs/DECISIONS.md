@@ -407,11 +407,12 @@ Decided 2026-11-26 by Patrick, from the design exploration (direction B, "Techni
 - **Decision:** a monochrome editorial design in a light and a dark mode, with one restrained burnt orange. The structure, the content and the routes stay as they are.
 - **Color** (`src/styles/tokens.css`), light / dark:
   - background `#ffffff` / `#111111`, surface `#f4f3f0` / `#1b1b1b`, text `#111111` / `#f5f4f0`, border `#d8d8d5` / `#393939`;
-  - accent `#e87532` / `#f18445`, accent subtle `#f8e8dd` / `#39251b`.
-- **Two changes to the brief's values, for WCAG AA:**
+  - accent `#a94716` / `#f18445`, accent subtle `#f8e8dd` / `#39251b`.
+- **The light mode's orange is `#a94716`** (Patrick, 2026-11-27), not the brief's `#e87532`, which reaches only 2.99:1 on white. `#a94716` reaches 5.8:1 on white and 5.3:1 on the surface, so one orange serves rules, markers, labels, focus and the strokes of a drawing. The dark mode keeps `#f18445` (7.3:1).
+- **Two more changes to the brief's values, for WCAG AA:**
   - secondary text is `#6e6e6e` in light mode, not `#777777`, which reaches only 4.48:1 on white and less on the surface;
-  - orange as text, as focus and as a stroke in a drawing uses a second token, accent strong, `#b04f18` in light mode: `#e87532` on white is 2.99:1. The brief's orange stays for rules, markers and the button's ground. In dark mode both are `#f18445` (7.3:1).
-- **What orange means:** active, primary or significant, and nothing else. It marks the active item in the bar, the language and the contents strip; the marker beside an introductory statement; the primary button (orange ground, dark text); the rule over a measured result; a decision; and, in a drawing, the key component, the main path, a fallback (dashed), a boundary (dashed border) and a note. Numbers and headings stay monochrome.
+  - the primary button's text is white in light mode: dark text on `#a94716` reaches only 3.2:1, white 5.8:1. In dark mode it stays dark on `#f18445`.
+- **What orange means:** active, primary or significant, and nothing else. It marks the active item in the bar, the language and the contents strip; the marker beside an introductory statement; the primary button (orange ground); the rule over a measured result; a decision; and, in a drawing, the key component, the main path, a fallback (dashed), a boundary (dashed border) and a note. Numbers and headings stay monochrome.
 - **Type:** Inter Tight 700 for display, Inter to read, JetBrains Mono for labels and values, all OFL, self-hosted from `@fontsource`, Latin subset. Headings in sentence case.
 - **Modes:** the page follows the system setting. A switch in the site bar overrides it and keeps the choice in the browser; the privacy page says so. Every drawing takes its colors from the tokens, so it follows the mode.
 - **No:** gradients, glow, shadows, rounded cards, a second accent, motion beyond the signal dot and short color transitions (none under reduced motion).
