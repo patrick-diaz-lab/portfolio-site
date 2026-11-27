@@ -1,20 +1,23 @@
 /* Design tokens (D25, PLAN 1.18): monochrome paper and ink, one burnt orange, light and dark.
    The single source for colors, type, spacing and lines; the style sheet page (/styleguide/)
    reads the --color-* values from this file and shows each pair with its contrast ratio.
-   A color is light-dark(light, dark): the mode follows the system, or data-theme on <html>
-   once the visitor has used the switch. */
+
+   The colors are plain values, set once per mode: light on :root, dark in the two blocks at
+   the end of this file (the system's setting, and the visitor's own choice through
+   data-theme on <html>). No light-dark(): a mode must not depend on how a browser resolves
+   that function when the scheme changes, and older browsers don't know it at all. */
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
 
   /* Color. Orange means one thing: this is active, primary or significant. */
-  --color-bg: light-dark(#ffffff, #111111);              /* page background */
-  --color-surface: light-dark(#f4f3f0, #1b1b1b);         /* diagrams and secondary surfaces */
-  --color-text: light-dark(#111111, #f5f4f0);            /* headings, text, drawing strokes */
-  --color-text-secondary: light-dark(#6e6e6e, #999999);  /* supporting text, labels */
-  --color-border: light-dark(#d8d8d5, #393939);          /* neutral dividers */
-  --color-accent: light-dark(#a94716, #f18445);          /* the one orange: rules, markers, labels, focus, drawing strokes, the primary button */
-  --color-accent-subtle: light-dark(#f8e8dd, #39251b);   /* the selected part */
-  --color-on-accent: light-dark(#ffffff, #111111);       /* text on the primary button */
+  --color-bg: #ffffff;              /* page background */
+  --color-surface: #f4f3f0;         /* diagrams and secondary surfaces */
+  --color-text: #111111;            /* headings, text, drawing strokes */
+  --color-text-secondary: #6e6e6e;  /* supporting text, labels */
+  --color-border: #d8d8d5;          /* neutral dividers */
+  --color-accent: #a94716;          /* the one orange: rules, markers, labels, focus, drawing strokes, the primary button */
+  --color-accent-subtle: #f8e8dd;   /* the selected part */
+  --color-on-accent: #ffffff;       /* text on the primary button */
 
   /* Type: Inter Tight for display, Inter to read, JetBrains Mono for labels and values. */
   --font-display: "Inter Tight", "Helvetica Neue", Arial, sans-serif;
@@ -58,9 +61,39 @@
   --page-max: 78rem;
   --margin-col: 5rem;     /* the column for section numbers on wide screens */
 }
-:root[data-theme="light"] { color-scheme: light; }
-:root[data-theme="dark"] { color-scheme: dark; }
+/* Dark mode. The same values twice, because CSS can't share a block between a media query
+   and a selector: once for the system's setting (unless the visitor chose light), once for
+   the visitor's own choice. scripts/test/tokens.test.ts holds the two blocks to each other. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --color-bg: #111111;
+    --color-surface: #1b1b1b;
+    --color-text: #f5f4f0;
+    --color-text-secondary: #999999;
+    --color-border: #393939;
+    --color-accent: #f18445;
+    --color-accent-subtle: #39251b;
+    --color-on-accent: #111111;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-bg: #111111;
+  --color-surface: #1b1b1b;
+  --color-text: #f5f4f0;
+  --color-text-secondary: #999999;
+  --color-border: #393939;
+  --color-accent: #f18445;
+  --color-accent-subtle: #39251b;
+  --color-on-accent: #111111;
+}
 
+/* More contrast, where the visitor asks for it. */
 @media (prefers-contrast: more) {
-  :root { --color-text-secondary: light-dark(#4d4d4d, #c4c4c4); --color-border: light-dark(#8a8a8a, #8a8a8a); }
+  :root { --color-text-secondary: #4d4d4d; --color-border: #8a8a8a; }
+  :root[data-theme="dark"] { --color-text-secondary: #c4c4c4; }
+}
+@media (prefers-contrast: more) and (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --color-text-secondary: #c4c4c4; }
 }
