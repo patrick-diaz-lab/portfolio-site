@@ -18,7 +18,7 @@ chat_enabled: false
 # (Patrick, 2026-11-20). The prompt-caching chip is out until its case count is in the notes
 # (PLAN 1.17); the benchmark chip carries "46 cases, run twice", because 92 counts runs.
 chips:
-  - label: Messages routed correctly, held-out set
+  - label: Messages routed correctly, internal test set
     metric: accuracy
     value: 1.0
     n: 27
@@ -26,6 +26,7 @@ chips:
       - sources/vision/notes.md
       - sources/vision/deep/agent-core-routing.md
       - sources/patrick/2026-11-20.md
+      - sources/patrick/2026-11-27.md
     as_of: 2026-11-04
   - label: Planted instruction repeated in answers
     metric: count
@@ -44,5 +45,7 @@ chips:
       - sources/vision/notes.md
       - sources/vision/deep/claude-worker.md
     as_of: 2026-11-12
-# One line under the chips. Who wrote the held-out set is Patrick's own wording (2026-11-20).
-chips_note: "Held-out: test cases kept away from tuning. This set of 27 was drafted by Claude, checked and locked by me. Totals only."
+# One line under the chips. Who wrote the set is Patrick's own wording (2026-11-20). Since
+# 2026-11-27 the set of 27 is an "internal test set", no longer called held-out or locked,
+# until Patrick has new held-out sets and gives the new measurement (sources/patrick/).
+chips_note: "Internal test set: 27 cases, drafted by Claude and checked by me. Totals only."

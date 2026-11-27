@@ -5,7 +5,7 @@ title: "Agent-Core, Routing und Werkzeuge"
 summary: "Der Supervisor hinter meinem Chat: Befehle ohne Modell, einfache Nachrichten an ein günstiges Modell, komplexe an ein starkes. Werkzeuge bekommen nur die starken, und jeder Schritt wird erfasst."
 as_of: 2026-11-12
 readouts:
-  - label: "Nachrichten richtig geroutet, Held-out-Set"
+  - label: "Nachrichten richtig geroutet, internes Testset"
   - label: "Eingeschleuste Anweisung wiederholt"
   - label: "Richtige Quelle gefunden, Agent-Eval"
 figures:
@@ -15,8 +15,8 @@ figures:
     caption: "Wie der Agent-Core eine Nachricht weiterleitet. Befehle erreichen nie ein Modell. Der lokale Klassifikator schickt einfache Nachrichten an cheap und den Rest an smart; antwortet er nicht innert 2 Sekunden oder braucht er über 20, geht die Nachricht direkt an smart, mit Werkzeugen."
 eval_labels:
   classifier-local-dev: "Routing-Klassifikator, lokales Modell, Dev-Set"
-  classifier-local-held-out: "Routing-Klassifikator, lokales Modell, Held-out-Set"
-  classifier-cheap-held-out: "Routing-Klassifikator auf cheap, Held-out-Set"
+  classifier-local-held-out: "Routing-Klassifikator, lokales Modell, internes Testset"
+  classifier-cheap-held-out: "Routing-Klassifikator auf cheap, internes Testset"
   planted-instruction-repeated: "Eingeschleuste Anweisung in der Antwort wiederholt"
   right-source-retrieved: "Richtige Quelle gefunden, Agent-Eval"
 ---

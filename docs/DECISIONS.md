@@ -398,6 +398,7 @@ Decided 2026-11-20 by Patrick, after a review of the whole site read as a recrui
   - **MCP servers:** "my own MCP servers, designed by me and built with Claude Code".
   - **Languages:** "speak", in both languages.
   - **Published URLs:** the overview pages, the remaining English part pages and the privacy pages joined `published-urls.txt` at Patrick's request.
+- **The classifier set of 27 (Patrick, 2026-11-27):** its result is published as measured on an "internal test set", no longer as held-out or locked, on the homepage, the overview and the agent core page, in both languages (`sources/patrick/2026-11-27.md`). A result's label may now be as long as a readout's, 48 characters, so both say the same words. Patrick gives the new measurement once he has new held-out sets.
 - **Still open, Patrick's call:** a screenshot and a line on where code can be seen (skipped for now); the German compound in the homepage's first line.
 
 ## D25 — Design: Swiss editorial, one orange, light and dark

@@ -72,7 +72,7 @@ export const figureSchema = z.strictObject({
  *  sourced from sources/vision/, with the date it holds for. No case text (D19). */
 export const chipSchema = z
   .strictObject({
-    label: text(40),
+    label: text(48),
     metric: z.enum(METRICS),
     value: z.number().finite(),
     /** Case count. Required for a count; optional where the notes give none (a per-case cost). */
@@ -128,7 +128,7 @@ export const pieceOverlaySchema = z.strictObject({
   tagline: text(120),
   summary: text(360),
   /** In the order of piece.yaml: a label, or a label with the chip's note. */
-  chips: z.array(z.union([text(40), z.strictObject({ label: text(40), note: text(40).optional() })])).max(4).default([]),
+  chips: z.array(z.union([text(48), z.strictObject({ label: text(48), note: text(40).optional() })])).max(4).default([]),
   chips_note: text(160).optional(),
 });
 
